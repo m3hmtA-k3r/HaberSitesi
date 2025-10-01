@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>robot_dreams Haber Sitesi Admin Panel</title>
+	<link href="/assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+	<link href="/assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+	<link href="/assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+	<link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/css/master.css" rel="stylesheet">
+	<link href="/assets/vendor/flagiconcss/css/flag-icon.min.css" rel="stylesheet">
+</head>
+<body>
+	<div class="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <img src="/assets/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
+            </div>
+            <ul class="list-unstyled components text-secondary">
+                <li>
+                    <a href="/Home"><i class="fas fa-home"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Haber"><i class="fas fa-file-alt"></i> Haber İşlemleri</a>
+                </li>
+                <li>
+                    <a href="/Slayt"><i class="fas fa-copy"></i> Slayt İşlemleri</a>
+                </li>
+                <li>
+                    <a href="/Kategori"><i class="fas fa-copy"></i> Kategori İşlemleri</a>
+                </li>
+                <li>
+                    <a href="/Yorum"><i class="fas fa-copy"></i> Yorum İşlemleri</a>
+                </li>
+                <li>
+                    <a href="/Yazar"><i class="fas fa-copy"></i> Yazar İşlemleri</a>
+                </li>
+            </ul>
+        </nav>
+        <div id="body" class="active">
+            <!-- navbar navigation component -->
+            <nav class="navbar navbar-expand-lg navbar-white bg-white">
+                <button type="button" id="sidebarCollapse" class="btn btn-light">
+                    <i class="fas fa-bars"></i><span></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <a href="/Account/CikisYap" class="dropdown-item" style=" text-align: right; "><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+                </div>
+            </nav>
+            <div class="content">
+                @RenderBody()
+            </div>
+            <!-- end of navbar navigation -->
+         </div>
+    </div>
+    <script src="/assets/vendor/jquery/jquery.min.js"></script>
+    <script src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/vendor/chartsjs/Chart.min.js"></script>
+    <script src="/assets/js/dashboard-charts.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/vendor/datatables/datatables.min.js"></script>
+    <script src="/assets/js/initiate-datatables.js"></script>
+</body>
+</html>

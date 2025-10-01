@@ -1,0 +1,135 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model AnasayfaViewModel
+<!-- Main News Slider Start -->
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-12 px-0">
+			<div class="owl-carousel main-carousel position-relative">
+				@foreach (var slayt in Model.Slaytlar)
+				{
+					<div class="position-relative overflow-hidden" style="height: 500px;">
+						<img class="img-fluid h-100" src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + slayt.Resim)" style="object-fit: cover;">
+						<div class="overlay">
+							<div class="mb-2">
+								<a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2"
+								   href="">@slayt.Baslik</a>
+							</div>
+							<a class="h2 m-0 text-white text-uppercase font-weight-bold" href="">@slayt.Icerik</a>
+						</div>
+					</div>
+				}
+
+
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Main News Slider End -->
+<!-- Breaking News Start -->
+<div class="container-fluid bg-dark py-3 mb-3">
+	<div class="container">
+		<div class="row align-items-center bg-dark">
+			<div class="col-12">
+				<div class="d-flex justify-content-between">
+					<div class="bg-primary text-dark text-center font-weight-medium py-2" style="width: 170px;">Breaking News</div>
+					<div class="owl-carousel tranding-carousel position-relative d-inline-flex align-items-center ml-3"
+						 style="width: calc(100% - 170px); padding-right: 90px;">
+						<div class="text-truncate"><a class="text-white text-uppercase font-weight-semi-bold" href="">Lorem ipsum dolor sit amet elit. Proin interdum lacus eget ante tincidunt, sed faucibus nisl sodales</a></div>
+						<div class="text-truncate"><a class="text-white text-uppercase font-weight-semi-bold" href="">Lorem ipsum dolor sit amet elit. Proin interdum lacus eget ante tincidunt, sed faucibus nisl sodales</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Breaking News End -->
+<div class="container-fluid">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8">
+				<div class="row">
+					<div class="col-12">
+						<div class="section-title">
+							<h4 class="m-0 text-uppercase font-weight-bold">Son Haberler</h4>
+							<a class="text-secondary font-weight-medium text-decoration-none" href="">Hepsini Gör</a>
+						</div>
+					</div>
+
+					@foreach (var item in Model.Haberler)
+					{
+						<div class="col-lg-6">
+							<div class="position-relative mb-3">
+								<img class="img-fluid w-100" src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + item.Resim)" style="object-fit: fill;">
+								<div class="bg-white border border-top-0 p-4">
+									<div class="mb-2">
+										<a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2" href="/Haberler/Index/@item.KategoriId">@item.Kategori</a>
+										<a class="text-body" href=""><small>@item.EklenmeTarihi</small></a>
+									</div>
+									<a class="h4 d-block mb-3 text-secondary text-uppercase font-weight-bold" href="/Haberler/Detay/@item.Id">@item.Baslik</a>
+									<p class="m-0">
+										@if (item.Icerik.Length <= 180)
+										{
+											@item.Icerik
+										}
+										else
+										{
+											@item.Icerik.Substring(0, 180)
+										}
+									</p>
+								</div>
+								<div class="d-flex justify-content-between bg-white border border-top-0 p-4">
+									<div class="d-flex align-items-center">
+										<img class="rounded-circle mr-2" src="img/user.jpg" width="25" height="25" alt="">
+										<small>@item.Yazar</small>
+									</div>
+									<div class="d-flex align-items-center">
+										<small class="ml-3"><i class="far fa-eye mr-2"></i>@item.GosterimSayisi</small>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					}
+
+
+				</div>
+			</div>
+
+			<div class="col-lg-4">
+				<!-- Social Follow Start -->
+				<!-- Social Follow End -->
+				<!-- Ads Start -->
+				<!-- Ads End -->
+				<!-- Popular News Start -->
+				<div class="mb-3">
+					<div class="section-title mb-0">
+						<h4 class="m-0 text-uppercase font-weight-bold">En Çok Okunanlar</h4>
+					</div>
+					<div class="bg-white border border-top-0 p-3">
+						@foreach (var item in Model.Haberler.OrderByDescending(x=>x.GosterimSayisi).Take(5))
+						{
+							<div class="d-flex align-items-center bg-white mb-3" style="height: 110px;">
+								<img class="img-fluid" src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + item.Resim)" style="object-fit: cover; width:110px; height:110px;" alt="">
+								<div class="w-100 h-100 px-3 d-flex flex-column justify-content-center border border-left-0">
+									<div class="mb-2">
+										<a class="badge badge-primary text-uppercase font-weight-semi-bold p-1 mr-2" href="">@item.Kategori</a>
+										<a class="text-body" href=""><small>@item.EklenmeTarihi</small></a>
+									</div>
+									<a class="h6 m-0 text-secondary text-uppercase font-weight-bold" href="">@item.Baslik</a>
+								</div>
+							</div>
+						}
+
+					</div>
+				</div>
+				<!-- Popular News End -->
+				<!-- Tags Start -->
+				<!-- Tags End -->
+			</div>
+		</div>
+	</div>
+</div>

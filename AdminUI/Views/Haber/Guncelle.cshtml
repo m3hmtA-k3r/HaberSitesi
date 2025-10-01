@@ -1,0 +1,67 @@
+﻿@using AdminUI.Models
+@model HaberViewModel
+<div class="container">
+	<div class="page-title">
+		<h3>Haber İşlemleri</h3>
+	</div>
+	<div class="row">
+
+		<div class="col-md-12 col-lg-12">
+			<div class="card">
+				<div class="card-header">Haber Güncelle</div>
+				<div class="card-body">
+					<p class="card-title">Haber güncelleme işlemi yapabilirsiniz.</p>
+
+					@using (Html.BeginForm("HaberGuncelle", "Haber", FormMethod.Post, new { enctype = "multipart/form-data" }))
+					{
+						@Html.HiddenFor(x => x.Id)
+						<div class="mb-3">
+							<label for="email" class="form-label">Başlık</label>
+							@Html.TextBoxFor(x => x.Baslik, new { placeholder = "Başlık", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">İçerik</label>
+							@Html.TextAreaFor(x => x.Icerik, new { placeholder = "İçerik", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Geçerli Resim</label><br />
+							<img src="@Url.Content(@conf.GetSection("Ayarlar")["ApiUrl"] + Model.Resim)" style="max-height:150px;" />
+							@Html.HiddenFor(x => x.Resim)
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Resim</label>
+							@Html.TextBoxFor(x => x.ResimFile, new { type = "file", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Geçerli Video</label><br />
+							<video controls style="max-height:250px;">
+								<source src="@Url.Content(@conf.GetSection("Ayarlar")["ApiUrl"] + Model.Video)" type="video/mp4">
+							</video>
+							@Html.HiddenFor(x => x.Resim)
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Video</label>
+							@Html.TextBoxFor(x => x.VideoFile, new { type = "file", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Kategori</label>
+							@Html.DropDownListFor(x => x.KategoriId, Model.Kategoriler, new { placeholder = "Kategori Seçiniz", @class = "form-select" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Yazar</label>
+							@Html.DropDownListFor(x => x.YazarId, Model.Yazarlar, new { placeholder = "Yazar Seçiniz", @class = "form-select" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Statü</label>
+							<div class="form-check form-switch">
+								@Html.CheckBoxFor(x => x.Aktifmi, new { @class = "form-check-input" })
+							</div>
+						</div>
+						<br />
+						<button type="submit" class="btn btn-warning">Güncelle</button>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

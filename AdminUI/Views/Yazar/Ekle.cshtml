@@ -1,0 +1,50 @@
+﻿@using AdminUI.Models
+@model YazarViewModel
+<div class="container">
+	<div class="page-title">
+		<h3>Yazar İşlemleri</h3>
+	</div>
+	<div class="row">
+
+		<div class="col-md-12 col-lg-12">
+			<div class="card">
+				<div class="card-header">Yazar Ekle</div>
+				<div class="card-body">
+					<p class="card-title">Yazar ekleme işlemi yapabilirsiniz.</p>
+
+					@using (Html.BeginForm("YazarEkle", "Yazar", FormMethod.Post, new { enctype = "multipart/form-data" }))
+					{
+						<div class="mb-3">
+							<label for="email" class="form-label">Ad</label>
+							@Html.TextBoxFor(x => x.Ad, new { placeholder = "Ad", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Soyad</label>
+							@Html.TextBoxFor(x => x.Soyad, new { placeholder = "Soyad", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">E-Posta</label>
+							@Html.TextBoxFor(x => x.Eposta, new { placeholder = "E-Posta", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Şifre</label>
+							@Html.TextBoxFor(x => x.Sifre, new { placeholder = "Şifre", type = "password", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Resim</label>
+							@Html.TextBoxFor(x => x.ResimFile, new { type = "file", @class = "form-control" })
+						</div>
+						<div class="mb-3">
+							<label for="email" class="form-label">Statü</label>
+							<div class="form-check form-switch">
+								@Html.CheckBoxFor(x => x.Aktifmi, new { @class = "form-check-input" })
+							</div>
+						</div>
+						<br />
+						<button type="submit" class="btn btn-primary">Ekle</button>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

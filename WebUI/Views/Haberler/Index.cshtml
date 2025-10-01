@@ -1,0 +1,64 @@
+﻿
+@model HaberlerViewModel
+<div class="container-fluid mt-5 pt-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-title">
+                            <h4 class="m-0 text-uppercase font-weight-bold">Sıcak Haberler</h4>
+                        </div>
+					</div>
+
+					@foreach (var item in Model.Haberler)
+					{
+						<div class="col-lg-6">
+							<div class="position-relative mb-3">
+								<img class="img-fluid w-100" src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + item.Resim)" style="object-fit: fill;">
+								<div class="bg-white border border-top-0 p-4">
+									<div class="mb-2">
+										<a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2" href="/Haberler/Index/@item.KategoriId">@item.Kategori</a>
+										<a class="text-body" href=""><small>@item.EklenmeTarihi</small></a>
+									</div>
+									<a class="h4 d-block mb-3 text-secondary text-uppercase font-weight-bold" href="/Haberler/Detay/@item.Id">@item.Baslik</a>
+									<p class="m-0">
+										@if (item.Icerik.Length <= 180)
+										{
+											@item.Icerik
+										}
+										else
+										{
+											@item.Icerik.Substring(0, 180)
+										}
+									</p>
+								</div>
+								<div class="d-flex justify-content-between bg-white border border-top-0 p-4">
+									<div class="d-flex align-items-center">
+										<img class="rounded-circle mr-2" src="img/user.jpg" width="25" height="25" alt="">
+										<small>@item.Yazar</small>
+									</div>
+									<div class="d-flex align-items-center">
+										<small class="ml-3"><i class="far fa-eye mr-2"></i>@item.GosterimSayisi</small>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					}
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="mb-3">
+                    <ul class="list-group">
+						@foreach (var item in Model.Kategoriler)
+						{
+							<li class="list-group-item"><a href="/Haberler/Index/@item.Id">@item.Aciklama</a></li>
+						}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

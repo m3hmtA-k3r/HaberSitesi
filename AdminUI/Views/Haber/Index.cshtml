@@ -1,0 +1,67 @@
+﻿@using Shared.Dtos
+@model List<HaberlerDto>
+
+<div class="container">
+	<div class="page-title">
+		<h3>Haber İşlemleri</h3>
+	</div>
+	<div class="row">
+
+		<div class="col-md-12 col-lg-12">
+			<div class="card">
+				<div class="card-header">
+					<div class="row">
+						<div class="col-9" style="line-height:50px;">Haberler</div>
+						<div class="col-3"><a href="/Haber/Ekle" style="float:right;color: white;background-color:green;" class="btn float-right m-2"><i class="fa fa-plus"></i></a></div>
+					</div>
+				</div>
+				<div class="card-body">
+					<p class="card-title">Haberler ile ilgili tüm işlemleri buradan yapabilirsiniz. Toplam Aktif Veri Sayısı : @Model.Where(x => x.Aktifmi == true).Count()</p>
+					<table class="table table-hover" id="dataTables-example" width="100%">
+						<thead>
+							<tr>
+								<th>Resim</th>
+								<th>Başlık</th>
+								<th>İçerik</th>
+								<th>EklenmeTarihi</th>
+								<th>Yazar</th>
+								<th>Kategori</th>
+								<th>Gösterim</th>
+								<th>Durum</th>
+								<th style="min-width:110px;">İşlemler</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td><img style=" max-width: 100%; " src="@Url.Content(@conf.GetSection("Ayarlar")["ApiUrl"] + item.Resim)" /></td>
+									<td>@item.Baslik</td>
+									<td>@item.Icerik</td>
+									<td>@item.EklenmeTarihi</td>
+									<td>@item.Yazar</td>
+									<td>@item.Kategori</td>
+									<td>@item.GosterimSayisi</td>
+									<td>
+										@if (item.Aktifmi)
+										{
+											<span class="badge bg-info">Aktif</span>
+										}
+										else
+										{
+											<span class="badge bg-danger">Pasif</span>
+										}
+									</td>
+									<td>
+										<a href="/Haber/Guncelle?haberId=@item.Id" class="btn btn-primary mb-2"><i class="fa fa-edit"></i></a>
+										<a href="/Haber/Sil?haberId=@item.Id" class="btn btn-danger mb-2" style="width: 44px;"><i class="fa fa-times"></i></a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

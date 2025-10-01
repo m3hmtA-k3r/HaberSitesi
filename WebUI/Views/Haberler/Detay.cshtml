@@ -1,0 +1,130 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model HaberDetayViewModel
+<div class="container-fluid mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- News Detail Start -->
+                <div class="position-relative mb-3">
+                    <img class="img-fluid w-100" src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + Model.Haber.Resim)" style="object-fit: cover;">
+                    <div class="bg-white border border-top-0 p-4">
+                        <div class="mb-3">
+                            <a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2" href="/Haberler/Index/@Model.Haber.KategoriId">@Model.Haber.Kategori</a>
+                            <a class="text-body" href="">@Model.Haber.EklenmeTarihi</a>
+                        </div>
+                        <h1 class="mb-3 text-secondary text-uppercase font-weight-bold">@Model.Haber.Baslik</h1>
+                        <p>
+                            @Model.Haber.Icerik
+                        </p>
+                        <h3 class="text-uppercase font-weight-bold mb-3">Haber Videosu</h3>
+                        <p>
+                            <video width="100%" controls="controls">
+                                <source src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + Model.Haber.Video)" type="video/mp4" />
+                                <source src="video.ogg" type="video/ogg" />
+                                Tarayıcınız video etiketini desteklemiyor.
+                            </video>
+                        </p>
+                    </div>
+                    <div class="d-flex justify-content-between bg-white border border-top-0 p-4">
+                        <div class="d-flex align-items-center">
+                            <img class="rounded-circle mr-2" src="@Url.Content(conf.GetSection("Ayarlar")["ApiUrl"] + Model.Haber.YazarResim)" width="25" height="25" alt="">
+                            <span>@Model.Haber.Yazar</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="ml-3"><i class="far fa-eye mr-2"></i>@Model.Haber.GosterimSayisi</span>
+                            <span class="ml-3"><i class="far fa-comment mr-2"></i>@Model.Yorumlar.Count()</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- News Detail End -->
+                <!-- Comment List Start -->
+                <div class="mb-3">
+                    <div class="section-title mb-0">
+                        <h4 class="m-0 text-uppercase font-weight-bold">@Model.Yorumlar.Count() Yorum</h4>
+                    </div>
+                    <div class="bg-white border border-top-0 p-4">
+                        @foreach (var item in Model.Yorumlar)
+                        {
+                            <div class="media mb-4">
+                                <img src="/img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
+                                <div class="media-body">
+                                    <h6><a class="text-secondary font-weight-bold" href="">@item.Ad @item.Soyad</a> <small><i>@item.EklenmeTarihi.ToLongDateString()</i></small></h6>
+                                    <h5 class="m-0 text-uppercase font-weight-bold">@item.Baslik</h5>
+                                    <p>
+                                        @item.Icerik
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+                <!-- Comment List End -->
+                <!-- Comment Form Start -->
+                <div class="mb-3">
+                    <div class="section-title mb-0">
+                        <h4 class="m-0 text-uppercase font-weight-bold">Yorum Yap</h4>
+                    </div>
+                    <div class="bg-white border border-top-0 p-4">
+                        @using (Html.BeginForm("YorumYap","Haberler", FormMethod.Post))
+                        {
+                            <input type="hidden" value="@Model.Haber.Id" name="HaberId"/>
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="name">Ad *</label>
+                                        <input type="text" class="form-control" name="Ad">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="name">Soyad *</label>
+                                        <input type="text" class="form-control" name="Soyad">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="email">Başlık *</label>
+                                        <input type="text" class="form-control" name="Baslik">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="email">Email *</label>
+                                        <input type="email" class="form-control" name="Eposta">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message *</label>
+                                <textarea id="message" cols="30" rows="5" name="Icerik" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group mb-0">
+                                <input type="submit" value="Gönder" class="btn btn-primary font-weight-semi-bold py-2 px-3">
+                            </div>
+                        }
+                    </div>
+                </div>
+                <!-- Comment Form End -->
+            </div>
+
+            <div class="col-lg-4">
+                <div class="mb-3">
+                    <ul class="list-group">
+                        @foreach (var item in Model.Kategoriler)
+                        {
+                            <li class="list-group-item"><a href="/Haberler/Index/@item.Id">@item.Aciklama</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
