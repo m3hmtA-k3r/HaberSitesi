@@ -8,3 +8,48 @@
 @model List<HaberlerDto>
 
 
+
+    <div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
+
+     <div class="row">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-warning" style="width: 100%;">
+                <div class="card-header bg-warning text-white">Onay Bekleyen Yorumlar</div>
+                <div class="card-body text-dark text-center">
+                    <h3 class="card-title font-weight-bold text-warning">@ViewBag.BekleyenYorum</h3>
+                    <p class="card-text">Adet yorum onaya sunuldu.</p>
+                </div>
+                <div class="card-footer bg-transparent border-warning">
+                    <a href="/Yorum" class="btn btn-outline-warning btn-block">
+                        Yorumları Yönet <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+
+                <div class="card border-info" style="width: 100%;">
+                    <div class="card-header bg-info text-white">Toplam Haber</div>
+                    <div class="card-body text-dark text-center">
+                        <h3 class="card-title font-weight-bold text-info">@ViewBag.HaberSayisi</h3>
+                        <p class="card-text">Toplam haber sayısı.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-info">
+                        <a href="/Haber" class="btn btn-outline-info btn-block">
+                        Haberleri Gör <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+          <div class="col-xl-3 col-md-6 mb-4">
+            </div>
+
+       </div>          
+   </div>
+
