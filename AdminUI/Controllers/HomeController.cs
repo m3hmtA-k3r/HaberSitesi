@@ -16,9 +16,10 @@ namespace AdminUI.Controllers
         }
         public IActionResult Index()
 		{
-            //var haberler = _haberApiRequest.GetAllHaber();
+            var haberler = _haberApiRequest.GetAllHaber().Count();
             var bekleyenYorumSayisi = _yorumApiRequest.GetOnayBekleyenYorumSayisi();
             ViewBag.BekleyenYorum = bekleyenYorumSayisi;
+            ViewBag.Haberler = haberler;
 
             return View();
 		}
