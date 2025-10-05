@@ -16,10 +16,14 @@
      <div class="row">
 
         <div class="col-xl-3 col-md-6 mb-4">
+            @{
+                // Dinamik renk için küçük bir kontrol
+                var yorumKartRengi = (int)ViewBag.BekleyenYorum > 0 ? "warning" : "secondary";
+            }
             <div class="card border-warning" style="width: 100%;">
                 <div class="card-header bg-warning text-white">Onay Bekleyen Yorumlar</div>
                 <div class="card-body text-dark text-center">
-                    <h3 class="card-title font-weight-bold text-warning">@ViewBag.BekleyenYorum</h3>
+                    <h3 class="card-title font-weight-bold text-@yorumKartRengi">@ViewBag.BekleyenYorum</h3>
                     <p class="card-text">Adet yorum onaya sunuldu.</p>
                 </div>
                 <div class="card-footer bg-transparent border-warning">

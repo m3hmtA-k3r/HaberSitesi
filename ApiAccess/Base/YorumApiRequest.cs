@@ -11,6 +11,13 @@ namespace ApiAccess.Base
         {
             _requestService = requestService;
         }
+
+        public int GetOnayBekleyenYorumSayisi()
+        {
+            return _requestService.Get<int>("Yorum/GetPendingCommentsCount");
+        }
+
+
         public bool DeleteYorum(int yorumId)
         {
             return _requestService.Get<bool>("Yorum/DeleteYorum?yorumId=" + yorumId);

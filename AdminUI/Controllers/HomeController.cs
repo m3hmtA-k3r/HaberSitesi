@@ -8,15 +8,20 @@ namespace AdminUI.Controllers
 	public class HomeController : Controller
 	{
 		private readonly IHaberApiRequest _haberApiRequest;
-        public HomeController(IHaberApiRequest haberApiRequest)
+		private readonly IYorumApiRequest _yorumApiRequest;
+        public HomeController(IHaberApiRequest haberApiRequest,IYorumApiRequest yorumApiRequest)
         {
 			_haberApiRequest = haberApiRequest;
+			_yorumApiRequest = yorumApiRequest;
         }
         public IActionResult Index()
 		{
             //var haberler = _haberApiRequest.GetAllHaber();
+            var bekleyenYorumSayisi = _yorumApiRequest.GetOnayBekleyenYorumSayisi();
+            ViewBag.BekleyenYorum = bekleyenYorumSayisi;
 
             return View();
 		}
+
 	}
 }

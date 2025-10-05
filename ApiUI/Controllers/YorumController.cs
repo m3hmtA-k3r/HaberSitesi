@@ -15,6 +15,16 @@ namespace ApiUI.Controllers
 		}
 
 		[HttpGet]
+		[Route("GetPendingCommentsCount")]
+        public IActionResult GetPendingCommentsCount()
+		{
+            var sayi = _yorumService.GetOnayBekleyenYorumSayisi();
+            return Ok(sayi);
+        }
+
+
+
+        [HttpGet]
 		[Route("GetAllYorum")]
 		public List<YorumlarDto> GetAllYorum() => _yorumService.GetYorumlar();
 

@@ -14,7 +14,13 @@ namespace Business.Base
 			_repository = repository;
 			_haberRepository = haberRepository;
 		}
-		public bool DeleteYorum(int id)
+
+		public int GetOnayBekleyenYorumSayisi()
+		{
+            return _repository.GetAll().Count(yorum => yorum.Aktifmi == false);
+        }
+
+        public bool DeleteYorum(int id)
 		{
 			return _repository.Delete(new Yorumlar { Id = id });
 		}

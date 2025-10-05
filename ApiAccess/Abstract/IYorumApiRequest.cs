@@ -4,6 +4,10 @@ namespace ApiAccess.Abstract
 {
     public interface IYorumApiRequest
     {
+
+        int GetOnayBekleyenYorumSayisi();
+
+
         List<YorumlarDto> GetAllYorum();
         YorumlarDto GetYorumById(int yorumId);
         YorumlarDto InsertYorum(YorumlarDto model);
