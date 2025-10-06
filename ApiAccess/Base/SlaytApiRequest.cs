@@ -11,10 +11,13 @@ namespace ApiAccess.Base
 		{
 			_requestService = requestService;
 		}
-		public SlaytlarDto GetSlaytByEmailPassword(string email, string password)
+
+		public int GetUnpublishedSlidesCount()
 		{
-			return _requestService.Get<SlaytlarDto>("Slayt/GetSlaytByEmailPassword?email=" + email + "&password=" + password);
-		}
+			return _requestService.Get<int>("Slayt/GetUnpublishedSlidesCount");
+        }
+
+       
 		public bool DeleteSlayt(int slaytId)
 		{
 			return _requestService.Get<bool>("Slayt/DeleteSlayt?slaytId=" + slaytId);

@@ -14,6 +14,12 @@ namespace Business.Base
 			_repository = repository;
 			_haberRepository = haberRepository;
 		}
+
+		public int GetUnpublishedSlidesCount()
+		{
+			return _repository.GetAll().Count(x => x.Aktifmi == false);
+		}
+
         public bool DeleteSlayt(int id)
 		{
 			return _repository.Delete(new Slaytlar { Id = id });
