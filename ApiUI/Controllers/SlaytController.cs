@@ -14,7 +14,15 @@ namespace ApiUI.Controllers
 			_slaytService = slaytService;
 		}
 
-		[HttpGet]
+        [HttpGet]
+        [Route("GetUnpublishedSlidesCount")]
+		public IActionResult GetUnpublishedSlidesCount()
+        {
+            var count = _slaytService.GetUnpublishedSlidesCount();
+            return Ok(count);
+        }
+
+        [HttpGet]
 		[Route("GetAllSlayt")]
 		public List<SlaytlarDto> GetAllSlayt() => _slaytService.GetSlaytlar();
 

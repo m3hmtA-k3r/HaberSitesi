@@ -5,18 +5,13 @@ using Shared.Entities;
 
 namespace Business.Base
 {
-	public class HaberManager : IHaberService
+	public class HaberManager(IRepository<Haberler> repository, IRepository<Yazarlar> repositoryYazar, IRepository<Kategoriler> repositoryKategori) : IHaberService
 	{
-		private readonly IRepository<Haberler> _repository;
-		private readonly IRepository<Yazarlar> _repositoryYazar;
-		private readonly IRepository<Kategoriler> _repositoryKategori;
-		public HaberManager(IRepository<Haberler> repository, IRepository<Yazarlar> repositoryYazar, IRepository<Kategoriler> repositoryKategori)
-		{
-			_repository = repository;
-			_repositoryYazar = repositoryYazar;
-			_repositoryKategori = repositoryKategori;
-		}
-		public bool DeleteHaber(int id)
+		private readonly IRepository<Haberler> _repository = repository;
+		private readonly IRepository<Yazarlar> _repositoryYazar = repositoryYazar;
+		private readonly IRepository<Kategoriler> _repositoryKategori = repositoryKategori;
+
+        public bool DeleteHaber(int id)
 		{
 			return _repository.Delete(new Haberler { Id = id});
 		}
@@ -32,7 +27,7 @@ namespace Business.Base
 		{
 			var response = _repository.GetAll().ToList();
 
-			List<HaberlerDto> result = new List<HaberlerDto>();
+			List<HaberlerDto> result = [];
 
 			foreach (var item in response) 
 				result.Add(HaberItem(item));
@@ -66,8 +61,11 @@ namespace Business.Base
 		}
 
 		private HaberlerDto HaberItem(Haberler model)
-		{ 
-			var yazar = _repositoryYazar.GetById(model.YazarId);
+		{
+            if (model == null)
+                return null;
+
+            var yazar = _repositoryYazar.GetById(model.YazarId);
 
             HaberlerDto result = new HaberlerDto();
 			result.Id = model.Id;

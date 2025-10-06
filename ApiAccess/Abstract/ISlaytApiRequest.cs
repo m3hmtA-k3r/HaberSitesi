@@ -4,7 +4,10 @@ namespace ApiAccess.Abstract
 {
 	public interface ISlaytApiRequest
 	{
-		List<SlaytlarDto> GetAllSlayt();
+		int GetUnpublishedSlidesCount();
+
+
+        List<SlaytlarDto> GetAllSlayt();
 		SlaytlarDto InsertSlayt(SlaytlarDto model);
 		SlaytlarDto GetSlaytById(int slaytId);
 		SlaytlarDto UpdateSlayt(SlaytlarDto model);

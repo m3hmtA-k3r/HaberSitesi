@@ -4,7 +4,11 @@ namespace Business.Abstract
 {
 	public interface ISlaytService
 	{
-		List<SlaytlarDto> GetSlaytlar();
+		int GetUnpublishedSlidesCount();
+
+
+
+        List<SlaytlarDto> GetSlaytlar();
 		SlaytlarDto GetSlaytById(int id);
 		SlaytlarDto InsertSlayt(SlaytlarDto model);
 		SlaytlarDto UpdateSlayt(SlaytlarDto model);
