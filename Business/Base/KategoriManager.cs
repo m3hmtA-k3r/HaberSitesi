@@ -1,32 +1,42 @@
 ﻿using Business.Abstract;
-using DataAccess.Abstract.Repository;
-using Shared.Dtos;
-using Shared.Entities;
+using DataAccess.Abstract.UnitOfWork;
+using Application.DTOs;
+using Domain.Entities;
 
 namespace Business.Base
 {
+	/// <summary>
+	/// Business logic for managing Kategoriler (Categories)
+	/// Now uses Unit of Work pattern for better transaction management
+	/// </summary>
 	public class KategoriManager : IKategoriService
 	{
-		private readonly IRepository<Kategoriler> _repository;
-		public KategoriManager(IRepository<Kategoriler> repository)
+		private readonly IUnitOfWork _unitOfWork;
+
+		public KategoriManager(IUnitOfWork unitOfWork)
 		{
-			_repository = repository;
+			_unitOfWork = unitOfWork;
 		}
+
 		public bool DeleteKategori(int id)
 		{
-			return _repository.Delete(new Kategoriler { Id = id });
+			var result = _unitOfWork.KategorilerRepository.Delete(new Kategoriler { Id = id });
+			if (result)
+			{
+				_unitOfWork.SaveChanges();
+			}
+			return result;
 		}
 
 		public KategorilerDto GetKategoriById(int id)
 		{
-			var response = _repository.GetById(id);
-
+			var response = _unitOfWork.KategorilerRepository.GetById(id);
 			return KategoriItem(response);
 		}
 
 		public List<KategorilerDto> GetKategoriler()
 		{
-			var response = _repository.GetAll().ToList();
+			var response = _unitOfWork.KategorilerRepository.GetAll().ToList();
 
 			List<KategorilerDto> result = new List<KategorilerDto>();
 
@@ -38,17 +48,19 @@ namespace Business.Base
 
 		public KategorilerDto InsertKategori(KategorilerDto model)
 		{
-			Kategoriler response = _repository.Insert(KategoriItem(model));
+			Kategoriler response = _unitOfWork.KategorilerRepository.Insert(KategoriItem(model));
+			_unitOfWork.SaveChanges();
 
 			return KategoriItem(response);
 		}
 
 		public KategorilerDto UpdateKategori(KategorilerDto model)
 		{
-			var kategori = _repository.GetById(model.Id);
+			var kategori = _unitOfWork.KategorilerRepository.GetById(model.Id);
 			kategori.Aktifmi = model.Aktifmi;
 			kategori.Aciklama = model.Aciklama;
-			Kategoriler response = _repository.Update(kategori);
+			Kategoriler response = _unitOfWork.KategorilerRepository.Update(kategori);
+			_unitOfWork.SaveChanges();
 
 			return KategoriItem(response);
 		}

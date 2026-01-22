@@ -1,56 +1,179 @@
 using Business.Abstract;
 using Business.Base;
-using DataAccess.Abstract.Repository;
-using DataAccess.Base.Repository;
+using DataAccess.Abstract.UnitOfWork;
+using DataAccess.Base.UnitOfWork;
 using DataAccess.Context;
+using FluentValidation;
+using Infrastructure.Caching;
+using Infrastructure.Identity;
+using Infrastructure.Storage;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Shared.Entities;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<HaberContext>(option => option.UseSqlServer("Server=MEHMET\\SQLEXPRESS;Database=HABER_SITESI;Trusted_Connection=True;TrustServerCertificate=true;"));
+
+// Swagger with JWT Bearer
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Haber Sitesi API",
+        Version = "v1",
+        Description = "Haber Sitesi RESTful API - JWT Authentication Required"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// Database Connection (SQLite)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string not found.");
+
+builder.Services.AddDbContext<HaberContext>(option =>
+    option.UseSqlite(connectionString));
+
+// JWT Authentication
+var jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"]
+    ?? "HaberSitesi_Default_Secret_Key_Min_32_Characters_Long_12345";
+var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "HaberSitesiAPI";
+var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "HaberSitesiClients";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecretKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("HaberSitesiPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:5200", "http://localhost:5300")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 #region DependencyInjection
-//DBCONTEXT
-builder.Services.AddScoped<DbContext, HaberContext>();
+// UNIT OF WORK PATTERN
+// UnitOfWork manages all repositories and transactions
+builder.Services.AddScoped<DataAccess.Abstract.UnitOfWork.IUnitOfWork, UnitOfWork>();
 
-//DATA ACCESS START
-builder.Services.AddScoped<IRepository<Haberler>, Repository<Haberler>>();
-builder.Services.AddScoped<IRepository<Kategoriler>, Repository<Kategoriler>>();
-builder.Services.AddScoped<IRepository<Slaytlar>, Repository<Slaytlar>>();
-builder.Services.AddScoped<IRepository<Yazarlar>, Repository<Yazarlar>>();
-builder.Services.AddScoped<IRepository<Yorumlar>, Repository<Yorumlar>>();
-//DATA ACCESS FINISH
+// Adapter: Map DataAccess IUnitOfWork to Application IUnitOfWork
+builder.Services.AddScoped<Application.Interfaces.IUnitOfWork, DataAccess.Base.UnitOfWork.ApplicationUnitOfWorkAdapter>();
 
-//BUSINESS START
+// APPLICATION LAYER - CQRS with MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.Features.Haberler.Queries.GetAllHaberler.GetAllHaberlerQuery).Assembly));
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(Application.Mappings.MappingProfile));
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<Application.Features.Haberler.Commands.CreateHaber.CreateHaberCommandValidator>();
+
+// INFRASTRUCTURE LAYER
+// File Storage Service (Local implementation)
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
+// Caching Service (InMemory implementation)
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
+
+// JWT Token Service
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+// BUSINESS LAYER
+// Business services now use UnitOfWork instead of individual repositories
 builder.Services.AddScoped<IHaberService, HaberManager>();
 builder.Services.AddScoped<IKategoriService, KategoriManager>();
 builder.Services.AddScoped<ISlaytService, SlaytManager>();
 builder.Services.AddScoped<IYorumService, YorumManager>();
 builder.Services.AddScoped<IYazarService, YazarManager>();
-//BUSINESS FINISH
-
 #endregion
 
 var app = builder.Build();
 
+// Veritabanını oluştur (yoksa)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<HaberContext>();
+    db.Database.EnsureCreated();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseStaticFiles();
+// Security Headers
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Path.StartsWithSegments("/swagger"))
+    {
+        context.Response.Headers.Append("Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';");
+    }
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Remove("X-Powered-By");
+    context.Response.Headers.Remove("Server");
+    await next();
+});
 
+app.UseCors("HaberSitesiPolicy");
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

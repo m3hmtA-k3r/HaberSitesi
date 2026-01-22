@@ -1,6 +1,6 @@
 ﻿using Business.Abstract;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Dtos;
+using Application.DTOs;
 
 namespace ApiUI.Controllers
 {

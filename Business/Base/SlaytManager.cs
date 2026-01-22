@@ -1,42 +1,49 @@
 ﻿using Business.Abstract;
-using DataAccess.Abstract.Repository;
-using Shared.Dtos;
-using Shared.Entities;
+using DataAccess.Abstract.UnitOfWork;
+using Application.DTOs;
+using Domain.Entities;
 
 namespace Business.Base
 {
+	/// <summary>
+	/// Business logic for managing Slaytlar (Sliders)
+	/// Now uses Unit of Work pattern for better transaction management
+	/// </summary>
 	public class SlaytManager : ISlaytService
 	{
-		private readonly IRepository<Slaytlar > _repository;
-		private readonly IRepository<Haberler> _haberRepository;
-		public SlaytManager(IRepository<Slaytlar> repository, IRepository<Haberler> haberRepository)
-        {
-			_repository = repository;
-			_haberRepository = haberRepository;
+		private readonly IUnitOfWork _unitOfWork;
+
+		public SlaytManager(IUnitOfWork unitOfWork)
+		{
+			_unitOfWork = unitOfWork;
 		}
 
 		public int GetUnpublishedSlidesCount()
 		{
-			return _repository.GetAll().Count(x => x.Aktifmi == false);
+			return _unitOfWork.SlaytlarRepository.GetAll().Count(x => x.Aktifmi == false);
 		}
 
-        public bool DeleteSlayt(int id)
+		public bool DeleteSlayt(int id)
 		{
-			return _repository.Delete(new Slaytlar { Id = id });
+			var result = _unitOfWork.SlaytlarRepository.Delete(new Slaytlar { Id = id });
+			if (result)
+			{
+				_unitOfWork.SaveChanges();
+			}
+			return result;
 		}
 
 		public SlaytlarDto GetSlaytById(int id)
 		{
-			var response = _repository.GetById(id);
-			
+			var response = _unitOfWork.SlaytlarRepository.GetById(id);
 			return SlaytItem(response);
 		}
 
 		public List<SlaytlarDto> GetSlaytlar()
 		{
-			var response = _repository.GetAll().ToList();
+			var response = _unitOfWork.SlaytlarRepository.GetAll().ToList();
 			List<SlaytlarDto> result = new List<SlaytlarDto>();
-			
+
 			foreach (var item in response)
 				result.Add(SlaytItem(item));
 
@@ -45,20 +52,22 @@ namespace Business.Base
 
 		public SlaytlarDto InsertSlayt(SlaytlarDto model)
 		{
-			var response = _repository.Insert(SlaytItem(model));
+			var response = _unitOfWork.SlaytlarRepository.Insert(SlaytItem(model));
+			_unitOfWork.SaveChanges();
 
 			return SlaytItem(response);
 		}
 
 		public SlaytlarDto UpdateSlayt(SlaytlarDto model)
 		{
-			var slayt = _repository.GetById(model.Id);
+			var slayt = _unitOfWork.SlaytlarRepository.GetById(model.Id);
 			slayt.Aktifmi = model.Aktifmi;
 			slayt.Resim = model.Resim;
 			slayt.Icerik = model.Icerik;
 			slayt.Baslik = model.Baslik;
 			slayt.HaberId = model.HaberId;
-			var response = _repository.Update(slayt);
+			var response = _unitOfWork.SlaytlarRepository.Update(slayt);
+			_unitOfWork.SaveChanges();
 
 			return SlaytItem(response);
 		}
@@ -70,7 +79,9 @@ namespace Business.Base
 			result.Baslik = model.Baslik;
 			result.Icerik = model.Icerik;
 			result.HaberId = model.HaberId;
-			result.Haber = _haberRepository.GetById(model.HaberId).Baslik;
+
+			var haber = _unitOfWork.HaberlerRepository.GetById(model.HaberId);
+			result.Haber = haber?.Baslik ?? "Haber Bulunamadı";
 			result.Resim = model.Resim;
 			result.Aktifmi = model.Aktifmi;
 			return result;

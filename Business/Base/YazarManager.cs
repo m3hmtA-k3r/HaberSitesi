@@ -1,25 +1,36 @@
 ﻿using Business.Abstract;
-using DataAccess.Abstract.Repository;
-using Shared.Dtos;
-using Shared.Entities;
+using DataAccess.Abstract.UnitOfWork;
+using Application.DTOs;
+using Domain.Entities;
 
 namespace Business.Base
 {
+	/// <summary>
+	/// Business logic for managing Yazarlar (Authors)
+	/// Now uses Unit of Work pattern for better transaction management
+	/// </summary>
 	public class YazarManager : IYazarService
 	{
-		private readonly IRepository<Yazarlar> _repository;
-		public YazarManager(IRepository<Yazarlar> repository)
+		private readonly IUnitOfWork _unitOfWork;
+
+		public YazarManager(IUnitOfWork unitOfWork)
 		{
-			_repository = repository;
+			_unitOfWork = unitOfWork;
 		}
+
 		public bool DeleteYazar(int id)
 		{
-			return _repository.Delete(new Yazarlar { Id = id });
+			var result = _unitOfWork.YazarlarRepository.Delete(new Yazarlar { Id = id });
+			if (result)
+			{
+				_unitOfWork.SaveChanges();
+			}
+			return result;
 		}
 
 		public YazarlarDto GetYazarByEmailPassword(string email, string password)
 		{
-			var data = _repository.GetAll();
+			var data = _unitOfWork.YazarlarRepository.GetAll();
 			var findedData = data.Where(x => x.Eposta == email && x.Sifre == password).FirstOrDefault();
 			if (findedData != null)
 				return YazarItem(findedData);
@@ -29,14 +40,13 @@ namespace Business.Base
 
 		public YazarlarDto GetYazarById(int id)
 		{
-			var response = _repository.GetById(id);
-
+			var response = _unitOfWork.YazarlarRepository.GetById(id);
 			return YazarItem(response);
 		}
 
 		public List<YazarlarDto> GetYazarlar()
 		{
-			var response = _repository.GetAll().ToList();
+			var response = _unitOfWork.YazarlarRepository.GetAll().ToList();
 			List<YazarlarDto> result = new List<YazarlarDto>();
 
 			foreach (var item in response)
@@ -47,14 +57,15 @@ namespace Business.Base
 
 		public YazarlarDto InsertYazar(YazarlarDto model)
 		{
-			var response = _repository.Insert(YazarItem(model));
+			var response = _unitOfWork.YazarlarRepository.Insert(YazarItem(model));
+			_unitOfWork.SaveChanges();
 
 			return YazarItem(response);
 		}
 
 		public YazarlarDto UpdateYazar(YazarlarDto model)
 		{
-			var Yazar = _repository.GetById(model.Id);
+			var Yazar = _unitOfWork.YazarlarRepository.GetById(model.Id);
 			Yazar.Id = model.Id;
 			Yazar.Ad = model.Ad;
 			Yazar.Soyad = model.Soyad;
@@ -62,7 +73,8 @@ namespace Business.Base
 			Yazar.Eposta = model.Eposta;
 			Yazar.Resim = model.Resim;
 			Yazar.Aktifmi = model.Aktifmi;
-			var response = _repository.Update(Yazar);
+			var response = _unitOfWork.YazarlarRepository.Update(Yazar);
+			_unitOfWork.SaveChanges();
 
 			return YazarItem(response);
 		}

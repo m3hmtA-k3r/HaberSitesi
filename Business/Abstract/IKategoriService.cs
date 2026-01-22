@@ -1,4 +1,4 @@
-﻿using Shared.Dtos;
+﻿using Application.DTOs;
 
 namespace Business.Abstract
 {

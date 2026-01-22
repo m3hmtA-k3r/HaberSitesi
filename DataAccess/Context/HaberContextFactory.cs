@@ -1,10 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.Context
 {
@@ -13,7 +8,9 @@ namespace DataAccess.Context
         public HaberContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<HaberContext>();
-            optionsBuilder.UseSqlServer("Server=MEHMET\\SQLEXPRESS;Database=HABER_SITESI;Trusted_Connection=True;TrustServerCertificate=True;");
+
+            // SQLite kullan
+            optionsBuilder.UseSqlite("Data Source=../ApiUI/HaberSitesi.db");
 
             return new HaberContext(optionsBuilder.Options);
         }

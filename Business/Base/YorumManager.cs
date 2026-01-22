@@ -1,40 +1,47 @@
 ﻿using Business.Abstract;
-using DataAccess.Abstract.Repository;
-using Shared.Dtos;
-using Shared.Entities;
+using DataAccess.Abstract.UnitOfWork;
+using Application.DTOs;
+using Domain.Entities;
 
 namespace Business.Base
 {
+	/// <summary>
+	/// Business logic for managing Yorumlar (Comments)
+	/// Now uses Unit of Work pattern for better transaction management
+	/// </summary>
 	public class YorumManager : IYorumService
 	{
-		private readonly IRepository<Yorumlar> _repository;
-		private readonly IRepository<Haberler> _haberRepository;
-		public YorumManager(IRepository<Yorumlar> repository, IRepository<Haberler> haberRepository)
+		private readonly IUnitOfWork _unitOfWork;
+
+		public YorumManager(IUnitOfWork unitOfWork)
 		{
-			_repository = repository;
-			_haberRepository = haberRepository;
+			_unitOfWork = unitOfWork;
 		}
 
 		public int GetOnayBekleyenYorumSayisi()
 		{
-            return _repository.GetAll().Count(yorum => yorum.Aktifmi == false);
-        }
+			return _unitOfWork.YorumlarRepository.GetAll().Count(yorum => yorum.Aktifmi == false);
+		}
 
-        public bool DeleteYorum(int id)
+		public bool DeleteYorum(int id)
 		{
-			return _repository.Delete(new Yorumlar { Id = id });
+			var result = _unitOfWork.YorumlarRepository.Delete(new Yorumlar { Id = id });
+			if (result)
+			{
+				_unitOfWork.SaveChanges();
+			}
+			return result;
 		}
 
 		public YorumlarDto GetYorumById(int id)
 		{
-			var response = _repository.GetById(id);
-
+			var response = _unitOfWork.YorumlarRepository.GetById(id);
 			return YorumItem(response);
 		}
 
 		public List<YorumlarDto> GetYorumlar()
 		{
-			var response = _repository.GetAll().ToList();
+			var response = _unitOfWork.YorumlarRepository.GetAll().ToList();
 			List<YorumlarDto> result = new List<YorumlarDto>();
 
 			foreach (var item in response)
@@ -46,14 +53,15 @@ namespace Business.Base
 		public YorumlarDto InsertYorum(YorumlarDto model)
 		{
 			model.EklenmeTarihi = DateTime.Now;
-			var response = _repository.Insert(YorumItem(model));
+			var response = _unitOfWork.YorumlarRepository.Insert(YorumItem(model));
+			_unitOfWork.SaveChanges();
 
 			return YorumItem(response);
 		}
 
 		public YorumlarDto UpdateYorum(YorumlarDto model)
 		{
-			var yorum = _repository.GetById(model.Id);
+			var yorum = _unitOfWork.YorumlarRepository.GetById(model.Id);
 			yorum.Id = model.Id;
 			yorum.Ad = model.Ad;
 			yorum.Soyad = model.Soyad;
@@ -62,7 +70,8 @@ namespace Business.Base
 			yorum.Baslik = model.Baslik;
 			yorum.Icerik = model.Icerik;
 			yorum.Aktifmi = model.Aktifmi;
-			var response = _repository.Update(yorum);
+			var response = _unitOfWork.YorumlarRepository.Update(yorum);
+			_unitOfWork.SaveChanges();
 
 			return YorumItem(response);
 		}
@@ -79,7 +88,9 @@ namespace Business.Base
 			result.Icerik = model.Icerik;
 			result.EklenmeTarihi = model.EklenmeTarihi;
 			result.Aktifmi = model.Aktifmi;
-			result.HaberBaslik = _haberRepository.GetById(model.HaberId).Baslik;
+
+			var haber = _unitOfWork.HaberlerRepository.GetById(model.HaberId);
+			result.HaberBaslik = haber?.Baslik ?? "Haber Bulunamadı";
 			return result;
 		}
 		private Yorumlar YorumItem(YorumlarDto model)

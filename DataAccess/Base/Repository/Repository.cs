@@ -4,49 +4,54 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Base.Repository
 {
+	/// <summary>
+	/// Generic repository implementation without SaveChanges
+	/// SaveChanges is now managed by Unit of Work pattern
+	/// </summary>
 	public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 	{
 		private readonly HaberContext context;
+
 		public Repository(HaberContext context)
 		{
 			this.context = context;
 		}
+
 		public IEnumerable<TEntity> GetAll()
 		{
-			return	context.Set<TEntity>();
+			return context.Set<TEntity>().ToList();
 		}
 
-        public TEntity GetById(int id)
-        {
-            var entity = context.Set<TEntity>().Find(id);
-            if (entity == null)
-            {
-                // Burada null dönebilirsin ya da özel hata fırlatabilirsin
-                return null;
-                // veya throw new Exception($"ID {id} ile kayıt bulunamadı");
-            }
-            return entity;
-        }
-
-        public TEntity Insert(TEntity entity)
+		public TEntity GetById(int id)
 		{
-			context.Entry(entity).State = EntityState.Added;
-			context.SaveChanges();
+			var entity = context.Set<TEntity>().Find(id);
+			if (entity == null)
+			{
+				return null;
+			}
+			return entity;
+		}
+
+		public TEntity Insert(TEntity entity)
+		{
+			context.Set<TEntity>().Add(entity);
+			// SaveChanges removed - managed by UnitOfWork
 			return entity;
 		}
 
 		public TEntity Update(TEntity entity)
 		{
 			context.Entry(entity).State = EntityState.Modified;
-			context.SaveChanges();
+			// SaveChanges removed - managed by UnitOfWork
 			return entity;
 		}
+
 		public bool Delete(TEntity entity)
 		{
 			try
 			{
-				context.Entry(entity).State = EntityState.Deleted;
-				context.SaveChanges();
+				context.Set<TEntity>().Remove(entity);
+				// SaveChanges removed - managed by UnitOfWork
 				return true;
 			}
 			catch (Exception)
