@@ -32,7 +32,7 @@
 							@foreach (var item in Model)
 							{
 								<tr>
-									<td><img style=" max-width: 150px; " src="@Url.Content(@conf.GetSection("Ayarlar")["ApiUrl"] + item.Resim)" /></td>
+									<td><img style=" max-width: 150px; " src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" /></td>
 									<td>@item.Baslik</td>
 									<td>@item.Icerik</td>
 									<td>@item.Haber</td>

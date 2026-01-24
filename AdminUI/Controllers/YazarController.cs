@@ -23,14 +23,18 @@ namespace AdminUI.Controllers
 
 		public IActionResult YazarEkle(YazarViewModel model)
 		{
-			var resimUrl = _commonApiRequest.Upload(model.ResimFile);
+			string resimUrl = "";
+			if (model.ResimFile != null)
+			{
+				resimUrl = _commonApiRequest.Upload(model.ResimFile) ?? "";
+			}
 
 			YazarlarDto yazarlarDto = new YazarlarDto();
-			yazarlarDto.Ad = model.Ad;
-			yazarlarDto.Soyad = model.Soyad;
-			yazarlarDto.Sifre = model.Sifre;
+			yazarlarDto.Ad = model.Ad ?? "";
+			yazarlarDto.Soyad = model.Soyad ?? "";
+			yazarlarDto.Sifre = model.Sifre ?? "";
 			yazarlarDto.Aktifmi = model.Aktifmi;
-			yazarlarDto.Eposta = model.Eposta;
+			yazarlarDto.Eposta = model.Eposta ?? "";
 			yazarlarDto.Resim = resimUrl;
 			var result = _yazarApiRequest.InsertYazar(yazarlarDto);
 			return RedirectToAction("Index", "Yazar");
@@ -52,19 +56,23 @@ namespace AdminUI.Controllers
 		[HttpPost]
 		public IActionResult YazarGuncelle(YazarViewModel model)
 		{
-			string resimUrl = model.Resim;
+			string resimUrl = model.Resim ?? "";
 			if (model.ResimFile != null)
 			{
-				resimUrl = _commonApiRequest.Upload(model.ResimFile);
+				var uploadedResim = _commonApiRequest.Upload(model.ResimFile);
+				if (!string.IsNullOrEmpty(uploadedResim))
+				{
+					resimUrl = uploadedResim;
+				}
 			}
 
 			YazarlarDto yazarlarDto = new YazarlarDto();
 			yazarlarDto.Id = model.Id;
-			yazarlarDto.Ad = model.Ad;
-			yazarlarDto.Soyad = model.Soyad;
-			yazarlarDto.Sifre = model.Sifre;
+			yazarlarDto.Ad = model.Ad ?? "";
+			yazarlarDto.Soyad = model.Soyad ?? "";
+			yazarlarDto.Sifre = model.Sifre ?? "";
 			yazarlarDto.Aktifmi = model.Aktifmi;
-			yazarlarDto.Eposta = model.Eposta;
+			yazarlarDto.Eposta = model.Eposta ?? "";
 			yazarlarDto.Resim = resimUrl;
 			_yazarApiRequest.UpdateYazar(yazarlarDto);
 			return RedirectToAction("Index", "Yazar");

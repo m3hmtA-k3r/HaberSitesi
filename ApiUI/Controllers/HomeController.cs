@@ -11,10 +11,16 @@ namespace ApiUI.Controllers
 		[Route("Upload")]
 		public string Upload(IFormFile file)
 		{
+			if (file == null || file.Length == 0)
+				return "";
+
 			string newFileName = Guid.NewGuid() + "-" + file.FileName;
 			var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Uploads/" + newFileName);
-			var stream = new FileStream(path,FileMode.Create);
-			file.CopyTo(stream);
+
+			using (var stream = new FileStream(path, FileMode.Create))
+			{
+				file.CopyTo(stream);
+			}
 
 			return "/Uploads/" + newFileName;
 		}

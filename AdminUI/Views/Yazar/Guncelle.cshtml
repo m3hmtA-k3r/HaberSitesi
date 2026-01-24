@@ -34,12 +34,12 @@
 						</div>
 						<div class="mb-3">
 							<label for="email" class="form-label">Geçerli Resim</label>
-							<img src="@Url.Content(@conf.GetSection("Ayarlar")["ApiUrl"] + Model.Resim)" style="max-height:150px;" />
+							<img src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Resim)" style="max-height:150px;" />
 							@Html.HiddenFor(x=>x.Resim)
 						</div>
 						<div class="mb-3">
 							<label for="email" class="form-label">Yeni Resim</label>
-							@Html.TextBoxFor(x => x.ResimFile, new { type = "file", @class = "form-control" })
+							<input type="file" name="ResimFile" class="form-control" accept="image/*" />
 						</div>
 						<div class="mb-3">
 							<label for="email" class="form-label">Statü</label>

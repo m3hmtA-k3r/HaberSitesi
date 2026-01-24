@@ -29,11 +29,15 @@ namespace AdminUI.Controllers
 
 		public IActionResult SlaytEkle(SlaytViewModel model)
 		{
-			var resimUrl = _commonApiRequest.Upload(model.ResimFile);
+			string resimUrl = "";
+			if (model.ResimFile != null)
+			{
+				resimUrl = _commonApiRequest.Upload(model.ResimFile) ?? "";
+			}
 
 			SlaytlarDto slaytlarDto = new SlaytlarDto();
-			slaytlarDto.Baslik = model.Baslik;
-			slaytlarDto.Icerik = model.Icerik;
+			slaytlarDto.Baslik = model.Baslik ?? "";
+			slaytlarDto.Icerik = model.Icerik ?? "";
 			slaytlarDto.HaberId = model.HaberId;
 			slaytlarDto.Aktifmi = model.Aktifmi;
 			slaytlarDto.Resim = resimUrl;
@@ -58,16 +62,20 @@ namespace AdminUI.Controllers
 		[HttpPost]
 		public IActionResult SlaytGuncelle(SlaytViewModel model)
 		{
-			string resimUrl = model.Resim;
+			string resimUrl = model.Resim ?? "";
 			if (model.ResimFile != null)
 			{
-				resimUrl = _commonApiRequest.Upload(model.ResimFile);
+				var uploadedResim = _commonApiRequest.Upload(model.ResimFile);
+				if (!string.IsNullOrEmpty(uploadedResim))
+				{
+					resimUrl = uploadedResim;
+				}
 			}
 
 			SlaytlarDto slaytlarDto = new SlaytlarDto();
 			slaytlarDto.Id = model.Id;
-			slaytlarDto.Baslik = model.Baslik;
-			slaytlarDto.Icerik = model.Icerik;
+			slaytlarDto.Baslik = model.Baslik ?? "";
+			slaytlarDto.Icerik = model.Icerik ?? "";
 			slaytlarDto.HaberId = model.HaberId;
 			slaytlarDto.Aktifmi = model.Aktifmi;
 			slaytlarDto.Resim = resimUrl;

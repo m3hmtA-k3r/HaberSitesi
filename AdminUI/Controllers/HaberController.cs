@@ -39,24 +39,24 @@ namespace AdminUI.Controllers
 		[HttpPost]
 		public IActionResult HaberEkle(HaberViewModel model)
 		{
-			string resimUrl = model.Resim;
+			string resimUrl = model.Resim ?? "";
 			if (model.ResimFile != null)
 			{
-				resimUrl = _commonApiRequest.Upload(model.ResimFile);
+				resimUrl = _commonApiRequest.Upload(model.ResimFile) ?? "";
 			}
-			string videoUrl = model.Video;
+			string videoUrl = model.Video ?? "";
 			if (model.VideoFile != null)
 			{
-				videoUrl = _commonApiRequest.Upload(model.VideoFile);
+				videoUrl = _commonApiRequest.Upload(model.VideoFile) ?? "";
 			}
 			HaberlerDto haber = new HaberlerDto();
 			haber.YazarId = model.YazarId;
 			haber.GosterimSayisi = model.GosterimSayisi;
 			haber.Resim = resimUrl;
 			haber.Aktifmi = model.Aktifmi;
-			haber.Baslik = model.Baslik;
+			haber.Baslik = model.Baslik ?? "";
 			haber.KategoriId = model.KategoriId;
-			haber.Icerik = model.Icerik;
+			haber.Icerik = model.Icerik ?? "";
 			haber.Video = videoUrl;
 
 			var result = _haberApiRequest.HaberEkle(haber);
@@ -89,15 +89,23 @@ namespace AdminUI.Controllers
 		[HttpPost]
 		public IActionResult HaberGuncelle(HaberViewModel model)
 		{
-			string resimUrl = model.Resim;
+			string resimUrl = model.Resim ?? "";
 			if (model.ResimFile != null)
 			{
-				resimUrl = _commonApiRequest.Upload(model.ResimFile);
+				var uploadedResim = _commonApiRequest.Upload(model.ResimFile);
+				if (!string.IsNullOrEmpty(uploadedResim))
+				{
+					resimUrl = uploadedResim;
+				}
 			}
-			string videoUrl = model.Video;
+			string videoUrl = model.Video ?? "";
 			if (model.VideoFile != null)
 			{
-				videoUrl = _commonApiRequest.Upload(model.VideoFile);
+				var uploadedVideo = _commonApiRequest.Upload(model.VideoFile);
+				if (!string.IsNullOrEmpty(uploadedVideo))
+				{
+					videoUrl = uploadedVideo;
+				}
 			}
 			HaberlerDto haber = new HaberlerDto();
 			haber.Id = model.Id;
@@ -105,9 +113,9 @@ namespace AdminUI.Controllers
 			haber.GosterimSayisi = model.GosterimSayisi;
 			haber.Resim = resimUrl;
 			haber.Aktifmi = model.Aktifmi;
-			haber.Baslik = model.Baslik;
+			haber.Baslik = model.Baslik ?? "";
 			haber.KategoriId = model.KategoriId;
-			haber.Icerik = model.Icerik;
+			haber.Icerik = model.Icerik ?? "";
 			haber.Video = videoUrl;
 			_haberApiRequest.UpdateHaber(haber);
 			return RedirectToAction("Index");

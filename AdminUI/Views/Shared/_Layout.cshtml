@@ -1,41 +1,52 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>robot_dreams Haber Sitesi Admin Panel</title>
+	<title>MASKER BO | Backoffice Yönetim Paneli</title>
 	<link href="/assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
 	<link href="/assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
 	<link href="/assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
 	<link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/assets/css/master.css" rel="stylesheet">
 	<link href="/assets/vendor/flagiconcss/css/flag-icon.min.css" rel="stylesheet">
+	<style>
+		.sidebar-header { background: linear-gradient(135deg, #1F2937 0%, #374151 100%); padding: 1rem !important; }
+		.app-logo { height: 38px; width: auto; }
+		#sidebar { background: #1F2937; }
+		#sidebar ul li a { color: #9CA3AF; transition: all 0.2s ease; border-left: 3px solid transparent; }
+		#sidebar ul li a:hover { background: rgba(139, 92, 246, 0.15); color: #E5E7EB; border-left-color: #8B5CF6; }
+		#sidebar ul li a .fas { color: #8B5CF6; }
+		.menu-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #6B7280; padding: 1.2rem 1.5rem 0.5rem; margin-top: 0.5rem; }
+	</style>
 </head>
 <body>
 	<div class="wrapper">
         <nav id="sidebar">
             <div class="sidebar-header">
-                <img src="/assets/img/bootstraper-logo.png" alt="bootraper logo" class="app-logo">
+                <img src="/assets/img/masker-bo-logo.svg" alt="MASKER BO" class="app-logo">
             </div>
-            <ul class="list-unstyled components text-secondary">
+            <ul class="list-unstyled components">
                 <li>
-                    <a href="/Home"><i class="fas fa-home"></i> Dashboard</a>
+                    <a href="/Home"><i class="fas fa-th-large"></i> Kontrol Paneli</a>
+                </li>
+                <div class="menu-section">İçerik Modülleri</div>
+                <li>
+                    <a href="/Haber"><i class="fas fa-newspaper"></i> İçerik Yönetimi</a>
                 </li>
                 <li>
-                    <a href="/Haber"><i class="fas fa-file-alt"></i> Haber İşlemleri</a>
+                    <a href="/Slayt"><i class="fas fa-tv"></i> Vitrin & Medya</a>
                 </li>
                 <li>
-                    <a href="/Slayt"><i class="fas fa-copy"></i> Slayt İşlemleri</a>
+                    <a href="/Kategori"><i class="fas fa-sitemap"></i> Taksonomi</a>
+                </li>
+                <div class="menu-section">Kullanıcı Modülleri</div>
+                <li>
+                    <a href="/Yorum"><i class="fas fa-comments"></i> Etkileşim Merkezi</a>
                 </li>
                 <li>
-                    <a href="/Kategori"><i class="fas fa-copy"></i> Kategori İşlemleri</a>
-                </li>
-                <li>
-                    <a href="/Yorum"><i class="fas fa-copy"></i> Yorum İşlemleri</a>
-                </li>
-                <li>
-                    <a href="/Yazar"><i class="fas fa-copy"></i> Yazar İşlemleri</a>
+                    <a href="/Yazar"><i class="fas fa-user-edit"></i> Editör Yönetimi</a>
                 </li>
             </ul>
         </nav>
