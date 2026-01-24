@@ -48,7 +48,7 @@ namespace Business.Base
 
 		public HaberlerDto InsertHaber(HaberlerDto model)
 		{
-			model.EklenmeTarihi = DateTime.Now;
+			model.EklenmeTarihi = DateTime.UtcNow;
 			Haberler response = _unitOfWork.HaberlerRepository.Insert(HaberItem(model));
 			_unitOfWork.SaveChanges();
 
@@ -87,7 +87,7 @@ namespace Business.Base
 			result.Icerik = model.Icerik;
 			result.Aktifmi = model.Aktifmi;
 			result.Resim = model.Resim;
-			result.EklenmeTarihi = model.EklenmeTarihi;
+			result.EklenmeTarihi = DateTime.SpecifyKind(model.EklenmeTarihi, DateTimeKind.Utc);
 			result.YazarId = model.YazarId;
 
 			if (yazar != null)
@@ -115,7 +115,7 @@ namespace Business.Base
 			result.Icerik = model.Icerik;
 			result.Aktifmi = model.Aktifmi;
 			result.Resim = model.Resim;
-			result.EklenmeTarihi = model.EklenmeTarihi;
+			result.EklenmeTarihi = DateTime.SpecifyKind(model.EklenmeTarihi, DateTimeKind.Utc);
 			result.YazarId = model.YazarId;
 			result.KategoriId = model.KategoriId;
 			result.GosterimSayisi = model.GosterimSayisi;

@@ -3,8 +3,8 @@ using System;
 using DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -18,57 +18,57 @@ namespace DataAccess.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Shared.Entities.Haberler", b =>
+            modelBuilder.Entity("Domain.Entities.Haberler", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Aktifmi")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("AKTIF_MI");
 
                     b.Property<string>("Baslik")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("BASLIK");
 
                     b.Property<DateTime>("EklenmeTarihi")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("EKLEME_TARIHI");
 
                     b.Property<int>("GosterimSayisi")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("GOSTERIM_SAYISI");
 
                     b.Property<string>("Icerik")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("ICERIK");
 
                     b.Property<int>("KategoriId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("CATEGORY_ID");
 
                     b.Property<string>("Resim")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("RESIM");
 
                     b.Property<string>("Video")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("VIDEO");
 
                     b.Property<int>("YazarId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("YAZAR_ID");
 
                     b.HasKey("Id");
@@ -76,22 +76,22 @@ namespace DataAccess.Migrations
                     b.ToTable("HABERLER");
                 });
 
-            modelBuilder.Entity("Shared.Entities.Kategoriler", b =>
+            modelBuilder.Entity("Domain.Entities.Kategoriler", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aciklama")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("ACIKLAMA");
 
                     b.Property<bool>("Aktifmi")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("AKTIF_MI");
 
                     b.HasKey("Id");
@@ -99,36 +99,36 @@ namespace DataAccess.Migrations
                     b.ToTable("KATEGORILER");
                 });
 
-            modelBuilder.Entity("Shared.Entities.Slaytlar", b =>
+            modelBuilder.Entity("Domain.Entities.Slaytlar", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Aktifmi")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("AKTIF_MI");
 
                     b.Property<string>("Baslik")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("BASLIK");
 
                     b.Property<int>("HaberId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("HABER_ID");
 
                     b.Property<string>("Icerik")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("ICERIK");
 
                     b.Property<string>("Resim")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("RESIM");
 
                     b.HasKey("Id");
@@ -136,42 +136,42 @@ namespace DataAccess.Migrations
                     b.ToTable("SLAYTLAR");
                 });
 
-            modelBuilder.Entity("Shared.Entities.Yazarlar", b =>
+            modelBuilder.Entity("Domain.Entities.Yazarlar", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Ad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("AD");
 
                     b.Property<bool>("Aktifmi")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("AKTIF_MI");
 
                     b.Property<string>("Eposta")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("EPOSTA");
 
                     b.Property<string>("Resim")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("RESIM");
 
                     b.Property<string>("Sifre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("SIFRE");
 
                     b.Property<string>("Soyad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("SOYAD");
 
                     b.HasKey("Id");
@@ -179,50 +179,50 @@ namespace DataAccess.Migrations
                     b.ToTable("YAZARLAR");
                 });
 
-            modelBuilder.Entity("Shared.Entities.Yorumlar", b =>
+            modelBuilder.Entity("Domain.Entities.Yorumlar", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Ad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("AD");
 
                     b.Property<bool>("Aktifmi")
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasColumnName("AKTIF_MI");
 
                     b.Property<string>("Baslik")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("BASLIK");
 
                     b.Property<DateTime>("EklenmeTarihi")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("EKLEME_TARIHI");
 
                     b.Property<string>("Eposta")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("EPOSTA");
 
                     b.Property<int>("HaberId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("HABER_ID");
 
                     b.Property<string>("Icerik")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("ICERIK");
 
                     b.Property<string>("Soyad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("text")
                         .HasColumnName("SOYAD");
 
                     b.HasKey("Id");

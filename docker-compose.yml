@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  masker-db:
+    image: postgres:16-alpine
+    container_name: masker_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: masker_admin
+      POSTGRES_PASSWORD: Masker2026!SecurePass
+      POSTGRES_DB: MaskerDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - masker_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U masker_admin -d MaskerDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin - Veritabani yonetim arayuzu (Opsiyonel)
+  masker-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: masker_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@masker.com
+      PGADMIN_DEFAULT_PASSWORD: MaskerAdmin2026!
+    ports:
+      - "5050:80"
+    depends_on:
+      - masker-db
+    volumes:
+      - masker_pgadmin:/var/lib/pgadmin
+
+volumes:
+  masker_pgdata:
+    name: masker_postgres_data
+  masker_pgadmin:
+    name: masker_pgadmin_data

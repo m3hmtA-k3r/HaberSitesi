@@ -16,7 +16,7 @@ namespace Domain.Entities
 		[Column("BASLIK")]
 		public string Baslik { get; set; }
 
-		[Column("EKLEME_TARIHI")]
+		[Column("EKLEME_TARIHI", TypeName = "timestamp without time zone")]
 		public DateTime EklenmeTarihi { get; set; }
 
 		[Column("YAZAR_ID")]

@@ -9,8 +9,8 @@ namespace DataAccess.Context
         {
             var optionsBuilder = new DbContextOptionsBuilder<HaberContext>();
 
-            // SQLite kullan
-            optionsBuilder.UseSqlite("Data Source=../ApiUI/HaberSitesi.db");
+            // PostgreSQL kullan
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=MaskerDB;Username=masker_admin;Password=Masker2026!SecurePass");
 
             return new HaberContext(optionsBuilder.Options);
         }

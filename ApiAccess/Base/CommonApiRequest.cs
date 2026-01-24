@@ -17,7 +17,7 @@ namespace ApiAccess.Base
 
 			using var client = new HttpClient();
 
-			var response = client.PostAsync("https://localhost:7063/api/home/upload", content).Result;
+			var response = client.PostAsync("http://localhost:5100/api/Home/Upload", content).Result;
 
 			if (response.IsSuccessStatusCode)
 				return response.Content.ReadAsStringAsync().Result;

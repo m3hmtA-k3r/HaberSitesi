@@ -13,6 +13,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+// PostgreSQL DateTime compatibility
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,9 +27,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Haber Sitesi API",
+        Title = "Masker API",
         Version = "v1",
-        Description = "Haber Sitesi RESTful API - JWT Authentication Required"
+        Description = "Masker - Multi-Client Content Platform API - JWT Authentication Required"
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -54,12 +57,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Database Connection (SQLite)
+// Database Connection (PostgreSQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string not found.");
 
 builder.Services.AddDbContext<HaberContext>(option =>
-    option.UseSqlite(connectionString));
+    option.UseNpgsql(connectionString));
 
 // JWT Authentication
 var jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"]
@@ -90,7 +93,7 @@ builder.Services.AddAuthentication(options =>
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("HaberSitesiPolicy", policy =>
+    options.AddPolicy("MaskerPolicy", policy =>
     {
         policy.WithOrigins("http://localhost:5200", "http://localhost:5300")
               .AllowAnyHeader()
@@ -169,7 +172,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseCors("HaberSitesiPolicy");
+app.UseCors("MaskerPolicy");
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 
