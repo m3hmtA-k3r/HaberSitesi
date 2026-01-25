@@ -30,6 +30,24 @@ namespace Application.Mappings
 			// Slaytlar mappings
 			CreateMap<Slaytlar, SlaytlarDto>()
 				.ReverseMap();
+
+			// Kullanicilar mappings
+			CreateMap<Kullanicilar, KullaniciDto>()
+				.ForMember(dest => dest.Roller, opt => opt.Ignore())
+				.ReverseMap();
+
+			CreateMap<Kullanicilar, ProfilDto>()
+				.ForMember(dest => dest.Roller, opt => opt.Ignore())
+				.ReverseMap();
+
+			// Roller mappings
+			CreateMap<Roller, RolDto>()
+				.ReverseMap();
+
+			// KullaniciRol mappings
+			CreateMap<KullaniciRol, KullaniciRolDto>()
+				.ForMember(dest => dest.RolAdi, opt => opt.Ignore())
+				.ReverseMap();
 		}
 	}
 }

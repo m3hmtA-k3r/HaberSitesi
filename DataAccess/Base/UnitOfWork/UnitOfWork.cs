@@ -19,6 +19,9 @@ namespace DataAccess.Base.UnitOfWork
 		private IRepository<Yazarlar> _yazarlarRepository;
 		private IRepository<Yorumlar> _yorumlarRepository;
 		private IRepository<Slaytlar> _slaytlarRepository;
+		private IRepository<Kullanicilar> _kullanicilarRepository;
+		private IRepository<Roller> _rollerRepository;
+		private IRepository<KullaniciRol> _kullaniciRollerRepository;
 
 		public UnitOfWork(HaberContext context)
 		{
@@ -62,6 +65,30 @@ namespace DataAccess.Base.UnitOfWork
 			get
 			{
 				return _slaytlarRepository ??= new Repository<Slaytlar>(_context);
+			}
+		}
+
+		public IRepository<Kullanicilar> KullanicilarRepository
+		{
+			get
+			{
+				return _kullanicilarRepository ??= new Repository<Kullanicilar>(_context);
+			}
+		}
+
+		public IRepository<Roller> RollerRepository
+		{
+			get
+			{
+				return _rollerRepository ??= new Repository<Roller>(_context);
+			}
+		}
+
+		public IRepository<KullaniciRol> KullaniciRollerRepository
+		{
+			get
+			{
+				return _kullaniciRollerRepository ??= new Repository<KullaniciRol>(_context);
 			}
 		}
 

@@ -31,6 +31,15 @@ namespace DataAccess.Base.UnitOfWork
 		public Application.Interfaces.IRepository<Slaytlar> SlaytlarRepository =>
 			new RepositoryAdapter<Slaytlar>(_dataAccessUnitOfWork.SlaytlarRepository);
 
+		public Application.Interfaces.IRepository<Kullanicilar> KullanicilarRepository =>
+			new RepositoryAdapter<Kullanicilar>(_dataAccessUnitOfWork.KullanicilarRepository);
+
+		public Application.Interfaces.IRepository<Roller> RollerRepository =>
+			new RepositoryAdapter<Roller>(_dataAccessUnitOfWork.RollerRepository);
+
+		public Application.Interfaces.IRepository<KullaniciRol> KullaniciRollerRepository =>
+			new RepositoryAdapter<KullaniciRol>(_dataAccessUnitOfWork.KullaniciRollerRepository);
+
 		public int SaveChanges() => _dataAccessUnitOfWork.SaveChanges();
 
 		public Task<int> SaveChangesAsync() => _dataAccessUnitOfWork.SaveChangesAsync();

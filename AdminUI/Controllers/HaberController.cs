@@ -1,5 +1,6 @@
 ﻿using AdminUI.Models;
 using ApiAccess.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shared.Dtos;
@@ -7,6 +8,7 @@ using System.Reflection.Emit;
 
 namespace AdminUI.Controllers
 {
+	[Authorize]
 	public class HaberController : Controller
 	{
 		private readonly IHaberApiRequest _haberApiRequest;

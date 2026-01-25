@@ -29,6 +29,11 @@ builder.Services.AddScoped<IKategoriApiRequest, KategoriApiRequest>();
 builder.Services.AddScoped<IYorumApiRequest, YorumApiRequest>();
 builder.Services.AddScoped<ICommonApiRequest, CommonApiRequest>();
 builder.Services.AddScoped<ISlaytApiRequest, SlaytApiRequest>();
+
+// User and Role Management API Access
+builder.Services.AddScoped<IAuthApiRequest, AuthApiRequest>();
+builder.Services.AddScoped<IKullaniciApiRequest, KullaniciApiRequest>();
+builder.Services.AddScoped<IRolApiRequest, RolApiRequest>();
 #endregion
 
 // Cookie Authentication
@@ -37,8 +42,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow HTTP in dev
+        options.Cookie.SameSite = SameSiteMode.Lax; // More permissive for dev
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.SlidingExpiration = true;
         options.Cookie.Name = "HaberSitesi.AdminAuth";
@@ -49,11 +54,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -61,6 +65,13 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Root route - redirect to login
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/Account/Login");
+    return Task.CompletedTask;
+});
 
 app.MapControllerRoute(
     name: "default",

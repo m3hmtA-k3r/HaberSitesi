@@ -6,6 +6,7 @@ using DataAccess.Context;
 using FluentValidation;
 using Infrastructure.Caching;
 using Infrastructure.Identity;
+using Infrastructure.Security;
 using Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -130,6 +131,9 @@ builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
 // JWT Token Service
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+// Password Hasher
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
 // BUSINESS LAYER
 // Business services now use UnitOfWork instead of individual repositories
 builder.Services.AddScoped<IHaberService, HaberManager>();
@@ -137,6 +141,11 @@ builder.Services.AddScoped<IKategoriService, KategoriManager>();
 builder.Services.AddScoped<ISlaytService, SlaytManager>();
 builder.Services.AddScoped<IYorumService, YorumManager>();
 builder.Services.AddScoped<IYazarService, YazarManager>();
+
+// User and Role Management Services
+builder.Services.AddScoped<IKullaniciService, KullaniciManager>();
+builder.Services.AddScoped<IRolService, RolManager>();
+builder.Services.AddScoped<IAuthService, AuthManager>();
 #endregion
 
 var app = builder.Build();
@@ -149,11 +158,13 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Enable Swagger in all environments for testing
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Masker API v1");
+    c.RoutePrefix = string.Empty; // Swagger UI at root
+});
 
 // Security Headers
 app.Use(async (context, next) =>

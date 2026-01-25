@@ -1,0 +1,77 @@
+@model List<AdminUI.Models.KullaniciListViewModel>
+
+<div class="container">
+    <div class="page-title">
+        <h3>Kullanici Yonetimi</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-9" style="line-height:50px;">Kullanicilar</div>
+                        <div class="col-3">
+                            <a href="/Kullanici/Ekle" style="float:right;color: white;background-color:green;" class="btn float-right m-2">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-title">Kullanici yonetimi islemlerini buradan yapabilirsiniz. Toplam Aktif Kullanici: @Model.Count(x => x.AktifMi)</p>
+                    <table class="table table-hover" id="dataTables-example" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Ad Soyad</th>
+                                <th>E-posta</th>
+                                <th>Roller</th>
+                                <th>Olusturma Tarihi</th>
+                                <th>Son Giris</th>
+                                <th>Durum</th>
+                                <th style="min-width:150px;">Islemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.AdSoyad</td>
+                                    <td>@item.Eposta</td>
+                                    <td>
+                                        @foreach (var rol in item.Roller)
+                                        {
+                                            <span class="badge bg-primary me-1">@rol</span>
+                                        }
+                                    </td>
+                                    <td>@item.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                                    <td>@(item.SonGirisTarihi?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                                    <td>
+                                        @if (item.AktifMi)
+                                        {
+                                            <span class="badge bg-success">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Pasif</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="/Kullanici/Guncelle?kullaniciId=@item.Id" class="btn btn-primary btn-sm mb-1" title="Duzenle">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a href="/Kullanici/RollerDuzenle?kullaniciId=@item.Id" class="btn btn-warning btn-sm mb-1" title="Rolleri Duzenle">
+                                            <i class="fa fa-user-tag"></i>
+                                        </a>
+                                        <a href="/Kullanici/Sil?kullaniciId=@item.Id" class="btn btn-danger btn-sm mb-1" onclick="return confirm('Bu kullaniciyi silmek istediginize emin misiniz?')" title="Sil">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

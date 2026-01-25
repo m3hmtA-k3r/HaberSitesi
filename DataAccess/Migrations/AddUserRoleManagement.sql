@@ -1,0 +1,97 @@
+-- MASKER - User and Role Management Migration Script
+-- Run this script manually if EF migrations are not available
+-- PostgreSQL compatible
+
+-- Create KULLANICILAR (Users) table
+CREATE TABLE IF NOT EXISTS "KULLANICILAR" (
+    "ID" SERIAL PRIMARY KEY,
+    "AD" VARCHAR(100) NOT NULL,
+    "SOYAD" VARCHAR(100) NOT NULL,
+    "EPOSTA" VARCHAR(255) NOT NULL UNIQUE,
+    "SIFRE_HASH" TEXT NOT NULL,
+    "RESIM" VARCHAR(500),
+    "AKTIF_MI" BOOLEAN NOT NULL DEFAULT TRUE,
+    "OLUSTURMA_TARIHI" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "SON_GIRIS_TARIHI" TIMESTAMP
+);
+
+-- Create ROLLER (Roles) table
+CREATE TABLE IF NOT EXISTS "ROLLER" (
+    "ID" SERIAL PRIMARY KEY,
+    "ROL_ADI" VARCHAR(50) NOT NULL,
+    "ACIKLAMA" VARCHAR(255),
+    "AKTIF_MI" BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- Create KULLANICI_ROLLER (User-Role mapping) table
+CREATE TABLE IF NOT EXISTS "KULLANICI_ROLLER" (
+    "ID" SERIAL PRIMARY KEY,
+    "KULLANICI_ID" INTEGER NOT NULL REFERENCES "KULLANICILAR"("ID") ON DELETE CASCADE,
+    "ROL_ID" INTEGER NOT NULL REFERENCES "ROLLER"("ID") ON DELETE CASCADE,
+    "ATANMA_TARIHI" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE ("KULLANICI_ID", "ROL_ID")
+);
+
+-- Add KULLANICI_ID to YAZARLAR table
+ALTER TABLE "YAZARLAR"
+ADD COLUMN IF NOT EXISTS "KULLANICI_ID" INTEGER REFERENCES "KULLANICILAR"("ID");
+
+-- Create index on YAZARLAR.KULLANICI_ID
+CREATE INDEX IF NOT EXISTS "IX_YAZARLAR_KULLANICI_ID" ON "YAZARLAR" ("KULLANICI_ID");
+
+-- Seed default roles
+INSERT INTO "ROLLER" ("ID", "ROL_ADI", "ACIKLAMA", "AKTIF_MI") VALUES
+(1, 'Admin', 'Sistem yoneticisi - tum yetkiler', TRUE),
+(2, 'Editor', 'Icerik editoru - haber ve kategori yonetimi', TRUE),
+(3, 'Yazar', 'Yazar - kendi haberlerini yonetir', TRUE),
+(4, 'Moderator', 'Moderator - yorum moderasyonu', TRUE)
+ON CONFLICT ("ID") DO NOTHING;
+
+-- Reset sequence for ROLLER
+SELECT setval(pg_get_serial_sequence('"ROLLER"', 'ID'), COALESCE(MAX("ID"), 0) + 1, false) FROM "ROLLER";
+
+-- Data Migration: Move existing Yazarlar to Kullanicilar
+-- Note: This uses a placeholder hash for existing passwords
+-- Users should change their passwords after migration
+INSERT INTO "KULLANICILAR" ("AD", "SOYAD", "EPOSTA", "SIFRE_HASH", "RESIM", "AKTIF_MI", "OLUSTURMA_TARIHI")
+SELECT
+    "AD",
+    "SOYAD",
+    "EPOSTA",
+    -- BCrypt hash of 'changeme123' - users must change password
+    '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.BNNIFp3O.5kKT2',
+    "RESIM",
+    "AKTIF_MI",
+    CURRENT_TIMESTAMP
+FROM "YAZARLAR"
+WHERE NOT EXISTS (
+    SELECT 1 FROM "KULLANICILAR" WHERE "KULLANICILAR"."EPOSTA" = "YAZARLAR"."EPOSTA"
+);
+
+-- Update Yazarlar with KullaniciId references
+UPDATE "YAZARLAR"
+SET "KULLANICI_ID" = k."ID"
+FROM "KULLANICILAR" k
+WHERE "YAZARLAR"."EPOSTA" = k."EPOSTA"
+AND "YAZARLAR"."KULLANICI_ID" IS NULL;
+
+-- Assign 'Yazar' role to all migrated users
+INSERT INTO "KULLANICI_ROLLER" ("KULLANICI_ID", "ROL_ID", "ATANMA_TARIHI")
+SELECT k."ID", 3, CURRENT_TIMESTAMP
+FROM "KULLANICILAR" k
+WHERE NOT EXISTS (
+    SELECT 1 FROM "KULLANICI_ROLLER" WHERE "KULLANICI_ID" = k."ID" AND "ROL_ID" = 3
+);
+
+-- Assign 'Admin' role to the first user (ID = 1)
+INSERT INTO "KULLANICI_ROLLER" ("KULLANICI_ID", "ROL_ID", "ATANMA_TARIHI")
+SELECT 1, 1, CURRENT_TIMESTAMP
+WHERE EXISTS (SELECT 1 FROM "KULLANICILAR" WHERE "ID" = 1)
+AND NOT EXISTS (
+    SELECT 1 FROM "KULLANICI_ROLLER" WHERE "KULLANICI_ID" = 1 AND "ROL_ID" = 1
+);
+
+-- Display migration results
+SELECT 'Kullanicilar count: ' || COUNT(*) FROM "KULLANICILAR";
+SELECT 'Roller count: ' || COUNT(*) FROM "ROLLER";
+SELECT 'KullaniciRoller count: ' || COUNT(*) FROM "KULLANICI_ROLLER";

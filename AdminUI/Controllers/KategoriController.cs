@@ -1,10 +1,12 @@
 ﻿using AdminUI.Models;
 using ApiAccess.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Dtos;
 
 namespace AdminUI.Controllers
 {
+    [Authorize]
     public class KategoriController : Controller
     {
         private readonly IKategoriApiRequest _kategoriApiRequest;

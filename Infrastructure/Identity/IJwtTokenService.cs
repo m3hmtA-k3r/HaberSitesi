@@ -11,6 +11,11 @@ namespace Infrastructure.Identity
 		string GenerateToken(int userId, string email, string fullName);
 
 		/// <summary>
+		/// Generate JWT token for authenticated user with roles
+		/// </summary>
+		string GenerateToken(int userId, string email, string fullName, IEnumerable<string> roles);
+
+		/// <summary>
 		/// Validate JWT token and return user ID
 		/// </summary>
 		int? ValidateToken(string token);

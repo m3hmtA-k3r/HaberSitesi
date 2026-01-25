@@ -6,5 +6,7 @@ namespace Shared.Dtos
         public string? Token { get; set; }
         public string? Message { get; set; }
         public YazarlarDto? Yazar { get; set; }
+        public KullaniciDto? Kullanici { get; set; }
+        public List<string>? Roller { get; set; }
     }
 }

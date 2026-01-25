@@ -1,0 +1,46 @@
+@model AdminUI.Models.SifreDegistirViewModel
+
+<div class="container">
+    <div class="page-title">
+        <h3>Sifre Degistir</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-9" style="line-height:50px;">Yeni Sifre Belirle</div>
+                        <div class="col-3">
+                            <a href="/Account/Profil" style="float:right;" class="btn btn-secondary m-2">
+                                <i class="fa fa-arrow-left"></i> Geri
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form asp-action="SifreDegistirKaydet" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Mevcut Sifre *</label>
+                            <input type="password" class="form-control" asp-for="EskiSifre" required />
+                            <span asp-validation-for="EskiSifre" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Sifre *</label>
+                            <input type="password" class="form-control" asp-for="YeniSifre" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Sifre Tekrar *</label>
+                            <input type="password" class="form-control" asp-for="YeniSifreTekrar" required />
+                            <span asp-validation-for="YeniSifreTekrar" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-save"></i> Sifreyi Degistir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

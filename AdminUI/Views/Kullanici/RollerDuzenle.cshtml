@@ -1,0 +1,77 @@
+@model AdminUI.Models.KullaniciViewModel
+
+<div class="container">
+    <div class="page-title">
+        <h3>Rol Yonetimi - @Model.Ad @Model.Soyad</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-9" style="line-height:50px;">Kullanici Rolleri</div>
+                        <div class="col-3">
+                            <a href="/Kullanici" style="float:right;" class="btn btn-secondary m-2">
+                                <i class="fa fa-arrow-left"></i> Geri
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form asp-action="RollerKaydet" method="post">
+                        <input type="hidden" name="kullaniciId" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">Rolleri Secin</label>
+                            <div class="row">
+                                @if (Model.TumRoller != null)
+                                {
+                                    foreach (var rol in Model.TumRoller)
+                                    {
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       name="seciliRoller"
+                                                       value="@rol.Value"
+                                                       id="rol_@rol.Value"
+                                                       @(rol.Selected ? "checked" : "") />
+                                                <label class="form-check-label" for="rol_@rol.Value">
+                                                    @rol.Text
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-save"></i> Rolleri Kaydet
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    Rol Aciklamalari
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt><span class="badge bg-danger">Admin</span></dt>
+                        <dd>Sistem yoneticisi - tum yetkiler</dd>
+                        <dt><span class="badge bg-warning">Editor</span></dt>
+                        <dd>Icerik editoru - haber ve kategori yonetimi</dd>
+                        <dt><span class="badge bg-info">Yazar</span></dt>
+                        <dd>Yazar - kendi haberlerini yonetir</dd>
+                        <dt><span class="badge bg-secondary">Moderator</span></dt>
+                        <dd>Moderator - yorum moderasyonu</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,11 +1,13 @@
 ﻿using AdminUI.Models;
 using ApiAccess.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Dtos;
 using System.Reflection;
 
 namespace AdminUI.Controllers
 {
+	[Authorize]
 	public class YorumController : Controller
 	{
 		private readonly IYorumApiRequest _yorumRequest;

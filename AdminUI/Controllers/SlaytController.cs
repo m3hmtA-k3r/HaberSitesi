@@ -1,11 +1,13 @@
 ﻿using AdminUI.Models;
 using ApiAccess.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shared.Dtos;
 
 namespace AdminUI.Controllers
 {
+	[Authorize]
 	public class SlaytController : Controller
 	{
 		private readonly ISlaytApiRequest _slaytApiRequest;

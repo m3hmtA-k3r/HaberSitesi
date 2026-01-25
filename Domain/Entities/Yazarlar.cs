@@ -30,5 +30,8 @@ namespace Domain.Entities
 
 		[Column("AKTIF_MI")]
 		public bool Aktifmi { get; set; }
+
+		[Column("KULLANICI_ID")]
+		public int? KullaniciId { get; set; }
 	}
 }

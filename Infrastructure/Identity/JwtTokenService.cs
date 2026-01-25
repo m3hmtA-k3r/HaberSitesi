@@ -28,18 +28,31 @@ namespace Infrastructure.Identity
 
 		public string GenerateToken(int userId, string email, string fullName)
 		{
+			return GenerateToken(userId, email, fullName, Array.Empty<string>());
+		}
+
+		public string GenerateToken(int userId, string email, string fullName, IEnumerable<string> roles)
+		{
 			var tokenHandler = new JwtSecurityTokenHandler();
 			var key = Encoding.ASCII.GetBytes(_secretKey);
 
+			var claims = new List<Claim>
+			{
+				new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+				new Claim(ClaimTypes.Email, email),
+				new Claim(ClaimTypes.Name, fullName),
+				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+			};
+
+			// Add role claims
+			foreach (var role in roles)
+			{
+				claims.Add(new Claim(ClaimTypes.Role, role));
+			}
+
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				Subject = new ClaimsIdentity(new[]
-				{
-					new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-					new Claim(ClaimTypes.Email, email),
-					new Claim(ClaimTypes.Name, fullName),
-					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-				}),
+				Subject = new ClaimsIdentity(claims),
 				Expires = DateTime.UtcNow.AddMinutes(_expirationMinutes),
 				Issuer = _issuer,
 				Audience = _audience,

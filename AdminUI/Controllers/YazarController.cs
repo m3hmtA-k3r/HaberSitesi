@@ -1,10 +1,12 @@
 ﻿using AdminUI.Models;
 using ApiAccess.Abstract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Dtos;
 
 namespace AdminUI.Controllers
 {
+	[Authorize]
 	public class YazarController : Controller
 	{
 		private readonly IYazarApiRequest _yazarApiRequest;

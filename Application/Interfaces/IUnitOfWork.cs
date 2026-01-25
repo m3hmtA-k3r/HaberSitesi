@@ -15,6 +15,9 @@ namespace Application.Interfaces
 		IRepository<Yazarlar> YazarlarRepository { get; }
 		IRepository<Yorumlar> YorumlarRepository { get; }
 		IRepository<Slaytlar> SlaytlarRepository { get; }
+		IRepository<Kullanicilar> KullanicilarRepository { get; }
+		IRepository<Roller> RollerRepository { get; }
+		IRepository<KullaniciRol> KullaniciRollerRepository { get; }
 
 		// Transaction methods
 		int SaveChanges();
