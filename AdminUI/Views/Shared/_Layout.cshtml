@@ -19,9 +19,21 @@
 		#sidebar ul li a:hover { background: rgba(139, 92, 246, 0.15); color: #E5E7EB; border-left-color: #8B5CF6; }
 		#sidebar ul li a .fas { color: #8B5CF6; }
 		.menu-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #6B7280; padding: 1.2rem 1.5rem 0.5rem; margin-top: 0.5rem; }
+
+		/* Toast Bildirimleri */
+		#toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+		.toast-message { padding: 15px 25px; margin-bottom: 10px; border-radius: 8px; color: #fff; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease; }
+		.toast-message.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+		.toast-message.success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.toast-message.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.toast-message.info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+		@@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 	</style>
 </head>
 <body>
+	<!-- Toast Container -->
+	<div id="toast-container"></div>
+
 	<div class="wrapper">
         <nav id="sidebar">
             <div class="sidebar-header">
@@ -95,5 +107,30 @@
     <script src="/assets/js/script.js"></script>
     <script src="/assets/vendor/datatables/datatables.min.js"></script>
     <script src="/assets/js/initiate-datatables.js"></script>
+
+    <!-- Toast Bildirimi Scripti -->
+    <script>
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast-message ' + type;
+            toast.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle') + '"></i> ' + message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'slideIn 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>showToast('@TempData["Error"]', 'error');</text>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <text>showToast('@TempData["Success"]', 'success');</text>
+        }
+        @if (TempData["Warning"] != null)
+        {
+            <text>showToast('@TempData["Warning"]', 'warning');</text>
+        }
+    </script>
 </body>
 </html>

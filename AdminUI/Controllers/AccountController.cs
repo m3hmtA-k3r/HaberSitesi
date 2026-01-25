@@ -30,6 +30,11 @@ namespace AdminUI.Controllers
 			return View();
 		}
 
+		public IActionResult AccessDenied()
+		{
+			return View();
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> GirisYap(LoginViewModel model)
 		{
@@ -100,25 +105,42 @@ namespace AdminUI.Controllers
 		[Authorize]
 		public IActionResult Profil()
 		{
+			// Try new auth system first (JWT based)
 			var profil = _authApiRequest.GetProfil();
-			if (profil == null)
+			if (profil != null)
 			{
-				return RedirectToAction("Login");
+				var model = new ProfilViewModel
+				{
+					Id = profil.Id,
+					Ad = profil.Ad,
+					Soyad = profil.Soyad,
+					Eposta = profil.Eposta,
+					Resim = profil.Resim,
+					OlusturmaTarihi = profil.OlusturmaTarihi,
+					SonGirisTarihi = profil.SonGirisTarihi,
+					Roller = profil.Roller
+				};
+				return View(model);
 			}
 
-			var model = new ProfilViewModel
+			// Fallback for Yazar users (no JWT token)
+			var email = User.FindFirst(ClaimTypes.Email)?.Value;
+			var name = User.FindFirst(ClaimTypes.Name)?.Value ?? "";
+			var nameParts = name.Split(' ', 2);
+
+			var yazarModel = new ProfilViewModel
 			{
-				Id = profil.Id,
-				Ad = profil.Ad,
-				Soyad = profil.Soyad,
-				Eposta = profil.Eposta,
-				Resim = profil.Resim,
-				OlusturmaTarihi = profil.OlusturmaTarihi,
-				SonGirisTarihi = profil.SonGirisTarihi,
-				Roller = profil.Roller
+				Id = 0,
+				Ad = nameParts.Length > 0 ? nameParts[0] : "",
+				Soyad = nameParts.Length > 1 ? nameParts[1] : "",
+				Eposta = email ?? "",
+				Resim = "",
+				OlusturmaTarihi = DateTime.Now,
+				SonGirisTarihi = DateTime.Now,
+				Roller = new List<string> { "Yazar" }
 			};
 
-			return View(model);
+			return View(yazarModel);
 		}
 
 		[Authorize]

@@ -41,6 +41,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow HTTP in dev
         options.Cookie.SameSite = SameSiteMode.Lax; // More permissive for dev
