@@ -1,56 +1,192 @@
 <div align="center">
 
-# 🗞️ Haber Sitesi Yönetim Sistemi
+# 🎭 MASKER - Modular Application System for Knowledge, Enterprise & Resources
 
-### Modern ve Kapsamlı Haber Platformu
+### Cok Yonlu, Olceklenebilir ve Genisleyebilir Platform
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-12.0-blue.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![Entity Framework](https://img.shields.io/badge/Entity%20Framework-Core-green.svg)](https://docs.microsoft.com/en-us/ef/core/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
+[![JWT](https://img.shields.io/badge/JWT-Authentication-orange.svg)](https://jwt.io/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
-**Profesyonel bir haber sitesi için eksiksiz çözüm**
+**Icerik + Ticaret + Kullanici Yonetimini Birlestiren Kurumsal Platform**
 
-[Kurulum](#-kurulum-ve-çalıştırma) • [Mimari](#️-proje-mimarisi) • [Özellikler](#-temel-özellikler) • [Dokümantasyon](#-api-endpoints)
+[Kurulum](#-kurulum-ve-calistirma) • [Mimari](#️-proje-mimarisi) • [Guvenlik](#-guvenlik-ve-yetkilendirme) • [API](#-api-endpoints)
 
 </div>
 
 ---
 
-## 📖 İçindekiler
+## 📖 Icindekiler
 
-- [Proje Hakkında](#-proje-hakkında)
-- [Temel Özellikler](#-temel-özellikler)
+- [Proje Hakkinda](#-proje-hakkinda)
+- [Platform Vizyonu](#-platform-vizyonu)
+- [Temel Ozellikler](#-temel-ozellikler)
 - [Proje Mimarisi](#️-proje-mimarisi)
-- [Teknolojiler](#️-kullanılan-teknolojiler)
-- [Kurulum](#-kurulum-ve-çalıştırma)
-- [Veritabanı](#-veritabanı-yapısı)
+- [Guvenlik ve Yetkilendirme](#-guvenlik-ve-yetkilendirme)
+- [Admin Panel ve UI Kararlari](#-admin-panel-ve-ui-kararlari)
+- [Teknolojiler](#️-kullanilan-teknolojiler)
+- [Kurulum](#-kurulum-ve-calistirma)
+- [Veritabani](#-veritabani-yapisi)
 - [API](#-api-endpoints)
-- [Ekran Görüntüleri](#-ekran-görüntüleri)
 - [Lisans](#-lisans)
 
 ---
 
-## 🎯 Proje Hakkında
+## 🎯 Proje Hakkinda
 
-**Haber Sitesi Yönetim Sistemi**, ASP.NET Core 8.0 ile geliştirilmiş, modern ve ölçeklenebilir bir haber platformudur. Proje, **N-Katmanlı Mimari (N-Tier Architecture)** prensiplerine sadık kalarak, kurumsal düzeyde yazılım geliştirme standartlarına uygun olarak tasarlanmıştır.
-
-### 💡 Proje Vizyonu
-
-Bu platform, sadece bir haber sitesi olmanın ötesinde, içerik yönetimi, kullanıcı etkileşimi ve medya yönetimi için kapsamlı bir çözüm sunar. Modüler yapısı sayesinde farklı içerik türlerine kolayca adapte edilebilir.
-
-### 👨‍💻 Geliştirici
-
-**Mehmet Asker**
-- 🔗 GitHub: [@m3hmtA-k3r](https://github.com/m3hmtA-k3r)
-- 📧 Proje Sahibi & Baş Geliştirici
-- 📅 Geliştirme Başlangıcı: 2025
-
-> *Bu proje baştan sona Mehmet Asker tarafından tasarlanmış ve geliştirilmiştir.*
+**MASKER (Modular Application System for Knowledge, Enterprise & Resources)**, ASP.NET Core 8.0 ile gelistirilmis, modern ve olceklenebilir bir kurumsal platformdur. Proje, **N-Katmanli Mimari (N-Tier Architecture)** ve **Clean Architecture** prensiplerine sadik kalarak, kurumsal duzeyde yazilim gelistirme standartlarina uygun olarak tasarlanmistir.
 
 ---
 
-## ✨ Temel Özellikler
+## 🚀 Platform Vizyonu
+
+MASKER;
+
+- **Tek amacli bir haber sitesi degil**
+- **Moduler, olceklenebilir ve genisleyebilir**
+- **Icerik + Ticaret + Kullanici yonetimini birlestiren**
+
+**cok yonlu bir platform** olarak tasarlanmaktadir.
+
+### Neden MASKER?
+
+| Ozellik | Aciklama |
+|---------|----------|
+| **Moduler Yapi** | Her modul bagimsiz gelistirilebilir ve deploy edilebilir |
+| **Olceklenebilirlik** | Yatay ve dikey olcekleme icin hazir altyapi |
+| **Genisleyebilirlik** | Yeni moduller kolayca eklenebilir |
+| **Kurumsal Hazirlik** | Rol bazli yetkilendirme ve audit log destegi |
+
+Bu platform, sadece bir haber sitesi olmanin otesinde, icerik yonetimi, kullanici etkilesimi ve medya yonetimi icin kapsamli bir cozum sunar. Moduler yapisi sayesinde farkli icerik turlerine kolayca adapte edilebilir.
+
+### 👨‍💻 Gelistirici
+
+**Mehmet Asker**
+- 🔗 GitHub: [@m3hmtA-k3r](https://github.com/m3hmtA-k3r)
+- 📧 Proje Sahibi & Bas Gelistirici
+- 📅 Gelistirme Baslangici: 2025
+
+> *Bu proje bastan sona Mehmet Asker tarafindan tasarlanmis ve gelistirilmistir.*
+
+---
+
+## 🔐 Guvenlik ve Yetkilendirme
+
+MASKER, kurumsal duzeyde guvenlik standartlarina uygun olarak tasarlanmistir.
+
+### Mevcut Durum (Aktif)
+
+| Ozellik | Teknoloji | Durum |
+|---------|-----------|-------|
+| **Sifre Hashleme** | BCrypt (WorkFactor: 12) | ✅ Aktif |
+| **Token Tabanli Kimlik Dogrulama** | JWT (JSON Web Token) | ✅ Aktif |
+| **Rol Bazli Yetkilendirme** | Claims-Based Authorization | ✅ Aktif |
+| **Oturum Yonetimi** | Cookie Authentication + Session | ✅ Aktif |
+
+### Yetkilendirme Mimarisi
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    KULLANICI GIRISI                         │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│              1. Yeni Sistem (KULLANICILAR)                  │
+│              - BCrypt sifre dogrulama                       │
+│              - JWT token uretimi                            │
+│              - Rol bilgisi claims'e eklenir                 │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                   Basarisiz ↓
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│              2. Fallback (YAZARLAR - Legacy)                │
+│              - Geriye donuk uyumluluk                       │
+│              - Mevcut yazar hesaplari                       │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Cookie Authentication                          │
+│              - HttpOnly cookie                              │
+│              - 30 dakika timeout                            │
+│              - Sliding expiration                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Veritabani Tablolari
+
+| Tablo | Aciklama |
+|-------|----------|
+| `KULLANICILAR` | Kullanici bilgileri (BCrypt hash ile) |
+| `ROLLER` | Sistem rolleri (Admin, Editor, vb.) |
+| `KULLANICI_ROLLER` | Kullanici-Rol iliskisi (Many-to-Many) |
+
+### Gelecek Yetkilendirme Plani
+
+Su an **rol bazli yetkilendirme aktiftir**. Ilerleyen asamalarda:
+
+| Ozellik | Aciklama | Oncelik |
+|---------|----------|---------|
+| **Modul Bazli Yetkiler** | Her modul icin ayri yetki tanimlari | Yuksek |
+| **Permission (Izin) Sistemi** | Granular izin kontrolu | Yuksek |
+| **Rol-Modul-Aksiyon Matrisi** | Detayli erisim kontrol matrisi | Orta |
+| **Audit Log** | Tum islemlerin kaydi | Orta |
+| **IP Bazli Erisim** | Beyaz/kara liste yonetimi | Dusuk |
+
+Bu yapi sayesinde sistem:
+- ✅ Yeni modullerle sorunsuz genisleyebilir
+- ✅ Kurumsal erisim kontrolu saglayabilir
+- ✅ Fine-grained yetkilendirmeye hazir hale gelir
+
+---
+
+## 🧩 Admin Panel ve UI Kararlari
+
+Admin panel tasariminda asagidaki prensipler benimsenmistir:
+
+### Menu Yapisi
+
+| Karar | Aciklama |
+|-------|----------|
+| **Kullanici Yonetimi** | Sol menuden kaldirildi, sag ustte "Yonetim" dropdown altina tasindi |
+| **Profil Islemleri** | Sag ust dropdown menusunde |
+| **Icerik Modulleri** | Sol menude (Haber, Slayt, Kategori) |
+| **Kullanici Modulleri** | Sol menude (Yorum, Editor Yonetimi) |
+
+### Rol Bazli Menu Gorunurlugu
+
+```csharp
+// Sadece Admin rolu gorebilir
+@if (User.IsInRole("Admin"))
+{
+    <a href="/Kullanici">Kullanici Yonetimi</a>
+}
+```
+
+### UI Kararlari
+
+Bu kararlar:
+- ✅ Panel karmasikligini azaltir
+- ✅ Yetki bazli UI kontrolunu kolaylastirir
+- ✅ Ileride eklenecek modullerle cakismayi onler
+- ✅ Kullanici deneyimini iyilestirir
+
+### Toast Bildirim Sistemi
+
+Kullanici islemlerinde gorsel geri bildirim:
+- 🟢 **Success**: Basarili islemler
+- 🔴 **Error**: Hata durumlari
+- 🟡 **Warning**: Uyari mesajlari
+- 🔵 **Info**: Bilgilendirme
+
+---
+
+## ✨ Temel Ozellikler
 
 ### 📰 Haber Yönetimi
 - ✅ **CRUD İşlemleri**: Haber ekleme, düzenleme, silme ve listeleme
@@ -83,33 +219,44 @@ Bu platform, sadece bir haber sitesi olmanın ötesinde, içerik yönetimi, kull
 
 ## 🏗️ Proje Mimarisi
 
-Proje, **N-Tier (Katmanlı) Mimari** prensiplerine göre yapılandırılmıştır. Her katman, **SOLID** prensiplerine uygun olarak bağımsız ve test edilebilir şekilde tasarlanmıştır.
+Proje, **N-Tier (Katmanli) Mimari** ve **Clean Architecture** prensiplerine gore yapilandirilmistir. Her katman, **SOLID** prensiplerine uygun olarak bagimsiz ve test edilebilir sekilde tasarlanmistir.
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Presentation Layer                    │
-│                 (AdminUI, WebUI, ApiUI)                 │
-└────────────────────┬────────────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│                    API Access Layer                      │
-│                    (ApiAccess)                          │
-└────────────────────┬────────────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│                    Business Layer                        │
-│                    (Business)                           │
-└────────────────────┬────────────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│                 Data Access Layer                        │
-│                   (DataAccess)                          │
-└────────────────────┬────────────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│                   Shared Layer                           │
-│            (Entities, DTOs, Helpers)                    │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                       │
+│              (AdminUI, WebUI, ApiUI)                        │
+│         Controllers, Views, ViewModels                      │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                    API ACCESS LAYER                         │
+│                      (ApiAccess)                            │
+│            HTTP Client, API Requests                        │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                    BUSINESS LAYER                           │
+│                      (Business)                             │
+│         Services, Managers, Business Rules                  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                  INFRASTRUCTURE LAYER                       │
+│                   (Infrastructure)                          │
+│     Security (BCrypt), Identity (JWT), Caching, Storage     │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                   DATA ACCESS LAYER                         │
+│                     (DataAccess)                            │
+│         Repositories, DbContext, Migrations                 │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                     DOMAIN LAYER                            │
+│                (Domain + Shared)                            │
+│         Entities, DTOs, Interfaces, Helpers                 │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### 📦 Katman Detayları
@@ -151,8 +298,8 @@ DataAccess/
 - Unit of Work Pattern
 - Generic Repository
 
-#### 3️⃣ **Business** - İş Katmanı
-**Sorumluluk**: İş mantığı ve business kuralları
+#### 3️⃣ **Business** - Is Katmani
+**Sorumluluk**: Is mantigi ve business kurallari
 
 ```
 Business/
@@ -161,20 +308,51 @@ Business/
 │   ├── IKategoriService.cs
 │   ├── IYazarService.cs
 │   ├── IYorumService.cs
-│   └── ISlaytService.cs
+│   ├── ISlaytService.cs
+│   ├── IAuthService.cs        # Kimlik dogrulama
+│   ├── IKullaniciService.cs   # Kullanici yonetimi
+│   └── IRolService.cs         # Rol yonetimi
 └── Base/
     ├── HaberManager.cs
     ├── KategoriManager.cs
     ├── YazarManager.cs
     ├── YorumManager.cs
-    └── SlaytManager.cs
+    ├── SlaytManager.cs
+    ├── AuthManager.cs          # Login, profil, sifre islemleri
+    ├── KullaniciManager.cs     # CRUD islemleri
+    └── RolManager.cs           # Rol CRUD
 ```
 
-**Özellikler**:
+**Ozellikler**:
 - Veri validasyonu
-- İş kurallarının uygulanması
-- Transaction yönetimi
+- Is kurallarinin uygulanmasi
+- Transaction yonetimi
 - Loglama
+
+#### 3.5️⃣ **Infrastructure** - Altyapi Katmani (YENİ)
+**Sorumluluk**: Cross-cutting concerns ve teknik altyapi
+
+```
+Infrastructure/
+├── Security/
+│   ├── IPasswordHasher.cs      # Sifre hashleme interface
+│   └── BCryptPasswordHasher.cs # BCrypt implementasyonu
+├── Identity/
+│   ├── IJwtTokenService.cs     # JWT interface
+│   └── JwtTokenService.cs      # JWT token uretimi/dogrulama
+├── Caching/
+│   ├── ICacheService.cs        # Cache interface
+│   └── InMemoryCacheService.cs # In-memory cache
+└── Storage/
+    ├── IFileStorageService.cs  # Dosya storage interface
+    └── LocalFileStorageService.cs # Yerel dosya sistemi
+```
+
+**Ozellikler**:
+- **BCrypt**: Guvenli sifre hashleme (WorkFactor: 12)
+- **JWT**: Token tabanli kimlik dogrulama
+- **Cache**: Performans optimizasyonu
+- **Storage**: Dosya yukleme/indirme
 
 #### 4️⃣ **ApiAccess** - API İstemci Katmanı
 **Sorumluluk**: API'lere erişim için hazır servisler
@@ -271,17 +449,26 @@ WebUI/
 
 ---
 
-## 🛠️ Kullanılan Teknolojiler
+## 🛠️ Kullanilan Teknolojiler
 
 ### Backend Framework & Libraries
 
-| Teknoloji | Versiyon | Amaç |
+| Teknoloji | Versiyon | Amac |
 |-----------|----------|------|
 | **ASP.NET Core** | 8.0 | Web framework |
 | **C#** | 12.0 | Programlama dili |
 | **Entity Framework Core** | 8.0 | ORM |
-| **SQL Server** | 2022 | Veritabanı |
+| **PostgreSQL** | 16 | Veritabani |
 | **Razor Pages** | 8.0 | View engine |
+
+### Guvenlik & Kimlik Dogrulama
+
+| Teknoloji | Amac |
+|-----------|------|
+| **BCrypt.Net** | Sifre hashleme |
+| **JWT (JSON Web Token)** | Token tabanli auth |
+| **Cookie Authentication** | Oturum yonetimi |
+| **Claims-Based Authorization** | Rol bazli yetkilendirme |
 
 ### Frontend Technologies
 
@@ -547,17 +734,54 @@ Kullanıcı yorumlarını tutar.
 | OlusturmaTarihi | datetime | Oluşturulma tarihi |
 
 #### 🖼️ Slaytlar
-Ana sayfa slider görsellerini yönetir.
+Ana sayfa slider gorsellerini yonetir.
 
-| Kolon | Tip | Açıklama |
+| Kolon | Tip | Aciklama |
 |-------|-----|----------|
 | Id | int | Primary Key |
-| Baslik | nvarchar(200) | Slayt başlığı |
-| Aciklama | nvarchar(500) | Açıklama |
-| GorselUrl | nvarchar(500) | Görsel yolu |
-| Link | nvarchar(500) | Yönlendirilecek link |
-| Sira | int | Gösterim sırası |
+| Baslik | nvarchar(200) | Slayt basligi |
+| Aciklama | nvarchar(500) | Aciklama |
+| GorselUrl | nvarchar(500) | Gorsel yolu |
+| Link | nvarchar(500) | Yonlendirilecek link |
+| Sira | int | Gosterim sirasi |
 | Aktif | bit | Aktif/pasif durumu |
+
+### 🔐 Kullanici Yonetimi Tablolari (YENİ)
+
+#### 👤 KULLANICILAR
+Sistem kullanicilarini saklar (BCrypt sifre hash ile).
+
+| Kolon | Tip | Aciklama |
+|-------|-----|----------|
+| ID | int | Primary Key |
+| AD | varchar(100) | Kullanici adi |
+| SOYAD | varchar(100) | Kullanici soyadi |
+| EPOSTA | varchar(255) | E-posta (unique) |
+| SIFRE_HASH | text | BCrypt hash |
+| RESIM | varchar(500) | Profil resmi |
+| AKTIF_MI | boolean | Aktif/pasif durumu |
+| OLUSTURMA_TARIHI | timestamp | Olusturulma tarihi |
+| SON_GIRIS_TARIHI | timestamp | Son giris tarihi |
+
+#### 🎭 ROLLER
+Sistem rollerini tanimlar.
+
+| Kolon | Tip | Aciklama |
+|-------|-----|----------|
+| ID | int | Primary Key |
+| ROL_ADI | varchar(50) | Rol adi (Admin, Editor, vb.) |
+| ACIKLAMA | varchar(255) | Rol aciklamasi |
+| AKTIF_MI | boolean | Aktif/pasif durumu |
+
+#### 🔗 KULLANICI_ROLLER
+Kullanici-Rol iliskisi (Many-to-Many).
+
+| Kolon | Tip | Aciklama |
+|-------|-----|----------|
+| ID | int | Primary Key |
+| KULLANICI_ID | int | Foreign Key (KULLANICILAR) |
+| ROL_ID | int | Foreign Key (ROLLER) |
+| ATANMA_TARIHI | timestamp | Rol atanma tarihi |
 
 ---
 
@@ -618,13 +842,43 @@ https://localhost:5001/swagger
 
 #### 🖼️ Slayt API
 
-| Method | Endpoint | Açıklama | Auth |
+| Method | Endpoint | Aciklama | Auth |
 |--------|----------|----------|------|
-| GET | `/api/Slayt` | Tüm slaytları listele | ❌ |
-| GET | `/api/Slayt/{id}` | ID'ye göre slayt getir | ❌ |
+| GET | `/api/Slayt` | Tum slaytlari listele | ❌ |
+| GET | `/api/Slayt/{id}` | ID'ye gore slayt getir | ❌ |
 | POST | `/api/Slayt` | Yeni slayt ekle | ✅ |
-| PUT | `/api/Slayt/{id}` | Slayt güncelle | ✅ |
+| PUT | `/api/Slayt/{id}` | Slayt guncelle | ✅ |
 | DELETE | `/api/Slayt/{id}` | Slayt sil | ✅ |
+
+#### 🔐 Auth API (YENİ)
+
+| Method | Endpoint | Aciklama | Auth |
+|--------|----------|----------|------|
+| POST | `/api/Auth/login` | Kullanici girisi, JWT token doner | ❌ |
+| GET | `/api/Auth/profil` | Mevcut kullanici profili | ✅ |
+| PUT | `/api/Auth/profil` | Profil guncelle | ✅ |
+| POST | `/api/Auth/sifre-degistir` | Sifre degistir | ✅ |
+
+#### 👥 Kullanici API (YENİ)
+
+| Method | Endpoint | Aciklama | Auth |
+|--------|----------|----------|------|
+| GET | `/api/Kullanici` | Tum kullanicilari listele | ✅ Admin |
+| GET | `/api/Kullanici/{id}` | ID'ye gore kullanici getir | ✅ Admin |
+| POST | `/api/Kullanici` | Yeni kullanici ekle | ✅ Admin |
+| PUT | `/api/Kullanici/{id}` | Kullanici guncelle | ✅ Admin |
+| DELETE | `/api/Kullanici/{id}` | Kullanici sil | ✅ Admin |
+| POST | `/api/Kullanici/{id}/roller` | Kullaniciya rol ata | ✅ Admin |
+
+#### 🎭 Rol API (YENİ)
+
+| Method | Endpoint | Aciklama | Auth |
+|--------|----------|----------|------|
+| GET | `/api/Rol` | Tum rolleri listele | ✅ Admin |
+| GET | `/api/Rol/{id}` | ID'ye gore rol getir | ✅ Admin |
+| POST | `/api/Rol` | Yeni rol ekle | ✅ Admin |
+| PUT | `/api/Rol/{id}` | Rol guncelle | ✅ Admin |
+| DELETE | `/api/Rol/{id}` | Rol sil | ✅ Admin |
 
 ### 📝 Örnek API Kullanımı
 
@@ -763,44 +1017,68 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 
 ## 🌟 Proje Durumu
 
-![Status](https://img.shields.io/badge/Status-Aktif%20Geli%C5%9Ftirme-success.svg)
+![Status](https://img.shields.io/badge/Status-Aktif%20Gelistirme-success.svg)
 ![Maintenance](https://img.shields.io/badge/Maintenance-Evet-green.svg)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue.svg)
+![Auth](https://img.shields.io/badge/Auth-JWT%20%2B%20BCrypt-orange.svg)
 
-**Son Güncelleme:** 6 Aralık 2025
+**Son Guncelleme:** 25 Ocak 2026
+
+### Versiyon Gecmisi
+
+| Versiyon | Tarih | Degisiklikler |
+|----------|-------|---------------|
+| **2.0.0** | 25 Ocak 2026 | JWT Auth, BCrypt, Rol sistemi, PostgreSQL |
+| **1.5.0** | 20 Ocak 2026 | Admin panel modernizasyonu |
+| **1.0.0** | 6 Aralik 2025 | Ilk surum |
 
 ---
 
-## 🎯 Gelecek Planları
+## 🎯 Gelecek Planlari
 
-### Yakın Gelecek (Q1 2026)
-- [ ] Elasticsearch entegrasyonu
-- [ ] Redis cache desteği
-- [ ] JWT Authentication
-- [ ] SignalR ile canlı bildirimler
+### Yakin Gelecek (Q1 2026)
+- [x] ~~JWT Authentication~~ ✅ Tamamlandi
+- [x] ~~BCrypt sifre hashleme~~ ✅ Tamamlandi
+- [x] ~~Rol bazli yetkilendirme~~ ✅ Tamamlandi
+- [x] ~~PostgreSQL entegrasyonu~~ ✅ Tamamlandi
+- [ ] Modul bazli yetkiler (Permission sistemi)
+- [ ] Rol-Modul-Aksiyon matrisi
+- [ ] Audit log sistemi
+- [ ] Redis cache destegi
 
 ### Orta Vadeli (Q2 2026)
-- [ ] Mobile app (React Native)
+- [ ] Elasticsearch entegrasyonu
+- [ ] SignalR ile canli bildirimler
 - [ ] Advanced analytics dashboard
 - [ ] Multi-language support
-- [ ] SEO optimizasyonları
+- [ ] E-ticaret modulu entegrasyonu
+- [ ] SEO optimizasyonlari
 
 ### Uzun Vadeli
 - [ ] Microservices mimarisi
-- [ ] Cloud deployment (Azure)
-- [ ] AI-powered content recommendations
+- [ ] Cloud deployment (Azure/AWS)
+- [ ] AI-powered icerik onerileri
+- [ ] Mobile app (React Native / Flutter)
 - [ ] Real-time collaboration tools
+- [ ] Multi-tenant yapi
 
 ---
 
 <div align="center">
 
-### ⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+### ⭐ Bu projeyi begendinizse yildiz vermeyi unutmayin!
 
 **Made with ❤️ by [Mehmet Asker](https://github.com/m3hmtA-k3r)**
 
 ---
 
-[⬆ Başa Dön](#️-haber-sitesi-yönetim-sistemi)
+**MASKER** - Modular Application System for Knowledge, Enterprise & Resources
+
+*Bu README, alinan mimari kararlarin ve yetkilendirme stratejisinin*
+*bilincli, surdurulebilir ve muhendislik temelli oldugunu belgelemek amaciyla hazirlanmistir.*
+
+---
+
+[⬆ Basa Don](#-masker---modular-application-system-for-knowledge-enterprise--resources)
 
 </div>
