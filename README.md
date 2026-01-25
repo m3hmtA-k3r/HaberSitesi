@@ -21,8 +21,10 @@
 
 ## 📖 Icindekiler
 
+- [Hizli Baslangic](#-hizli-baslangic)
 - [Proje Hakkinda](#-proje-hakkinda)
 - [Platform Vizyonu](#-platform-vizyonu)
+- [Modul Durumu](#-modul-durumu)
 - [Temel Ozellikler](#-temel-ozellikler)
 - [Proje Mimarisi](#️-proje-mimarisi)
 - [Guvenlik ve Yetkilendirme](#-guvenlik-ve-yetkilendirme)
@@ -31,7 +33,43 @@
 - [Kurulum](#-kurulum-ve-calistirma)
 - [Veritabani](#-veritabani-yapisi)
 - [API](#-api-endpoints)
+- [Yeni Modul Ekleme](#-yeni-modul-ekleme)
 - [Lisans](#-lisans)
+
+---
+
+## ⚡ Hizli Baslangic
+
+### 1. Servisleri Baslat
+
+```bash
+# PostgreSQL ve pgAdmin (Docker)
+docker-compose up -d
+
+# API Servisi
+cd ApiUI && dotnet run --launch-profile http &
+
+# Admin Panel
+cd AdminUI && dotnet run --launch-profile http &
+```
+
+### 2. Erisim Adresleri
+
+| Servis | URL | Aciklama |
+|--------|-----|----------|
+| **Admin Panel** | http://localhost:5251 | Yonetim arayuzu |
+| **API** | http://localhost:5100 | REST API |
+| **Swagger** | http://localhost:5100/swagger | API dokumantasyonu |
+| **pgAdmin** | http://localhost:5050 | Veritabani yonetimi |
+
+### 3. Varsayilan Kullanicilar
+
+| Rol | E-posta | Sifre | Yetkiler |
+|-----|---------|-------|----------|
+| **Admin** | admin@masker.com | Admin123 | Tam yetki (Kullanici Yonetimi dahil) |
+| **Yazar** | admin@masker.com | Admin2026! | Icerik yonetimi |
+
+> **Not**: Admin ve Yazar ayni e-posta ile farkli sistemlerde kayitlidir. Admin = Yeni sistem (JWT), Yazar = Legacy sistem.
 
 ---
 
@@ -61,6 +99,55 @@ MASKER;
 | **Kurumsal Hazirlik** | Rol bazli yetkilendirme ve audit log destegi |
 
 Bu platform, sadece bir haber sitesi olmanin otesinde, icerik yonetimi, kullanici etkilesimi ve medya yonetimi icin kapsamli bir cozum sunar. Moduler yapisi sayesinde farkli icerik turlerine kolayca adapte edilebilir.
+
+---
+
+## 📊 Modul Durumu
+
+### Aktif Moduller
+
+| Modul | Durum | Aciklama | API | Admin UI |
+|-------|-------|----------|-----|----------|
+| **Haber Yonetimi** | ✅ Aktif | Icerik CRUD, kategori, yazar iliskisi | ✅ | ✅ |
+| **Kategori Yonetimi** | ✅ Aktif | Hiyerarsik kategori yapisi | ✅ | ✅ |
+| **Yazar Yonetimi** | ✅ Aktif | Legacy yazar sistemi | ✅ | ✅ |
+| **Yorum Yonetimi** | ✅ Aktif | Kullanici yorumlari, moderasyon | ✅ | ✅ |
+| **Slayt Yonetimi** | ✅ Aktif | Vitrin ve medya yonetimi | ✅ | ✅ |
+| **Kullanici Yonetimi** | ✅ Aktif | JWT auth, rol bazli yetkilendirme | ✅ | ✅ |
+| **Rol Yonetimi** | ✅ Aktif | Dinamik rol tanimlari | ✅ | ✅ |
+
+### Planlanan Moduller
+
+| Modul | Durum | Planlanan Tarih | Aciklama |
+|-------|-------|-----------------|----------|
+| **E-Ticaret** | 🔜 Planli | Q2 2026 | Urun, siparis, odeme yonetimi |
+| **Analitik Dashboard** | 🔜 Planli | Q2 2026 | Istatistikler, raporlar |
+| **Bildirim Sistemi** | 🔜 Planli | Q3 2026 | E-posta, push notification |
+| **Dosya Yonetimi** | 🔜 Planli | Q3 2026 | Merkezi medya kutuphanesi |
+| **CRM Modulu** | 📋 Degerlendirilecek | 2027 | Musteri iliskileri yonetimi |
+
+### Modul Entegrasyon Durumu
+
+```
+MASKER Platform
+│
+├── ✅ Core Moduller (Aktif)
+│   ├── Icerik Yonetimi (Haber, Kategori, Slayt)
+│   ├── Kullanici Yonetimi (Auth, Rol, Profil)
+│   └── Etkilesim (Yorum, Editor)
+│
+├── 🔜 Planlanan Moduller
+│   ├── E-Ticaret
+│   ├── Analitik
+│   └── Bildirim
+│
+└── 📋 Gelecek Moduller
+    ├── CRM
+    ├── Proje Yonetimi
+    └── [Diger Projeler]
+```
+
+---
 
 ### 👨‍💻 Gelistirici
 
@@ -1060,6 +1147,140 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 - [ ] AI-powered icerik onerileri
 - [ ] Mobile app (React Native / Flutter)
 - [ ] Real-time collaboration tools
+
+---
+
+## 🧱 Yeni Modul Ekleme
+
+MASKER'e yeni bir modul/proje entegre etmek icin asagidaki adimlari izleyin:
+
+### Adim 1: Domain Layer (Entity)
+
+```csharp
+// Domain/Entities/YeniModul.cs
+[Table("YENI_MODUL")]
+public class YeniModul
+{
+    [Key]
+    [Column("ID")]
+    public int Id { get; set; }
+
+    [Column("AD")]
+    public string Ad { get; set; }
+
+    // Diger propertyler...
+}
+```
+
+### Adim 2: Data Access Layer (Repository)
+
+```csharp
+// DataAccess/Abstract/Repository/IYeniModulRepository.cs
+public interface IYeniModulRepository : IRepository<YeniModul>
+{
+    // Ozel metodlar
+}
+
+// DataAccess/Base/Repository/YeniModulRepository.cs
+public class YeniModulRepository : Repository<YeniModul>, IYeniModulRepository
+{
+    public YeniModulRepository(HaberContext context) : base(context) { }
+}
+```
+
+### Adim 3: Business Layer (Service)
+
+```csharp
+// Business/Abstract/IYeniModulService.cs
+public interface IYeniModulService
+{
+    List<YeniModulDto> GetAll();
+    YeniModulDto GetById(int id);
+    YeniModulDto Create(YeniModulDto model);
+    YeniModulDto Update(YeniModulDto model);
+    bool Delete(int id);
+}
+
+// Business/Base/YeniModulManager.cs
+public class YeniModulManager : IYeniModulService
+{
+    private readonly IUnitOfWork _unitOfWork;
+    // Implementasyon...
+}
+```
+
+### Adim 4: API Layer (Controller)
+
+```csharp
+// ApiUI/Controllers/YeniModulController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class YeniModulController : ControllerBase
+{
+    private readonly IYeniModulService _service;
+
+    [HttpGet]
+    public IActionResult GetAll() => Ok(_service.GetAll());
+
+    [HttpGet("{id}")]
+    public IActionResult GetById(int id) => Ok(_service.GetById(id));
+
+    // Diger endpointler...
+}
+```
+
+### Adim 5: Admin UI (Views)
+
+```
+AdminUI/
+├── Controllers/
+│   └── YeniModulController.cs
+├── Models/
+│   └── YeniModulViewModel.cs
+└── Views/
+    └── YeniModul/
+        ├── Index.cshtml
+        ├── Ekle.cshtml
+        └── Guncelle.cshtml
+```
+
+### Adim 6: Menu ve Yetkilendirme
+
+```html
+<!-- AdminUI/Views/Shared/_Layout.cshtml -->
+@if (User.IsInRole("Admin") || User.IsInRole("YeniModulYetkisi"))
+{
+    <li>
+        <a href="/YeniModul">
+            <i class="fas fa-cube"></i> Yeni Modul
+        </a>
+    </li>
+}
+```
+
+### Adim 7: Dependency Injection
+
+```csharp
+// Program.cs veya Startup.cs
+builder.Services.AddScoped<IYeniModulRepository, YeniModulRepository>();
+builder.Services.AddScoped<IYeniModulService, YeniModulManager>();
+```
+
+### Modul Entegrasyon Kontrol Listesi
+
+- [ ] Entity olusturuldu (Domain)
+- [ ] Repository interface ve implementasyonu (DataAccess)
+- [ ] UnitOfWork'e repository eklendi
+- [ ] Service interface ve implementasyonu (Business)
+- [ ] DTO olusturuldu (Shared/Application)
+- [ ] API Controller olusturuldu (ApiUI)
+- [ ] Admin Controller olusturuldu (AdminUI)
+- [ ] ViewModeller olusturuldu (AdminUI)
+- [ ] View'lar olusturuldu (Index, Ekle, Guncelle)
+- [ ] Menu'ye link eklendi (_Layout.cshtml)
+- [ ] Rol/yetki tanimlamalari yapildi
+- [ ] DI kayitlari eklendi (Program.cs)
+- [ ] Migration olusturuldu ve uygulandi
 - [ ] Multi-tenant yapi
 
 ---
