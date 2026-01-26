@@ -34,6 +34,11 @@ builder.Services.AddScoped<ISlaytApiRequest, SlaytApiRequest>();
 builder.Services.AddScoped<IAuthApiRequest, AuthApiRequest>();
 builder.Services.AddScoped<IKullaniciApiRequest, KullaniciApiRequest>();
 builder.Services.AddScoped<IRolApiRequest, RolApiRequest>();
+
+// Blog Module API Access
+builder.Services.AddScoped<IBlogApiRequest, BlogApiRequest>();
+builder.Services.AddScoped<IBlogKategoriApiRequest, BlogKategoriApiRequest>();
+builder.Services.AddScoped<IBlogYorumApiRequest, BlogYorumApiRequest>();
 #endregion
 
 // Cookie Authentication

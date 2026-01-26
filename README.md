@@ -23,37 +23,115 @@
 
 - [Hizli Baslangic](#-hizli-baslangic)
 - [Proje Hakkinda](#-proje-hakkinda)
-- [Platform Vizyonu](#-platform-vizyonu)
 - [Modul Durumu](#-modul-durumu)
-- [Temel Ozellikler](#-temel-ozellikler)
-- [Proje Mimarisi](#️-proje-mimarisi)
 - [Guvenlik ve Yetkilendirme](#-guvenlik-ve-yetkilendirme)
-- [Admin Panel ve UI Kararlari](#-admin-panel-ve-ui-kararlari)
+- [Proje Mimarisi](#️-proje-mimarisi)
 - [Teknolojiler](#️-kullanilan-teknolojiler)
 - [Kurulum](#-kurulum-ve-calistirma)
 - [Veritabani](#-veritabani-yapisi)
-- [API](#-api-endpoints)
-- [Yeni Modul Ekleme](#-yeni-modul-ekleme)
+- [API Endpoints](#-api-endpoints)
+- [Yeni Modul Ekleme](#-yeni-modul-ekleme-rehberi)
 - [Lisans](#-lisans)
 
 ---
 
 ## ⚡ Hizli Baslangic
 
-### 1. Servisleri Baslat
+### WSL2 Ortaminda Calistirma (Onemli)
+
+WSL2 uzerinde calisiyorsaniz, asagidaki adimlari **bir kez** yapmaniz gerekmektedir:
+
+#### Sorun: "docker: command not found" Hatasi
+
+Bu hata, Docker Desktop'in WSL2 entegrasyonunun aktif edilmediginde olusur.
+
+#### Cozum Adimlari:
+
+1. **Docker Desktop'i acin** (Windows tarafinda)
+2. **Settings** (Ayarlar) > **Resources** > **WSL Integration** bolumune gidin
+3. **"Ubuntu"** veya kullandiginiz WSL dagitimi icin toggle'i **acik** konuma getirin
+4. **Apply & Restart** butonuna tiklayin
+5. WSL terminalini kapatip yeniden acin
+
+> **Not**: Bu ayar bir kez yapildiktan sonra tekrar yapmaniza gerek yoktur. Sadece Docker Desktop'in acik oldugundan emin olun.
+
+---
+
+### 1. Tek Komutla Tum Servisleri Baslat
 
 ```bash
-# PostgreSQL ve pgAdmin (Docker)
+# Proje dizinine git
+cd /home/ubuntu_user/projects/MASKER
+
+# .NET PATH ayari (gerekirse)
+export PATH="$HOME/.dotnet:$PATH"
+export DOTNET_ROOT="$HOME/.dotnet"
+
+# 1. Docker servislerini baslat (PostgreSQL + pgAdmin)
 docker-compose up -d
 
-# API Servisi
-cd ApiUI && dotnet run --launch-profile http &
+# 2. Eski processleri temizle (varsa)
+pkill -f "dotnet.*ApiUI" 2>/dev/null
+pkill -f "dotnet.*AdminUI" 2>/dev/null
 
-# Admin Panel
-cd AdminUI && dotnet run --launch-profile http &
+# 3. ApiUI baslat (Port: 5100)
+cd /home/ubuntu_user/projects/MASKER/ApiUI
+nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
+
+# 4. AdminUI baslat (Port: 5251)
+cd /home/ubuntu_user/projects/MASKER/AdminUI
+nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
+
+# 5. Servislerin hazir olmasini bekle
+sleep 15
+
+# 6. Durum kontrolu
+echo "=== Servis Durumu ==="
+nc -zv localhost 5432 2>&1 && echo "PostgreSQL: OK" || echo "PostgreSQL: FAIL"
+nc -zv localhost 5050 2>&1 && echo "pgAdmin: OK" || echo "pgAdmin: FAIL"
+nc -zv localhost 5100 2>&1 && echo "ApiUI: OK" || echo "ApiUI: FAIL"
+nc -zv localhost 5251 2>&1 && echo "AdminUI: OK" || echo "AdminUI: FAIL"
 ```
 
-### 2. Erisim Adresleri
+### Hizli Baslatma Script'i
+
+Yukaridaki komutlari her seferinde yazmamak icin `start-masker.sh` script'ini kullanabilirsiniz:
+
+```bash
+# Script'i calistir
+chmod +x /home/ubuntu_user/projects/MASKER/start-masker.sh
+./start-masker.sh
+```
+
+---
+
+### 2. Servisleri Durdurma
+
+```bash
+# .NET uygulamalarini durdur
+pkill -f "dotnet.*ApiUI"
+pkill -f "dotnet.*AdminUI"
+
+# Docker servislerini durdur (opsiyonel)
+cd /home/ubuntu_user/projects/MASKER
+docker-compose down
+```
+
+---
+
+### 3. Log Dosyalarini Izleme
+
+```bash
+# ApiUI loglari
+tail -f /tmp/apiui.log
+
+# AdminUI loglari
+tail -f /tmp/adminui.log
+```
+
+---
+
+### 4. Erisim Adresleri
 
 | Servis | URL | Aciklama |
 |--------|-----|----------|
@@ -62,7 +140,7 @@ cd AdminUI && dotnet run --launch-profile http &
 | **Swagger** | http://localhost:5100/swagger | API dokumantasyonu |
 | **pgAdmin** | http://localhost:5050 | Veritabani yonetimi |
 
-### 3. Varsayilan Kullanicilar
+### 5. Varsayilan Kullanicilar
 
 | Rol | E-posta | Sifre | Yetkiler |
 |-----|---------|-------|----------|
@@ -115,6 +193,7 @@ Bu platform, sadece bir haber sitesi olmanin otesinde, icerik yonetimi, kullanic
 | **Slayt Yonetimi** | ✅ Aktif | Vitrin ve medya yonetimi | ✅ | ✅ |
 | **Kullanici Yonetimi** | ✅ Aktif | JWT auth, rol bazli yetkilendirme | ✅ | ✅ |
 | **Rol Yonetimi** | ✅ Aktif | Dinamik rol tanimlari | ✅ | ✅ |
+| **Blog Yonetimi** | ✅ Aktif | Blog yazilari, kategoriler, yorumlar | ✅ | ✅ |
 
 ### Planlanan Moduller
 
@@ -134,7 +213,8 @@ MASKER Platform
 ├── ✅ Core Moduller (Aktif)
 │   ├── Icerik Yonetimi (Haber, Kategori, Slayt)
 │   ├── Kullanici Yonetimi (Auth, Rol, Profil)
-│   └── Etkilesim (Yorum, Editor)
+│   ├── Etkilesim (Yorum, Editor)
+│   └── Blog Yonetimi (Blog Yazilari, Kategoriler, Yorumlar) [YENİ]
 │
 ├── 🔜 Planlanan Moduller
 │   ├── E-Ticaret
@@ -574,7 +654,7 @@ WebUI/
 | **VS Code** | Lightweight editor |
 | **Git** | Version control |
 | **Docker** | Containerization |
-| **SQL Server Management Studio** | DB yönetimi |
+| **pgAdmin** | PostgreSQL yonetimi |
 | **Postman** | API testing |
 
 ### Design Patterns
@@ -595,7 +675,7 @@ WebUI/
 Projeyi çalıştırmak için sisteminizde aşağıdakiler kurulu olmalıdır:
 
 - **.NET 8.0 SDK** veya üzeri ([İndir](https://dotnet.microsoft.com/download))
-- **SQL Server 2022** (Express, LocalDB veya Developer Edition) ([İndir](https://www.microsoft.com/sql-server/sql-server-downloads))
+- **Docker Desktop** (PostgreSQL ve pgAdmin icin) ([İndir](https://www.docker.com/products/docker-desktop))
 - **Visual Studio 2022** veya **VS Code** ([İndir](https://visualstudio.microsoft.com/))
 - **Git** ([İndir](https://git-scm.com/))
 
@@ -611,60 +691,33 @@ cd HaberSitesi
 
 ### 🗄️ Adım 2: Veritabanını Oluşturun
 
-**Yöntem 1: SQL Script ile (Önerilen)**
-
-1. SQL Server Management Studio'yu açın
-2. `database-scripts.txt` dosyasını açın
-3. Scriptleri sırayla çalıştırın
-
-**Yöntem 2: Entity Framework Migration ile**
+**Docker ile PostgreSQL Baslatin:**
 
 ```bash
-# DataAccess projesine gidin
-cd DataAccess
-
-# Migration'ları uygulayın
-dotnet ef database update
-
-# Ana dizine dönün
-cd ..
+cd /home/ubuntu_user/projects/MASKER
+docker-compose up -d
 ```
+
+Bu komut PostgreSQL (port 5432) ve pgAdmin (port 5050) servislerini baslatir.
+
+**Entity Framework Migration (otomatik):**
+
+Uygulama ilk calistiginda veritabani otomatik olusturulur (`EnsureCreated`).
 
 ### ⚙️ Adım 3: Yapılandırma
 
-Her projenin `appsettings.json` dosyasındaki connection string'i güncelleyin:
-
-**AdminUI/appsettings.json**:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=HaberSitesi;Trusted_Connection=True;TrustServerCertificate=True;"
-  }
-}
-```
+Connection string varsayilan olarak Docker PostgreSQL icin ayarlidir:
 
 **ApiUI/appsettings.json**:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=HaberSitesi;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=masker_db;Username=masker_user;Password=masker_pass_2026"
   }
 }
 ```
 
-**WebUI/appsettings.json**:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=HaberSitesi;Trusted_Connection=True;TrustServerCertificate=True;"
-  }
-}
-```
-
-> 💡 **Not**: `Server` parametresini kendi SQL Server instance'ınıza göre değiştirin:
-> - LocalDB: `Server=(localdb)\\mssqllocaldb`
-> - Lokal Server: `Server=localhost` veya `Server=.`
-> - Uzak Server: `Server=192.168.1.100`
+> 💡 **Not**: Farkli bir PostgreSQL sunucusu kullaniyorsaniz connection string'i guncelleyin.
 
 ### 🔨 Adım 4: Projeyi Derleyin
 
@@ -1010,22 +1063,6 @@ Authorization: Bearer {token}
 
 ---
 
-## 🖼️ Ekran Görüntüleri
-
-### 🏠 Ana Sayfa
-> Modern ve kullanıcı dostu arayüz
-
-### 📰 Haber Detay
-> Zengin içerik gösterimi ve yorum sistemi
-
-### 🔐 Admin Paneli
-> Kapsamlı yönetim özellikleri
-
-### 📊 Dashboard
-> İstatistikler ve hızlı erişim
-
----
-
 ## 🤝 Katkıda Bulunma
 
 Bu proje şu anda kişisel bir çalışmadır. Ancak katkılarınızı memnuniyetle karşılarım!
@@ -1106,15 +1143,16 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 
 ![Status](https://img.shields.io/badge/Status-Aktif%20Gelistirme-success.svg)
 ![Maintenance](https://img.shields.io/badge/Maintenance-Evet-green.svg)
-![Version](https://img.shields.io/badge/Version-2.0.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.1.0-blue.svg)
 ![Auth](https://img.shields.io/badge/Auth-JWT%20%2B%20BCrypt-orange.svg)
 
-**Son Guncelleme:** 25 Ocak 2026
+**Son Guncelleme:** 27 Ocak 2026
 
 ### Versiyon Gecmisi
 
 | Versiyon | Tarih | Degisiklikler |
 |----------|-------|---------------|
+| **2.1.0** | 27 Ocak 2026 | Blog Modulu tamamlandi (Blog, Kategori, Yorum) |
 | **2.0.0** | 25 Ocak 2026 | JWT Auth, BCrypt, Rol sistemi, PostgreSQL |
 | **1.5.0** | 20 Ocak 2026 | Admin panel modernizasyonu |
 | **1.0.0** | 6 Aralik 2025 | Ilk surum |
@@ -1128,6 +1166,7 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 - [x] ~~BCrypt sifre hashleme~~ ✅ Tamamlandi
 - [x] ~~Rol bazli yetkilendirme~~ ✅ Tamamlandi
 - [x] ~~PostgreSQL entegrasyonu~~ ✅ Tamamlandi
+- [x] ~~Blog Modulu~~ ✅ Tamamlandi
 - [ ] Modul bazli yetkiler (Permission sistemi)
 - [ ] Rol-Modul-Aksiyon matrisi
 - [ ] Audit log sistemi
@@ -1150,7 +1189,7 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 
 ---
 
-## 🧱 Yeni Modul Ekleme
+## 🆕 Yeni Modul Ekleme Rehberi
 
 MASKER'e yeni bir modul/proje entegre etmek icin asagidaki adimlari izleyin:
 

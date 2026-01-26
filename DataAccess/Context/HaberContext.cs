@@ -23,6 +23,11 @@ namespace DataAccess.Context
 		public DbSet<Roller> Roller { get; set; }
 		public DbSet<KullaniciRol> KullaniciRoller { get; set; }
 
+		// Blog Modulu
+		public DbSet<Bloglar> Bloglar { get; set; }
+		public DbSet<BlogKategoriler> BlogKategoriler { get; set; }
+		public DbSet<BlogYorumlar> BlogYorumlar { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
@@ -43,6 +48,31 @@ namespace DataAccess.Context
 			modelBuilder.Entity<Yazarlar>(entity =>
 			{
 				entity.HasIndex(e => e.KullaniciId);
+			});
+
+			// Blog configuration
+			modelBuilder.Entity<Bloglar>(entity =>
+			{
+				entity.HasIndex(e => e.KategoriId);
+				entity.HasIndex(e => e.YazarId);
+				entity.HasIndex(e => e.AktifMi);
+				entity.HasOne(e => e.Kategori)
+					.WithMany(c => c.Bloglar)
+					.HasForeignKey(e => e.KategoriId)
+					.OnDelete(DeleteBehavior.SetNull);
+				entity.HasOne(e => e.Yazar)
+					.WithMany()
+					.HasForeignKey(e => e.YazarId)
+					.OnDelete(DeleteBehavior.SetNull);
+			});
+
+			modelBuilder.Entity<BlogYorumlar>(entity =>
+			{
+				entity.HasIndex(e => e.BlogId);
+				entity.HasOne(e => e.Blog)
+					.WithMany(b => b.Yorumlar)
+					.HasForeignKey(e => e.BlogId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 
 			// Seed default roles

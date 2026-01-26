@@ -23,6 +23,11 @@ namespace DataAccess.Base.UnitOfWork
 		private IRepository<Roller> _rollerRepository;
 		private IRepository<KullaniciRol> _kullaniciRollerRepository;
 
+		// Blog repositories
+		private IRepository<Bloglar> _bloglarRepository;
+		private IRepository<BlogKategoriler> _blogKategorilerRepository;
+		private IRepository<BlogYorumlar> _blogYorumlarRepository;
+
 		public UnitOfWork(HaberContext context)
 		{
 			_context = context;
@@ -89,6 +94,30 @@ namespace DataAccess.Base.UnitOfWork
 			get
 			{
 				return _kullaniciRollerRepository ??= new Repository<KullaniciRol>(_context);
+			}
+		}
+
+		public IRepository<Bloglar> BloglarRepository
+		{
+			get
+			{
+				return _bloglarRepository ??= new Repository<Bloglar>(_context);
+			}
+		}
+
+		public IRepository<BlogKategoriler> BlogKategorilerRepository
+		{
+			get
+			{
+				return _blogKategorilerRepository ??= new Repository<BlogKategoriler>(_context);
+			}
+		}
+
+		public IRepository<BlogYorumlar> BlogYorumlarRepository
+		{
+			get
+			{
+				return _blogYorumlarRepository ??= new Repository<BlogYorumlar>(_context);
 			}
 		}
 

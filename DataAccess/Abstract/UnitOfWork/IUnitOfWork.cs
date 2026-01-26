@@ -18,6 +18,11 @@ namespace DataAccess.Abstract.UnitOfWork
 		IRepository<Roller> RollerRepository { get; }
 		IRepository<KullaniciRol> KullaniciRollerRepository { get; }
 
+		// Blog Repositories
+		IRepository<Bloglar> BloglarRepository { get; }
+		IRepository<BlogKategoriler> BlogKategorilerRepository { get; }
+		IRepository<BlogYorumlar> BlogYorumlarRepository { get; }
+
 		// Transaction methods
 		int SaveChanges();
 		Task<int> SaveChangesAsync();

@@ -1,0 +1,85 @@
+@{
+}
+@using AdminUI.Models
+@model BlogViewModel
+
+<div class="container">
+	<div class="page-title">
+		<h3>Blog Yazısı Güncelle</h3>
+	</div>
+	<div class="row">
+		<div class="col-md-12 col-lg-12">
+			<div class="card">
+				<div class="card-header">Blog Yazısını Düzenle</div>
+				<div class="card-body">
+					<p class="card-title">Blog yazısını güncelleyebilirsiniz. Görüntülenme: @Model.GoruntulenmeSayisi</p>
+
+					@using (Html.BeginForm("BlogGuncelle", "Blog", FormMethod.Post))
+					{
+						@Html.HiddenFor(x => x.Id)
+						<div class="row">
+							<div class="col-md-8">
+								<div class="mb-3">
+									<label class="form-label">Başlık</label>
+									@Html.TextBoxFor(x => x.Baslik, new { placeholder = "Blog başlığı", @class = "form-control", required = "required" })
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<label class="form-label">Yayın Tarihi</label>
+									@Html.TextBoxFor(x => x.YayinTarihi, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", type = "datetime-local" })
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label">Kategori</label>
+									@Html.DropDownListFor(x => x.KategoriId, Model.Kategoriler, "-- Kategori Seçin --", new { @class = "form-control" })
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label">Yazar</label>
+									@Html.DropDownListFor(x => x.YazarId, Model.Yazarlar, "-- Yazar Seçin --", new { @class = "form-control" })
+								</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Özet</label>
+							@Html.TextAreaFor(x => x.Ozet, new { placeholder = "Blog özeti (kısa açıklama)", @class = "form-control", rows = "3" })
+						</div>
+						<div class="mb-3">
+							<label class="form-label">İçerik</label>
+							@Html.TextAreaFor(x => x.Icerik, new { placeholder = "Blog içeriği", @class = "form-control", rows = "10", required = "required" })
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label">Görsel URL</label>
+									@Html.TextBoxFor(x => x.GorselUrl, new { placeholder = "Görsel URL adresi", @class = "form-control" })
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label">Etiketler</label>
+									@Html.TextBoxFor(x => x.Etiketler, new { placeholder = "Etiketler (virgülle ayırın)", @class = "form-control" })
+								</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Durum</label>
+							<div class="form-check form-switch">
+								@Html.CheckBoxFor(x => x.AktifMi, new { @class = "form-check-input" })
+								<label class="form-check-label">Aktif</label>
+							</div>
+						</div>
+						<br />
+						<button type="submit" class="btn btn-warning">Güncelle</button>
+						<a href="/Blog" class="btn btn-secondary">İptal</a>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

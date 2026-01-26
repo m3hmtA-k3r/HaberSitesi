@@ -1,0 +1,52 @@
+@{
+}
+@using AdminUI.Models
+@model BlogKategoriViewModel
+
+<div class="container">
+	<div class="page-title">
+		<h3>Blog Kategorisi Ekle</h3>
+	</div>
+	<div class="row">
+		<div class="col-md-12 col-lg-12">
+			<div class="card">
+				<div class="card-header">Yeni Blog Kategorisi</div>
+				<div class="card-body">
+					<p class="card-title">Yeni blog kategorisi ekleyebilirsiniz.</p>
+
+					@using (Html.BeginForm("KategoriEkle", "BlogKategori", FormMethod.Post))
+					{
+						<div class="row">
+							<div class="col-md-8">
+								<div class="mb-3">
+									<label class="form-label">Kategori Adı</label>
+									@Html.TextBoxFor(x => x.Adi, new { placeholder = "Kategori adı", @class = "form-control", required = "required" })
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<label class="form-label">Sıra</label>
+									@Html.TextBoxFor(x => x.Sira, new { placeholder = "0", @class = "form-control", type = "number" })
+								</div>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Açıklama</label>
+							@Html.TextAreaFor(x => x.Aciklama, new { placeholder = "Kategori açıklaması", @class = "form-control", rows = "3" })
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Durum</label>
+							<div class="form-check form-switch">
+								@Html.CheckBoxFor(x => x.AktifMi, new { @class = "form-check-input" })
+								<label class="form-check-label">Aktif</label>
+							</div>
+						</div>
+						<br />
+						<button type="submit" class="btn btn-primary">Kaydet</button>
+						<a href="/BlogKategori" class="btn btn-secondary">İptal</a>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

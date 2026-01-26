@@ -1,0 +1,82 @@
+@{
+}
+@using Shared.Dtos
+@model List<BlogYorumlarDto>
+
+<div class="container">
+	<div class="page-title">
+		<h3>Blog Yorumları</h3>
+	</div>
+	<div class="row">
+		<div class="col-md-12 col-lg-12">
+			<div class="card">
+				<div class="card-header">
+					<div class="row">
+						<div class="col-9" style="line-height:50px;">Blog Yorumları Listesi</div>
+						<div class="col-3">
+							<a href="/BlogYorum/OnayBekleyenler" style="float:right;color: white;background-color:orange;" class="btn float-right m-2"><i class="fa fa-clock"></i> Onay Bekleyenler</a>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<p class="card-title">Blog yorumları ile ilgili tüm işlemleri buradan yapabilirsiniz. Toplam Onaylı Yorum: @Model.Where(x => x.OnaylandiMi == true).Count()</p>
+					<table class="table table-hover" id="dataTables-example" width="100%">
+						<thead>
+							<tr>
+								<th>Blog</th>
+								<th>Ad Soyad</th>
+								<th>E-posta</th>
+								<th>Yorum</th>
+								<th>Tarih</th>
+								<th>Onay</th>
+								<th>Durum</th>
+								<th style="min-width:180px;">İşlemler</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td>@(item.BlogBaslik ?? "-")</td>
+									<td>@item.Ad @item.Soyad</td>
+									<td>@item.Eposta</td>
+									<td title="@item.Yorum">@(item.Yorum.Length > 50 ? item.Yorum.Substring(0, 50) + "..." : item.Yorum)</td>
+									<td>@item.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+									<td>
+										@if (item.OnaylandiMi)
+										{
+											<span class="badge bg-success">Onaylı</span>
+										}
+										else
+										{
+											<span class="badge bg-warning">Beklemede</span>
+										}
+									</td>
+									<td>
+										@if (item.AktifMi)
+										{
+											<span class="badge bg-info">Aktif</span>
+										}
+										else
+										{
+											<span class="badge bg-danger">Pasif</span>
+										}
+									</td>
+									<td>
+										@if (!item.OnaylandiMi)
+										{
+											<a href="/BlogYorum/Onayla?yorumId=@item.Id" class="btn btn-success mb-2" title="Onayla"><i class="fa fa-check"></i></a>
+											<a href="/BlogYorum/Reddet?yorumId=@item.Id" class="btn btn-warning mb-2" title="Reddet"><i class="fa fa-ban"></i></a>
+										}
+										<a href="/BlogYorum/Guncelle?yorumId=@item.Id" class="btn btn-primary mb-2"><i class="fa fa-edit"></i></a>
+										<a href="/BlogYorum/Sil?yorumId=@item.Id" class="btn btn-danger mb-2" style="width: 44px;" onclick="return confirm('Bu yorumu silmek istediğinize emin misiniz?');"><i class="fa fa-times"></i></a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

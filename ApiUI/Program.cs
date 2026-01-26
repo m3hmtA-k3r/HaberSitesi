@@ -146,6 +146,11 @@ builder.Services.AddScoped<IYazarService, YazarManager>();
 builder.Services.AddScoped<IKullaniciService, KullaniciManager>();
 builder.Services.AddScoped<IRolService, RolManager>();
 builder.Services.AddScoped<IAuthService, AuthManager>();
+
+// Blog Module Services
+builder.Services.AddScoped<IBlogService, BlogManager>();
+builder.Services.AddScoped<IBlogKategoriService, BlogKategoriManager>();
+builder.Services.AddScoped<IBlogYorumService, BlogYorumManager>();
 #endregion
 
 var app = builder.Build();

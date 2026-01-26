@@ -27,6 +27,13 @@ namespace AdminUI.Controllers
         public IActionResult Index()
         {
             var kullanicilar = _kullaniciApiRequest.GetAllKullanici();
+
+            if (kullanicilar == null)
+            {
+                TempData["Error"] = "Kullanıcı listesi alınamadı. API bağlantısını kontrol edin.";
+                return View(new List<KullaniciListViewModel>());
+            }
+
             var model = kullanicilar.Select(k => new KullaniciListViewModel
             {
                 Id = k.Id,
