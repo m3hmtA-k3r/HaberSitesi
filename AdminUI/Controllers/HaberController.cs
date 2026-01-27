@@ -126,9 +126,23 @@ namespace AdminUI.Controllers
 		public IActionResult Sil(int haberId)
 		{
 			_haberApiRequest.DeleteHaber(haberId);
+			TempData["Success"] = "Haber başarıyla silindi.";
 			return RedirectToAction("Index");
 		}
 
+		[HttpPost]
+		public IActionResult SilAjax(int haberId)
+		{
+			try
+			{
+				_haberApiRequest.DeleteHaber(haberId);
+				return Json(new { success = true, message = "Haber silindi." });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
 
 	}
 }

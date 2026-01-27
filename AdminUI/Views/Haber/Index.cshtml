@@ -1,67 +1,589 @@
-﻿@using Shared.Dtos
+@using Shared.Dtos
 @model List<HaberlerDto>
 
-<div class="container">
-	<div class="page-title">
-		<h3>Haber İşlemleri</h3>
-	</div>
-	<div class="row">
+@{
+    var aktifSayisi = Model.Count(x => x.Aktifmi == true);
+    var pasifSayisi = Model.Count(x => x.Aktifmi == false);
+    var toplamSayisi = Model.Count;
+    var bugunEklworked = Model.Count(x => x.EklenmeTarihi.Date == DateTime.Today);
+}
 
-		<div class="col-md-12 col-lg-12">
-			<div class="card">
-				<div class="card-header">
-					<div class="row">
-						<div class="col-9" style="line-height:50px;">Haberler</div>
-						<div class="col-3"><a href="/Haber/Ekle" style="float:right;color: white;background-color:green;" class="btn float-right m-2"><i class="fa fa-plus"></i></a></div>
-					</div>
-				</div>
-				<div class="card-body">
-					<p class="card-title">Haberler ile ilgili tüm işlemleri buradan yapabilirsiniz. Toplam Aktif Veri Sayısı : @Model.Where(x => x.Aktifmi == true).Count()</p>
-					<table class="table table-hover" id="dataTables-example" width="100%">
-						<thead>
-							<tr>
-								<th>Resim</th>
-								<th>Başlık</th>
-								<th>İçerik</th>
-								<th>EklenmeTarihi</th>
-								<th>Yazar</th>
-								<th>Kategori</th>
-								<th>Gösterim</th>
-								<th>Durum</th>
-								<th style="min-width:110px;">İşlemler</th>
-							</tr>
-						</thead>
-						<tbody>
-							@foreach (var item in Model)
-							{
-								<tr>
-									<td><img style=" max-width: 100%; " src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" /></td>
-									<td>@item.Baslik</td>
-									<td>@item.Icerik</td>
-									<td>@item.EklenmeTarihi</td>
-									<td>@item.Yazar</td>
-									<td>@item.Kategori</td>
-									<td>@item.GosterimSayisi</td>
-									<td>
-										@if (item.Aktifmi)
-										{
-											<span class="badge bg-info">Aktif</span>
-										}
-										else
-										{
-											<span class="badge bg-danger">Pasif</span>
-										}
-									</td>
-									<td>
-										<a href="/Haber/Guncelle?haberId=@item.Id" class="btn btn-primary mb-2"><i class="fa fa-edit"></i></a>
-										<a href="/Haber/Sil?haberId=@item.Id" class="btn btn-danger mb-2" style="width: 44px;"><i class="fa fa-times"></i></a>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+<style>
+    /* İstatistik Kartları */
+    .stats-card {
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: #fff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stats-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .stats-card .stats-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: rgba(255,255,255,0.2);
+    }
+    .stats-card .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .stats-card .stats-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+    .stats-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stats-active { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .stats-passive { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+    .stats-today { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+
+    /* Tablo Stilleri */
+    .news-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+        white-space: nowrap;
+    }
+    .news-table td {
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+    .news-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .news-title {
+        font-weight: 600;
+        color: #2d3748;
+        max-width: 200px;
+    }
+    .news-content {
+        color: #718096;
+        max-width: 250px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    .news-meta {
+        font-size: 0.8rem;
+        color: #a0aec0;
+    }
+    .news-meta i {
+        margin-right: 4px;
+    }
+
+    /* Badge Stilleri */
+    .badge-status {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+    .badge-active {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: #fff;
+    }
+    .badge-passive {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        color: #fff;
+    }
+
+    /* Buton Stilleri */
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-action:hover {
+        transform: scale(1.1);
+    }
+    .btn-add {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: #fff;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+        color: #fff;
+    }
+    .btn-bulk-delete {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        border: none;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: none;
+    }
+    .btn-bulk-delete.show {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Checkbox Stilleri */
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    /* Card Header */
+    .card-header-custom {
+        background: #fff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 1.5rem;
+    }
+    .card-header-custom h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    /* Responsive Card Görünümü (Mobil) */
+    .news-card-mobile {
+        display: none;
+    }
+
+    @@media (max-width: 991px) {
+        .news-table-container {
+            display: none;
+        }
+        .news-card-mobile {
+            display: block;
+        }
+        .mobile-news-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .mobile-news-card .news-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .mobile-news-card .news-thumbnail {
+            width: 80px;
+            height: 80px;
+        }
+        .mobile-news-card .news-info {
+            flex: 1;
+        }
+        .mobile-news-card .news-title {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            max-width: 100%;
+        }
+        .mobile-news-card .news-content {
+            max-width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .mobile-news-card .news-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+        }
+    }
+
+    /* Modal Stilleri */
+    .modal-confirm .modal-header {
+        border-bottom: none;
+        padding: 1.5rem 1.5rem 0;
+    }
+    .modal-confirm .modal-body {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .modal-confirm .modal-footer {
+        border-top: none;
+        justify-content: center;
+        padding: 0 1.5rem 1.5rem;
+        gap: 0.5rem;
+    }
+    .modal-confirm .icon-box {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff3f3;
+    }
+    .modal-confirm .icon-box i {
+        font-size: 2.5rem;
+        color: #ef4444;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Haber Yönetimi</h3>
+            <p class="text-muted mb-0">Tüm haberleri görüntüleyin, düzenleyin ve yönetin</p>
+        </div>
+        <a href="/Haber/Ekle" class="btn btn-add">
+            <i class="fa fa-plus me-2"></i> Yeni Haber
+        </a>
+    </div>
+
+    <!-- İstatistik Kartları -->
+    <div class="row mb-4">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="stats-card stats-total">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">@toplamSayisi</div>
+                        <div class="stats-label">Toplam Haber</div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="stats-card stats-active">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">@aktifSayisi</div>
+                        <div class="stats-label">Aktif Haber</div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stats-card stats-passive">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">@pasifSayisi</div>
+                        <div class="stats-label">Pasif Haber</div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-pause-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stats-card stats-today">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stats-number">@bugunEklworked</div>
+                        <div class="stats-label">Bugün Eklenen</div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Haber Listesi Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-list me-2 text-primary"></i>Haber Listesi</h5>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-bulk-delete" id="bulkDeleteBtn" onclick="bulkDelete()">
+                    <i class="fas fa-trash-alt"></i>
+                    <span id="selectedCount">0</span> Seçili Sil
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Desktop Tablo Görünümü -->
+            <div class="news-table-container">
+                <table class="table table-hover news-table" id="dataTables-example" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th>Görsel</th>
+                            <th>Başlık</th>
+                            <th>İçerik</th>
+                            <th>Tarih</th>
+                            <th>Yazar</th>
+                            <th>Kategori</th>
+                            <th>Görüntülenme</th>
+                            <th>Durum</th>
+                            <th style="width: 100px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var icerikKisa = item.Icerik?.Length > 100 ? item.Icerik.Substring(0, 100) + "..." : item.Icerik;
+                            var baslikKisa = item.Baslik?.Length > 40 ? item.Baslik.Substring(0, 40) + "..." : item.Baslik;
+                            var tarihFark = (DateTime.Now - item.EklenmeTarihi).TotalDays;
+                            var tarihText = tarihFark < 1 ? "Bugün" :
+                                           tarihFark < 2 ? "Dün" :
+                                           tarihFark < 7 ? $"{(int)tarihFark} gün önce" :
+                                           item.EklenmeTarihi.ToString("dd.MM.yyyy");
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input row-checkbox" value="@item.Id" onchange="updateBulkButton()">
+                                </td>
+                                <td>
+                                    <img class="news-thumbnail" src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" onerror="this.src='/assets/img/no-image.png'">
+                                </td>
+                                <td>
+                                    <div class="news-title" title="@item.Baslik">@baslikKisa</div>
+                                </td>
+                                <td>
+                                    <div class="news-content" title="@item.Icerik">@icerikKisa</div>
+                                </td>
+                                <td>
+                                    <div class="news-meta">
+                                        <i class="far fa-calendar-alt"></i> @tarihText
+                                    </div>
+                                    <small class="text-muted">@item.EklenmeTarihi.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <div class="news-meta">
+                                        <i class="far fa-user"></i> @item.Yazar
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@item.Kategori</span>
+                                </td>
+                                <td>
+                                    <div class="news-meta">
+                                        <i class="far fa-eye"></i> @item.GosterimSayisi
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.Aktifmi)
+                                    {
+                                        <span class="badge-status badge-active">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-passive">Pasif</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="/Haber/Guncelle?haberId=@item.Id" class="btn btn-primary btn-action" title="Düzenle">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-action" title="Sil" onclick="confirmDelete(@item.Id, '@item.Baslik?.Replace("'", "\\'")?.Replace("\"", "&quot;")  ')">
+                                            <i class="fa fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobil Card Görünümü -->
+            <div class="news-card-mobile">
+                @foreach (var item in Model)
+                {
+                    var icerikKisa = item.Icerik?.Length > 80 ? item.Icerik.Substring(0, 80) + "..." : item.Icerik;
+                    var tarihFark = (DateTime.Now - item.EklenmeTarihi).TotalDays;
+                    var tarihText = tarihFark < 1 ? "Bugün" :
+                                   tarihFark < 2 ? "Dün" :
+                                   tarihFark < 7 ? $"{(int)tarihFark} gün önce" :
+                                   item.EklenmeTarihi.ToString("dd.MM.yyyy");
+                    <div class="mobile-news-card">
+                        <div class="news-header">
+                            <input type="checkbox" class="form-check-input row-checkbox" value="@item.Id" onchange="updateBulkButton()">
+                            <img class="news-thumbnail" src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" onerror="this.src='/assets/img/no-image.png'">
+                            <div class="news-info">
+                                <div class="news-title">@item.Baslik</div>
+                                <div class="news-content">@icerikKisa</div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="news-meta"><i class="far fa-user"></i> @item.Yazar</span>
+                                    <span class="news-meta"><i class="far fa-folder"></i> @item.Kategori</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-footer">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="news-meta"><i class="far fa-calendar-alt"></i> @tarihText</span>
+                                <span class="news-meta"><i class="far fa-eye"></i> @item.GosterimSayisi</span>
+                                @if (item.Aktifmi)
+                                {
+                                    <span class="badge-status badge-active">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status badge-passive">Pasif</span>
+                                }
+                            </div>
+                            <div class="d-flex gap-1">
+                                <a href="/Haber/Guncelle?haberId=@item.Id" class="btn btn-primary btn-action">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-action" onclick="confirmDelete(@item.Id, '@item.Baslik?.Replace("'", "\\'")?.Replace("\"", "&quot;")  ')">
+                                    <i class="fa fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade modal-confirm" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="icon-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h4 class="mb-3">Silmek istediğinize emin misiniz?</h4>
+                <p class="text-muted mb-0" id="deleteMessage">Bu haberi silmek üzeresiniz. Bu işlem geri alınamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">İptal</button>
+                <a href="#" class="btn btn-danger px-4" id="confirmDeleteBtn">
+                    <i class="fas fa-trash-alt me-1"></i> Sil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toplu Silme Onay Modalı -->
+<div class="modal fade modal-confirm" id="bulkDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="icon-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h4 class="mb-3">Toplu silme işlemi</h4>
+                <p class="text-muted mb-0"><span id="bulkDeleteCount">0</span> haber silinecek. Bu işlem geri alınamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger px-4" onclick="executeBulkDelete()">
+                    <i class="fas fa-trash-alt me-1"></i> Tümünü Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tekli silme işlemi
+    function confirmDelete(id, title) {
+        document.getElementById('deleteMessage').innerHTML = '<strong>"' + title + '"</strong> haberini silmek üzeresiniz.<br><small class="text-muted">Bu işlem geri alınamaz.</small>';
+        document.getElementById('confirmDeleteBtn').href = '/Haber/Sil?haberId=' + id;
+        var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+
+    // Tümünü seç/bırak
+    function toggleSelectAll() {
+        var selectAll = document.getElementById('selectAll');
+        var checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = selectAll.checked;
+        });
+        updateBulkButton();
+    }
+
+    // Toplu silme butonunu güncelle
+    function updateBulkButton() {
+        var checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        var bulkBtn = document.getElementById('bulkDeleteBtn');
+        var countSpan = document.getElementById('selectedCount');
+
+        countSpan.textContent = checkboxes.length;
+
+        if (checkboxes.length > 0) {
+            bulkBtn.classList.add('show');
+        } else {
+            bulkBtn.classList.remove('show');
+        }
+
+        // SelectAll checkbox durumunu güncelle
+        var allCheckboxes = document.querySelectorAll('.row-checkbox');
+        var selectAll = document.getElementById('selectAll');
+        selectAll.checked = checkboxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+    }
+
+    // Toplu silme modalını aç
+    function bulkDelete() {
+        var checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        document.getElementById('bulkDeleteCount').textContent = checkboxes.length;
+        var modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+        modal.show();
+    }
+
+    // Toplu silme işlemini gerçekleştir
+    function executeBulkDelete() {
+        var checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        var ids = [];
+        checkboxes.forEach(function(checkbox) {
+            ids.push(checkbox.value);
+        });
+
+        // Her bir haber için silme işlemi yap (sırayla)
+        if (ids.length > 0) {
+            var deletePromises = ids.map(function(id) {
+                return fetch('/Haber/SilAjax?haberId=' + id, { method: 'POST' });
+            });
+
+            Promise.all(deletePromises).then(function() {
+                window.location.reload();
+            }).catch(function() {
+                // Fallback: Normal silme sayfasına yönlendir
+                window.location.href = '/Haber/Sil?haberId=' + ids[0];
+            });
+        }
+
+        var modal = bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal'));
+        modal.hide();
+    }
+</script>

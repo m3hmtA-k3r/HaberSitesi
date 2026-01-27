@@ -1,67 +1,575 @@
 ﻿@using AdminUI.Models
 @model HaberViewModel
-<div class="container">
-	<div class="page-title">
-		<h3>Haber İşlemleri</h3>
-	</div>
-	<div class="row">
 
-		<div class="col-md-12 col-lg-12">
-			<div class="card">
-				<div class="card-header">Haber Güncelle</div>
-				<div class="card-body">
-					<p class="card-title">Haber güncelleme işlemi yapabilirsiniz.</p>
+<style>
+    /* Modern Form Stilleri */
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
 
-					@using (Html.BeginForm("HaberGuncelle", "Haber", FormMethod.Post, new { enctype = "multipart/form-data" }))
-					{
-						@Html.HiddenFor(x => x.Id)
-						<div class="mb-3">
-							<label for="email" class="form-label">Başlık</label>
-							@Html.TextBoxFor(x => x.Baslik, new { placeholder = "Başlık", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">İçerik</label>
-							@Html.TextAreaFor(x => x.Icerik, new { placeholder = "İçerik", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Geçerli Resim</label><br />
-							<img src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Resim)" style="max-height:150px;" />
-							@Html.HiddenFor(x => x.Resim)
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Resim</label>
-							<input type="file" name="ResimFile" class="form-control" accept="image/*" />
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Geçerli Video</label><br />
-							<video controls style="max-height:250px;">
-								<source src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Video)" type="video/mp4">
-							</video>
-							@Html.HiddenFor(x => x.Video)
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Video</label>
-							<input type="file" name="VideoFile" class="form-control" accept="video/*" />
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Kategori</label>
-							@Html.DropDownListFor(x => x.KategoriId, Model.Kategoriler, new { placeholder = "Kategori Seçiniz", @class = "form-select" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Yazar</label>
-							@Html.DropDownListFor(x => x.YazarId, Model.Yazarlar, new { placeholder = "Yazar Seçiniz", @class = "form-select" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Statü</label>
-							<div class="form-check form-switch">
-								@Html.CheckBoxFor(x => x.Aktifmi, new { @class = "form-check-input" })
-							</div>
-						</div>
-						<br />
-						<button type="submit" class="btn btn-warning">Güncelle</button>
-					}
-				</div>
-			</div>
-		</div>
-	</div>
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h3 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #718096;
+        margin-bottom: 0;
+    }
+
+    .form-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: #fff;
+        padding: 1.5rem;
+        border: none;
+    }
+
+    .form-card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-card-header .header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .form-card-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #2d3748;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-section-title i {
+        color: #f5576c;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-label i {
+        color: #a0aec0;
+        font-size: 0.9rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.65rem 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #f5576c;
+        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #cbd5e0;
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    /* Media Preview Styling */
+    .media-preview-container {
+        background: #f7fafc;
+        border: 2px dashed #cbd5e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .media-preview-container img {
+        max-width: 100%;
+        max-height: 250px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .media-preview-container video {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .media-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    /* File Upload Styling */
+    .file-upload-wrapper {
+        position: relative;
+    }
+
+    .file-upload-wrapper input[type="file"] {
+        cursor: pointer;
+    }
+
+    .file-upload-wrapper input[type="file"]::file-selector-button {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        margin-right: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .file-upload-wrapper input[type="file"]::file-selector-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+    }
+
+    /* Switch Styling */
+    .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        cursor: pointer;
+        border: 2px solid #e2e8f0;
+    }
+
+    .form-check-input:checked {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border-color: #11998e;
+    }
+
+    .status-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f7fafc;
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+    }
+
+    .status-label .status-text {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    /* Button Styling */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+        margin-top: 1.5rem;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        color: #fff;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        color: #fff;
+    }
+
+    .btn-cancel {
+        background: #fff;
+        border: 2px solid #e2e8f0;
+        color: #4a5568;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+        color: #2d3748;
+    }
+
+    /* Help Text */
+    .form-help {
+        font-size: 0.85rem;
+        color: #a0aec0;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .form-help i {
+        font-size: 0.75rem;
+    }
+
+    /* Info Alert */
+    .info-alert {
+        background: #ebf8ff;
+        border-left: 4px solid #4299e1;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .info-alert i {
+        color: #4299e1;
+        font-size: 1.2rem;
+        margin-top: 0.1rem;
+    }
+
+    .info-alert-content {
+        flex: 1;
+    }
+
+    .info-alert-title {
+        font-weight: 600;
+        color: #2c5282;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-alert-text {
+        color: #2c5282;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .form-card-body {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-update, .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .media-preview-container img,
+        .media-preview-container video {
+            max-height: 200px;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="form-container">
+        <!-- Sayfa Başlığı -->
+        <div class="page-header">
+            <h3><i class="fas fa-edit text-warning me-2"></i>Haber Güncelle</h3>
+            <p>Mevcut haber bilgilerini güncelleyebilir ve değişikliklerinizi kaydedebilirsiniz</p>
+        </div>
+
+        <!-- Bilgilendirme Uyarısı -->
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i>
+            <div class="info-alert-content">
+                <div class="info-alert-title">Güncelleme İpucu</div>
+                <p class="info-alert-text">Yeni bir görsel veya video seçmezseniz, mevcut medya dosyaları korunacaktır.</p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card form-card">
+            <div class="form-card-header">
+                <h5>
+                    <span class="header-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </span>
+                    Haber Bilgileri
+                </h5>
+            </div>
+            <div class="card-body form-card-body">
+                @using (Html.BeginForm("HaberGuncelle", "Haber", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.HiddenFor(x => x.Id)
+                    @Html.HiddenFor(x => x.Resim)
+                    @Html.HiddenFor(x => x.Video)
+
+                    <!-- Temel Bilgiler Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Temel Bilgiler
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-heading"></i>
+                                Başlık
+                            </label>
+                            @Html.TextBoxFor(x => x.Baslik, new { placeholder = "Haber başlığını yazın...", @class = "form-control" })
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Dikkat çekici ve açıklayıcı bir başlık yazın
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-align-left"></i>
+                                İçerik
+                            </label>
+                            @Html.TextAreaFor(x => x.Icerik, new { placeholder = "Haber içeriğini detaylı şekilde yazın...", @class = "form-control" })
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Haberin tüm detaylarını eksiksiz yazın
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Medya Bölümü - Görsel -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-image"></i>
+                            Haber Görseli
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Resim))
+                        {
+                            <div class="media-preview-container">
+                                <span class="media-badge">
+                                    <i class="fas fa-check-circle"></i>
+                                    Mevcut Görsel
+                                </span>
+                                <div>
+                                    <img src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Resim)" alt="Mevcut Görsel" />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-upload"></i>
+                                Yeni Görsel Yükle (Opsiyonel)
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="ResimFile" class="form-control" accept="image/*" id="imageInput" />
+                            </div>
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Yeni bir görsel seçmezseniz mevcut görsel korunur
+                            </small>
+                            <div id="imagePreview" class="media-preview-container mt-3" style="display:none;">
+                                <span class="media-badge" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                                    <i class="fas fa-eye"></i>
+                                    Yeni Görsel Önizleme
+                                </span>
+                                <div>
+                                    <img id="previewImg" src="" alt="Önizleme" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medya Bölümü - Video -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-video"></i>
+                            Haber Videosu
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Video))
+                        {
+                            <div class="media-preview-container">
+                                <span class="media-badge">
+                                    <i class="fas fa-check-circle"></i>
+                                    Mevcut Video
+                                </span>
+                                <div>
+                                    <video controls>
+                                        <source src="@Url.Content(@conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Video)" type="video/mp4">
+                                        Tarayıcınız video etiketini desteklemiyor.
+                                    </video>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-upload"></i>
+                                Yeni Video Yükle (Opsiyonel)
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" name="VideoFile" class="form-control" accept="video/*" />
+                            </div>
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Yeni bir video seçmezseniz mevcut video korunur
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Kategori ve Yazar Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-tags"></i>
+                            Kategori & Yazar
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-folder"></i>
+                                    Kategori
+                                </label>
+                                @Html.DropDownListFor(x => x.KategoriId, Model.Kategoriler, "Kategori Seçiniz", new { @class = "form-select" })
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Haberin yayınlanacağı kategoriyi seçin
+                                </small>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-user-edit"></i>
+                                    Yazar
+                                </label>
+                                @Html.DropDownListFor(x => x.YazarId, Model.Yazarlar, "Yazar Seçiniz", new { @class = "form-select" })
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Haberi yazan kişiyi belirtin
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Durum Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-toggle-on"></i>
+                            Yayın Durumu
+                        </div>
+
+                        <div class="status-label">
+                            @Html.CheckBoxFor(x => x.Aktifmi, new { @class = "form-check-input", id = "statusSwitch" })
+                            <div>
+                                <div class="status-text" id="statusText">@(Model.Aktifmi ? "Aktif" : "Pasif")</div>
+                                <small class="form-help" style="margin-top: 0;">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span id="statusHelp">@(Model.Aktifmi ? "Haber şu an yayında" : "Haber yayında değil")</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Butonları -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-update">
+                            <i class="fas fa-save"></i>
+                            Değişiklikleri Kaydet
+                        </button>
+                        <a href="/Haber" class="btn btn-cancel">
+                            <i class="fas fa-times"></i>
+                            İptal
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Yeni görsel seçildiğinde önizleme göster
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('previewImg').src = event.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+    });
+
+    // Durum değişikliği
+    document.getElementById('statusSwitch').addEventListener('change', function() {
+        const statusText = document.getElementById('statusText');
+        const statusHelp = document.getElementById('statusHelp');
+
+        if (this.checked) {
+            statusText.textContent = 'Aktif';
+            statusHelp.textContent = 'Haber şu an yayında';
+        } else {
+            statusText.textContent = 'Pasif';
+            statusHelp.textContent = 'Haber yayında değil';
+        }
+    });
+</script>

@@ -85,5 +85,19 @@ namespace AdminUI.Controllers
 			_yazarApiRequest.DeleteYazar(yazarId);
 			return RedirectToAction("Index");
 		}
+
+		[HttpPost]
+		public IActionResult SilAjax(int yazarId)
+		{
+			try
+			{
+				_yazarApiRequest.DeleteYazar(yazarId);
+				return Json(new { success = true, message = "Yazar silindi." });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
 	}
 }

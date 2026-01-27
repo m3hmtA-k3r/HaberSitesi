@@ -1,85 +1,133 @@
-@{
-}
 @using AdminUI.Models
 @model BlogViewModel
-
-<div class="container">
-	<div class="page-title">
-		<h3>Blog Yazısı Güncelle</h3>
-	</div>
-	<div class="row">
-		<div class="col-md-12 col-lg-12">
-			<div class="card">
-				<div class="card-header">Blog Yazısını Düzenle</div>
-				<div class="card-body">
-					<p class="card-title">Blog yazısını güncelleyebilirsiniz. Görüntülenme: @Model.GoruntulenmeSayisi</p>
-
-					@using (Html.BeginForm("BlogGuncelle", "Blog", FormMethod.Post))
-					{
-						@Html.HiddenFor(x => x.Id)
-						<div class="row">
-							<div class="col-md-8">
-								<div class="mb-3">
-									<label class="form-label">Başlık</label>
-									@Html.TextBoxFor(x => x.Baslik, new { placeholder = "Blog başlığı", @class = "form-control", required = "required" })
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="mb-3">
-									<label class="form-label">Yayın Tarihi</label>
-									@Html.TextBoxFor(x => x.YayinTarihi, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", type = "datetime-local" })
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="mb-3">
-									<label class="form-label">Kategori</label>
-									@Html.DropDownListFor(x => x.KategoriId, Model.Kategoriler, "-- Kategori Seçin --", new { @class = "form-control" })
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="mb-3">
-									<label class="form-label">Yazar</label>
-									@Html.DropDownListFor(x => x.YazarId, Model.Yazarlar, "-- Yazar Seçin --", new { @class = "form-control" })
-								</div>
-							</div>
-						</div>
-						<div class="mb-3">
-							<label class="form-label">Özet</label>
-							@Html.TextAreaFor(x => x.Ozet, new { placeholder = "Blog özeti (kısa açıklama)", @class = "form-control", rows = "3" })
-						</div>
-						<div class="mb-3">
-							<label class="form-label">İçerik</label>
-							@Html.TextAreaFor(x => x.Icerik, new { placeholder = "Blog içeriği", @class = "form-control", rows = "10", required = "required" })
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="mb-3">
-									<label class="form-label">Görsel URL</label>
-									@Html.TextBoxFor(x => x.GorselUrl, new { placeholder = "Görsel URL adresi", @class = "form-control" })
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="mb-3">
-									<label class="form-label">Etiketler</label>
-									@Html.TextBoxFor(x => x.Etiketler, new { placeholder = "Etiketler (virgülle ayırın)", @class = "form-control" })
-								</div>
-							</div>
-						</div>
-						<div class="mb-3">
-							<label class="form-label">Durum</label>
-							<div class="form-check form-switch">
-								@Html.CheckBoxFor(x => x.AktifMi, new { @class = "form-check-input" })
-								<label class="form-check-label">Aktif</label>
-							</div>
-						</div>
-						<br />
-						<button type="submit" class="btn btn-warning">Güncelle</button>
-						<a href="/Blog" class="btn btn-secondary">İptal</a>
-					}
-				</div>
-			</div>
-		</div>
-	</div>
+<style>
+    .form-container { max-width: 900px; margin: 0 auto; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h3 { font-weight: 700; color: #2d3748; margin-bottom: 0.5rem; }
+    .page-header p { color: #718096; margin-bottom: 0; }
+    .form-card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+    .form-card-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; padding: 1.5rem; border: none; }
+    .form-card-header h5 { margin: 0; font-weight: 600; display: flex; align-items: center; gap: 0.75rem; }
+    .form-card-header .header-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .form-card-body { padding: 2rem; }
+    .form-section { margin-bottom: 2rem; }
+    .form-section-title { font-size: 0.95rem; font-weight: 600; color: #2d3748; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 0.5rem; }
+    .form-section-title i { color: #f5576c; }
+    .form-label { font-weight: 600; color: #4a5568; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .form-label i { color: #a0aec0; font-size: 0.9rem; }
+    .form-control, .form-select { border: 2px solid #e2e8f0; border-radius: 8px; padding: 0.65rem 0.95rem; transition: all 0.2s ease; }
+    .form-control:focus, .form-select:focus { border-color: #f5576c; box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1); }
+    .form-control::placeholder { color: #cbd5e0; }
+    textarea.form-control { min-height: 120px; resize: vertical; }
+    .form-check-input { width: 3rem; height: 1.5rem; cursor: pointer; border: 2px solid #e2e8f0; }
+    .form-check-input:checked { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-color: #11998e; }
+    .status-label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: #f7fafc; border-radius: 8px; border: 2px solid #e2e8f0; }
+    .status-label .status-text { font-weight: 600; color: #4a5568; }
+    .form-actions { display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 2px solid #e2e8f0; margin-top: 1.5rem; }
+    .btn-update { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: #fff; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-update:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4); color: #fff; }
+    .btn-cancel { background: #fff; border: 2px solid #e2e8f0; color: #4a5568; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-cancel:hover { background: #f7fafc; border-color: #cbd5e0; color: #2d3748; }
+    .form-help { font-size: 0.85rem; color: #a0aec0; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem; }
+    .form-help i { font-size: 0.75rem; }
+    .info-alert { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: start; gap: 0.75rem; }
+    .info-alert i { color: #4299e1; font-size: 1.2rem; margin-top: 0.1rem; }
+    .info-alert-content { flex: 1; }
+    .info-alert-title { font-weight: 600; color: #2c5282; margin-bottom: 0.25rem; }
+    .info-alert-text { color: #2c5282; font-size: 0.9rem; margin: 0; }
+    @@media (max-width: 768px) { .form-card-body { padding: 1.5rem; } .form-actions { flex-direction: column; } .btn-update, .btn-cancel { width: 100%; justify-content: center; } }
+</style>
+<div class="container-fluid">
+    <div class="form-container">
+        <div class="page-header">
+            <h3><i class="fas fa-edit text-warning me-2"></i>Blog Yazısı Güncelle</h3>
+            <p>Mevcut blog bilgilerini güncelleyebilir ve değişikliklerinizi kaydedebilirsiniz. Görüntülenme: @Model.GoruntulenmeSayisi</p>
+        </div>
+        <div class="info-alert"><i class="fas fa-info-circle"></i><div class="info-alert-content"><div class="info-alert-title">Güncelleme İpucu</div><p class="info-alert-text">Blogun tüm bilgilerini güncelleyebilirsiniz.</p></div></div>
+        <div class="card form-card">
+            <div class="form-card-header">
+                <h5><span class="header-icon"><i class="fas fa-blog"></i></span>Blog Bilgileri</h5>
+            </div>
+            <div class="card-body form-card-body">
+                @using (Html.BeginForm("BlogGuncelle", "Blog", FormMethod.Post))
+                {
+                    @Html.HiddenFor(x => x.Id)
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="fas fa-info-circle"></i>Temel Bilgiler</div>
+                        <div class="row">
+                            <div class="col-md-8 mb-4">
+                                <label class="form-label"><i class="fas fa-heading"></i>Başlık</label>
+                                @Html.TextBoxFor(x => x.Baslik, new { placeholder = "Blog başlığını yazın...", @class = "form-control" })
+                                <small class="form-help"><i class="fas fa-info-circle"></i>Blog yazınızın ana başlığı</small>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label"><i class="fas fa-calendar"></i>Yayın Tarihi</label>
+                                @Html.TextBoxFor(x => x.YayinTarihi, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", type = "datetime-local" })
+                                <small class="form-help"><i class="fas fa-info-circle"></i>Yayınlanma tarihi</small>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fas fa-align-left"></i>Özet</label>
+                            @Html.TextAreaFor(x => x.Ozet, new { placeholder = "Blog özetini yazın...", @class = "form-control", rows = "3" })
+                            <small class="form-help"><i class="fas fa-info-circle"></i>Kısa bir özet yazın</small>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fas fa-file-alt"></i>İçerik</label>
+                            @Html.TextAreaFor(x => x.Icerik, new { placeholder = "Blog içeriğini yazın...", @class = "form-control", rows = "10" })
+                            <small class="form-help"><i class="fas fa-info-circle"></i>Blogun detaylı içeriği</small>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="fas fa-tags"></i>Kategori & Yazar</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label"><i class="fas fa-folder"></i>Kategori</label>
+                                @Html.DropDownListFor(x => x.KategoriId, Model.Kategoriler, "Kategori Seçiniz", new { @class = "form-select" })
+                                <small class="form-help"><i class="fas fa-info-circle"></i>Blog kategorisini seçin</small>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label"><i class="fas fa-user-edit"></i>Yazar</label>
+                                @Html.DropDownListFor(x => x.YazarId, Model.Yazarlar, "Yazar Seçiniz", new { @class = "form-select" })
+                                <small class="form-help"><i class="fas fa-info-circle"></i>Blogu yazan kişiyi belirtin</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="fas fa-image"></i>Medya & Etiketler</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label"><i class="fas fa-link"></i>Görsel URL</label>
+                                @Html.TextBoxFor(x => x.GorselUrl, new { placeholder = "https://...", @class = "form-control" })
+                                <small class="form-help"><i class="fas fa-info-circle"></i>Blog görseli için URL adresi</small>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label"><i class="fas fa-tags"></i>Etiketler</label>
+                                @Html.TextBoxFor(x => x.Etiketler, new { placeholder = "teknoloji, yazılım, web", @class = "form-control" })
+                                <small class="form-help"><i class="fas fa-info-circle"></i>Virgülle ayırarak etiket ekleyin</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="fas fa-toggle-on"></i>Yayın Durumu</div>
+                        <div class="status-label">
+                            @Html.CheckBoxFor(x => x.AktifMi, new { @class = "form-check-input", id = "statusSwitch" })
+                            <div><div class="status-text" id="statusText">@(Model.AktifMi ? "Aktif" : "Pasif")</div><small class="form-help" style="margin-top: 0;"><i class="fas fa-info-circle"></i><span id="statusHelp">@(Model.AktifMi ? "Blog şu an yayında" : "Blog yayında değil")</span></small></div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-update"><i class="fas fa-save"></i>Değişiklikleri Kaydet</button>
+                        <a href="/Blog" class="btn btn-cancel"><i class="fas fa-times"></i>İptal</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+<script>
+    document.getElementById('statusSwitch')?.addEventListener('change', function() {
+        const statusText = document.getElementById('statusText');
+        const statusHelp = document.getElementById('statusHelp');
+        if (this.checked) { statusText.textContent = 'Aktif'; statusHelp.textContent = 'Blog şu an yayında'; }
+        else { statusText.textContent = 'Pasif'; statusHelp.textContent = 'Blog yayında değil'; }
+    });
+</script>

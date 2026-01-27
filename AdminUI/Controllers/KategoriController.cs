@@ -64,6 +64,20 @@ namespace AdminUI.Controllers
 			return RedirectToAction("Index");
 		}
 
+		[HttpPost]
+		public IActionResult SilAjax(int kategoriId)
+		{
+			try
+			{
+				_kategoriApiRequest.DeleteKategori(kategoriId);
+				return Json(new { success = true, message = "Kategori silindi." });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
+
 
 	}
 }

@@ -1,55 +1,404 @@
-﻿
 @using AdminUI.Models
 @model YorumViewModel
-<div class="container">
-	<div class="page-title">
-		<h3>Yorum İşlemleri</h3>
-	</div>
-	<div class="row">
 
-		<div class="col-md-12 col-lg-12">
-			<div class="card">
-				<div class="card-header">Yorum Ekle</div>
-				<div class="card-body">
-					<p class="card-title">Yorum ekleme işlemi yapabilirsiniz.</p>
+<style>
+    /* Modern Form Stilleri */
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
 
-					@using (Html.BeginForm("YorumEkle", "Yorum", FormMethod.Post))
-					{
-						<div class="mb-3">
-							<label for="email" class="form-label">Ad</label>
-							@Html.TextBoxFor(x => x.Ad, new { placeholder = "Ad", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Soyad</label>
-							@Html.TextBoxFor(x => x.Soyad, new { placeholder = "Soyad", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">E-Posta</label>
-							@Html.TextBoxFor(x => x.Eposta, new { placeholder = "E-Posta", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Başlık</label>
-							@Html.TextBoxFor(x => x.Baslik, new { placeholder = "Başlık", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">İçerik</label>
-							@Html.TextBoxFor(x => x.Icerik, new { placeholder = "İçerik", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Haber Id</label>
-							@Html.TextBoxFor(x => x.HaberId, new { placeholder = "Haber Id", @class = "form-control" })
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Statü</label>
-							<div class="form-check form-switch">
-								@Html.CheckBoxFor(x => x.Aktifmi, new { @class = "form-check-input" })
-							</div>
-						</div>
-						<br />
-						<button type="submit" class="btn btn-primary">Ekle</button>
-					}
-				</div>
-			</div>
-		</div>
-	</div>
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h3 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #718096;
+        margin-bottom: 0;
+    }
+
+    .form-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        padding: 1.5rem;
+        border: none;
+    }
+
+    .form-card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-card-header .header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .form-card-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #2d3748;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-section-title i {
+        color: #667eea;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-label i {
+        color: #a0aec0;
+        font-size: 0.9rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.65rem 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #cbd5e0;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* Switch Styling */
+    .form-check-input {
+        width: 3rem;
+        height: 1.5rem;
+        cursor: pointer;
+        border: 2px solid #e2e8f0;
+    }
+
+    .form-check-input:checked {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border-color: #11998e;
+    }
+
+    .status-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f7fafc;
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+    }
+
+    .status-label .status-text {
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    /* Button Styling */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+        margin-top: 1.5rem;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: #fff;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+        color: #fff;
+    }
+
+    .btn-cancel {
+        background: #fff;
+        border: 2px solid #e2e8f0;
+        color: #4a5568;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+        color: #2d3748;
+    }
+
+    /* Help Text */
+    .form-help {
+        font-size: 0.85rem;
+        color: #a0aec0;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .form-help i {
+        font-size: 0.75rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .form-card-body {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="form-container">
+        <!-- Sayfa Başlığı -->
+        <div class="page-header">
+            <h3><i class="fas fa-plus-circle text-success me-2"></i>Yeni Yorum Ekle</h3>
+            <p>Yorum ekleme formunu doldurarak yeni bir yorum kaydı oluşturabilirsiniz</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card form-card">
+            <div class="form-card-header">
+                <h5>
+                    <span class="header-icon">
+                        <i class="fas fa-comments"></i>
+                    </span>
+                    Yorum Bilgileri
+                </h5>
+            </div>
+            <div class="card-body form-card-body">
+                @using (Html.BeginForm("YorumEkle", "Yorum", FormMethod.Post))
+                {
+                    <!-- Kullanıcı Bilgileri Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-user"></i>
+                            Kullanıcı Bilgileri
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Ad
+                                </label>
+                                @Html.TextBoxFor(x => x.Ad, new { placeholder = "Yorumcunun adını yazın...", @class = "form-control" })
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Yorumu yapan kişinin adı
+                                </small>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Soyad
+                                </label>
+                                @Html.TextBoxFor(x => x.Soyad, new { placeholder = "Yorumcunun soyadını yazın...", @class = "form-control" })
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Yorumu yapan kişinin soyadı
+                                </small>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i>
+                                    E-Posta
+                                </label>
+                                @Html.TextBoxFor(x => x.Eposta, new { placeholder = "ornek@email.com", @class = "form-control", type = "email" })
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    İletişim için e-posta adresi
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yorum İçeriği Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-comment-alt"></i>
+                            Yorum İçeriği
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-heading"></i>
+                                Başlık
+                            </label>
+                            @Html.TextBoxFor(x => x.Baslik, new { placeholder = "Yorum başlığını yazın...", @class = "form-control" })
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Yorumun kısa başlığı veya özeti
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-align-left"></i>
+                                İçerik
+                            </label>
+                            @Html.TextAreaFor(x => x.Icerik, new { placeholder = "Yorum içeriğini yazın...", @class = "form-control" })
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Yorumun detaylı içeriği
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- İlişkili Haber Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-newspaper"></i>
+                            İlişkili Haber
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-link"></i>
+                                Haber ID
+                            </label>
+                            @Html.TextBoxFor(x => x.HaberId, new { placeholder = "Haber ID'sini yazın...", @class = "form-control", type = "number" })
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Yorumun yapıldığı haberin ID numarası
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Durum Bölümü -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-toggle-on"></i>
+                            Yayın Durumu
+                        </div>
+
+                        <div class="status-label">
+                            @Html.CheckBoxFor(x => x.Aktifmi, new { @class = "form-check-input", id = "statusSwitch" })
+                            <div>
+                                <div class="status-text" id="statusText">Aktif</div>
+                                <small class="form-help" style="margin-top: 0;">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span id="statusHelp">Yorum onaylandığında hemen görünür olacak</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Butonları -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-check"></i>
+                            Yorumu Kaydet
+                        </button>
+                        <a href="/Yorum" class="btn btn-cancel">
+                            <i class="fas fa-times"></i>
+                            İptal
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Durum değişikliği
+    document.getElementById('statusSwitch').addEventListener('change', function() {
+        const statusText = document.getElementById('statusText');
+        const statusHelp = document.getElementById('statusHelp');
+
+        if (this.checked) {
+            statusText.textContent = 'Aktif';
+            statusHelp.textContent = 'Yorum onaylandığında hemen görünür olacak';
+        } else {
+            statusText.textContent = 'Pasif';
+            statusHelp.textContent = 'Yorum kaydedilecek ancak yayınlanmayacak';
+        }
+    });
+
+    // Sayfa yüklendiğinde durum kontrolü
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSwitch = document.getElementById('statusSwitch');
+        if (statusSwitch && !statusSwitch.checked) {
+            document.getElementById('statusText').textContent = 'Pasif';
+            document.getElementById('statusHelp').textContent = 'Yorum kaydedilecek ancak yayınlanmayacak';
+        }
+    });
+</script>

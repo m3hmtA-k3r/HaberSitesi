@@ -1,0 +1,172 @@
+@model AnasayfaViewModel
+
+<style>
+    .hero-slider { position: relative; overflow: hidden; border-radius: 0 0 20px 20px; }
+    .hero-slide { position: relative; height: 600px; overflow: hidden; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .hero-slide:hover img { transform: scale(1.05); }
+    .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%); padding: 3rem 2rem; }
+    .hero-category { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+    .hero-title { color: #fff; font-size: 2rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); line-height: 1.3; }
+
+    .breaking-news { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 1.2rem 0; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .breaking-badge { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; padding: 0.6rem 1.2rem; border-radius: 25px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+    .breaking-text a { color: #fff; text-decoration: none; transition: opacity 0.2s; }
+    .breaking-text a:hover { opacity: 0.8; }
+
+    .section-header { display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 3px solid #f0f0f0; }
+    .section-title { font-size: 1.8rem; font-weight: 700; color: #2d3748; margin: 0; position: relative; }
+    .section-title::before { content: ''; position: absolute; bottom: -1rem; left: 0; width: 60px; height: 3px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .section-link { color: #667eea; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+    .section-link:hover { color: #764ba2; }
+
+    .news-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s ease; margin-bottom: 2rem; border: 1px solid #e2e8f0; }
+    .news-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+    .news-card-img { position: relative; height: 250px; overflow: hidden; }
+    .news-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .news-card:hover .news-card-img img { transform: scale(1.1); }
+    .news-card-body { padding: 1.5rem; }
+    .news-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .news-badge { display: inline-block; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; }
+    .news-date { color: #a0aec0; font-size: 0.85rem; }
+    .news-date i { margin-right: 0.3rem; }
+    .news-title { font-size: 1.25rem; font-weight: 700; color: #2d3748; margin-bottom: 0.8rem; line-height: 1.4; text-decoration: none; display: block; transition: color 0.2s; }
+    .news-title:hover { color: #667eea; }
+    .news-excerpt { color: #718096; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; }
+    .news-footer { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f7fafc; }
+    .news-author { display: flex; align-items: center; gap: 0.5rem; color: #4a5568; font-size: 0.9rem; }
+    .news-author img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e2e8f0; }
+    .news-views { color: #a0aec0; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem; }
+
+    .popular-card { background: #fff; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .popular-header { font-size: 1.5rem; font-weight: 700; color: #2d3748; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
+    .popular-item { display: flex; gap: 1rem; padding: 1rem; margin-bottom: 1rem; border-radius: 12px; transition: all 0.3s ease; }
+    .popular-item:hover { background: #f7fafc; transform: translateX(5px); }
+    .popular-item-img { width: 110px; height: 110px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+    .popular-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .popular-item-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .popular-item-meta { display: flex; gap: 0.8rem; margin-bottom: 0.5rem; }
+    .popular-item-badge { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; text-decoration: none; }
+    .popular-item-title { font-size: 0.95rem; font-weight: 600; color: #2d3748; line-height: 1.4; margin: 0; text-decoration: none; display: block; }
+    .popular-item-title:hover { color: #667eea; }
+
+    @@media (max-width: 768px) {
+        .hero-slide { height: 400px; }
+        .hero-title { font-size: 1.5rem; }
+        .news-card-img { height: 200px; }
+    }
+</style>
+
+<!-- Hero Slider -->
+<div class="container-fluid px-0 mb-4">
+    <div class="hero-slider">
+        <div class="owl-carousel main-carousel">
+            @foreach (var slayt in Model.Slaytlar)
+            {
+                <div class="hero-slide">
+                    <img class="owl-lazy" data-src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + slayt.Resim)" alt="@slayt.Baslik">
+                    <div class="hero-overlay">
+                        <div class="container">
+                            <a href="/Haberler/Detay/@slayt.HaberId" class="hero-category">@slayt.Baslik</a>
+                            <a href="/Haberler/Detay/@slayt.HaberId" class="hero-title d-block" style="text-decoration: none;">@slayt.Icerik</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Breaking News -->
+<div class="container-fluid breaking-news">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <span class="breaking-badge">SON DAKİKA</span>
+            <div class="owl-carousel tranding-carousel flex-grow-1 ml-3 breaking-text">
+                @foreach (var item in Model.Haberler.OrderByDescending(x => x.EklenmeTarihi).Take(5))
+                {
+                    <div><a href="/Haberler/Detay/@item.Id">@item.Baslik</a></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container-fluid">
+    <div class="container">
+        <div class="row">
+            <!-- News Grid -->
+            <div class="col-lg-8">
+                <div class="section-header">
+                    <h2 class="section-title">Son Haberler</h2>
+                    <a href="/Haberler" class="section-link">Tümünü Gör <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <div class="row">
+                    @foreach (var item in Model.Haberler)
+                    {
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <div class="news-card">
+                                <div class="news-card-img">
+                                    <a href="/Haberler/Detay/@item.Id">
+                                        <img src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" loading="lazy">
+                                    </a>
+                                </div>
+                                <div class="news-card-body">
+                                    <div class="news-meta">
+                                        <a href="/Haberler/Index/@item.KategoriId" class="news-badge">@item.Kategori</a>
+                                        <span class="news-date"><i class="far fa-clock"></i>@item.EklenmeTarihi</span>
+                                    </div>
+                                    <a href="/Haberler/Detay/@item.Id" class="news-title">@item.Baslik</a>
+                                    <p class="news-excerpt">
+                                        @if (item.Icerik.Length <= 120)
+                                        {
+                                            @item.Icerik
+                                        }
+                                        else
+                                        {
+                                            @(item.Icerik.Substring(0, 120) + "...")
+                                        }
+                                    </p>
+                                </div>
+                                <div class="news-footer">
+                                    <div class="news-author">
+                                        <i class="far fa-user"></i>
+                                        <span>@item.Yazar</span>
+                                    </div>
+                                    <div class="news-views">
+                                        <i class="far fa-eye"></i>
+                                        <span>@item.GosterimSayisi</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="popular-card">
+                    <h3 class="popular-header">En Çok Okunanlar</h3>
+                    @foreach (var item in Model.Haberler.OrderByDescending(x => x.GosterimSayisi).Take(5))
+                    {
+                        <div class="popular-item">
+                            <div class="popular-item-img">
+                                <img src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" loading="lazy">
+                            </div>
+                            <div class="popular-item-content">
+                                <div class="popular-item-meta">
+                                    <a href="/Haberler/Index/@item.KategoriId" class="popular-item-badge">@item.Kategori</a>
+                                    <span class="news-date"><i class="far fa-clock"></i>@item.EklenmeTarihi</span>
+                                </div>
+                                <a href="/Haberler/Detay/@item.Id" class="popular-item-title">@item.Baslik</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

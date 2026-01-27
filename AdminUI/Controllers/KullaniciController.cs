@@ -174,6 +174,20 @@ namespace AdminUI.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public IActionResult SilAjax(int kullaniciId)
+        {
+            try
+            {
+                _kullaniciApiRequest.DeleteKullanici(kullaniciId);
+                return Json(new { success = true, message = "Kullanici silindi." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         public IActionResult RollerDuzenle(int kullaniciId)
         {
             var kullanici = _kullaniciApiRequest.GetKullaniciById(kullaniciId);

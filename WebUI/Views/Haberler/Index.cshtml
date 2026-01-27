@@ -1,0 +1,152 @@
+@model HaberlerViewModel
+
+<style>
+    .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 0; margin-bottom: 3rem; color: #fff; }
+    .page-title { font-size: 2.5rem; font-weight: 700; margin: 0; }
+    .page-subtitle { font-size: 1.1rem; opacity: 0.9; margin-top: 0.5rem; }
+
+    .category-sidebar { background: #fff; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: sticky; top: 20px; }
+    .category-header { font-size: 1.5rem; font-weight: 700; color: #2d3748; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
+    .category-list { list-style: none; padding: 0; margin: 0; }
+    .category-item { margin-bottom: 0.5rem; }
+    .category-link { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-radius: 10px; color: #4a5568; text-decoration: none; transition: all 0.3s ease; font-weight: 500; }
+    .category-link:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; transform: translateX(5px); }
+    .category-link.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+    .category-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f7fafc; color: #667eea; margin-right: 0.8rem; transition: all 0.3s; }
+    .category-link:hover .category-icon { background: rgba(255,255,255,0.2); color: #fff; }
+
+    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+    .news-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 1px solid #e2e8f0; height: 100%; display: flex; flex-direction: column; }
+    .news-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+    .news-card-img { position: relative; height: 220px; overflow: hidden; }
+    .news-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .news-card:hover .news-card-img img { transform: scale(1.1); }
+    .news-card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .news-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .news-badge { display: inline-block; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; }
+    .news-date { color: #a0aec0; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem; }
+    .news-title { font-size: 1.2rem; font-weight: 700; color: #2d3748; margin-bottom: 0.8rem; line-height: 1.4; text-decoration: none; display: block; transition: color 0.2s; }
+    .news-title:hover { color: #667eea; }
+    .news-excerpt { color: #718096; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; flex: 1; }
+    .news-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #e2e8f0; margin-top: auto; }
+    .news-author { display: flex; align-items: center; gap: 0.5rem; color: #4a5568; font-size: 0.9rem; }
+    .news-views { color: #a0aec0; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem; }
+
+    .filter-info { background: #f7fafc; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .filter-text { color: #4a5568; font-size: 1rem; }
+    .filter-count { color: #667eea; font-weight: 700; }
+
+    @@media (max-width: 991px) {
+        .category-sidebar { margin-bottom: 2rem; position: static; }
+        .page-title { font-size: 2rem; }
+    }
+    @@media (max-width: 768px) {
+        .news-grid { grid-template-columns: 1fr; }
+        .page-header { padding: 2rem 0; margin-bottom: 2rem; }
+        .page-title { font-size: 1.75rem; }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">Tüm Haberler</h1>
+        <p class="page-subtitle">Güncel haberler ve son dakika gelişmeler</p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container-fluid">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-md-4">
+                <div class="category-sidebar">
+                    <h3 class="category-header">Kategoriler</h3>
+                    <ul class="category-list">
+                        <li class="category-item">
+                            <a href="/Haberler" class="category-link @(ViewBag.SelectedCategory == null ? "active" : "")">
+                                <div class="d-flex align-items-center">
+                                    <div class="category-icon"><i class="fas fa-th"></i></div>
+                                    <span>Tüm Haberler</span>
+                                </div>
+                            </a>
+                        </li>
+                        @foreach (var item in Model.Kategoriler)
+                        {
+                            <li class="category-item">
+                                <a href="/Haberler/Index/@item.Id" class="category-link @(ViewBag.SelectedCategory == item.Id ? "active" : "")">
+                                    <div class="d-flex align-items-center">
+                                        <div class="category-icon"><i class="fas fa-folder"></i></div>
+                                        <span>@item.Aciklama</span>
+                                    </div>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- News Grid -->
+            <div class="col-lg-9 col-md-8">
+                <div class="filter-info">
+                    <span class="filter-text">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        Toplam <span class="filter-count">@Model.Haberler.Count()</span> haber bulundu
+                    </span>
+                </div>
+
+                <div class="row">
+                    @foreach (var item in Model.Haberler)
+                    {
+                        <div class="col-lg-4 col-md-6 col-12 mb-4">
+                            <div class="news-card">
+                                <div class="news-card-img">
+                                    <a href="/Haberler/Detay/@item.Id">
+                                        <img data-src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" loading="lazy">
+                                    </a>
+                                </div>
+                                <div class="news-card-body">
+                                    <div class="news-meta">
+                                        <a href="/Haberler/Index/@item.KategoriId" class="news-badge">@item.Kategori</a>
+                                        <span class="news-date"><i class="far fa-clock"></i>@item.EklenmeTarihi</span>
+                                    </div>
+                                    <a href="/Haberler/Detay/@item.Id" class="news-title">@item.Baslik</a>
+                                    <p class="news-excerpt">
+                                        @if (item.Icerik.Length <= 150)
+                                        {
+                                            @item.Icerik
+                                        }
+                                        else
+                                        {
+                                            @(item.Icerik.Substring(0, 150) + "...")
+                                        }
+                                    </p>
+                                    <div class="news-footer">
+                                        <div class="news-author">
+                                            <i class="far fa-user"></i>
+                                            <span>@item.Yazar</span>
+                                        </div>
+                                        <div class="news-views">
+                                            <i class="far fa-eye"></i>
+                                            <span>@item.GosterimSayisi</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (!Model.Haberler.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">Bu kategoride henüz haber bulunmuyor</h4>
+                        <p class="text-muted">Lütfen başka bir kategori seçin</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

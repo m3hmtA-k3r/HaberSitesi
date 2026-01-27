@@ -90,5 +90,19 @@ namespace AdminUI.Controllers
 			_slaytApiRequest.DeleteSlayt(slaytId);
 			return RedirectToAction("Index");
 		}
+
+		[HttpPost]
+		public IActionResult SilAjax(int slaytId)
+		{
+			try
+			{
+				_slaytApiRequest.DeleteSlayt(slaytId);
+				return Json(new { success = true, message = "Slayt silindi." });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
 	}
 }

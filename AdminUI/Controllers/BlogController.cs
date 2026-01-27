@@ -110,6 +110,20 @@ namespace AdminUI.Controllers
 			return RedirectToAction("Index");
 		}
 
+		[HttpPost]
+		public IActionResult SilAjax(int blogId)
+		{
+			try
+			{
+				_blogApiRequest.DeleteBlog(blogId);
+				return Json(new { success = true, message = "Blog silindi." });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
+
 		private List<SelectListItem> GetKategorilerSelectList()
 		{
 			var kategoriler = _blogKategoriApiRequest.GetAktifKategoriler();

@@ -85,5 +85,19 @@ namespace AdminUI.Controllers
 			_blogYorumApiRequest.DeleteYorum(yorumId);
 			return RedirectToAction("Index");
 		}
+
+		[HttpPost]
+		public IActionResult SilAjax(int yorumId)
+		{
+			try
+			{
+				_blogYorumApiRequest.DeleteYorum(yorumId);
+				return Json(new { success = true, message = "Blog yorumu silindi." });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { success = false, message = ex.Message });
+			}
+		}
 	}
 }

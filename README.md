@@ -1143,7 +1143,7 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 
 ![Status](https://img.shields.io/badge/Status-Aktif%20Gelistirme-success.svg)
 ![Maintenance](https://img.shields.io/badge/Maintenance-Evet-green.svg)
-![Version](https://img.shields.io/badge/Version-2.1.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.2.0-blue.svg)
 ![Auth](https://img.shields.io/badge/Auth-JWT%20%2B%20BCrypt-orange.svg)
 
 **Son Guncelleme:** 27 Ocak 2026
@@ -1152,10 +1152,399 @@ Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım içi
 
 | Versiyon | Tarih | Degisiklikler |
 |----------|-------|---------------|
+| **2.2.0** | 27 Ocak 2026 | AdminUI tam modernizasyon, WebUI entegrasyonu ve modernizasyon |
 | **2.1.0** | 27 Ocak 2026 | Blog Modulu tamamlandi (Blog, Kategori, Yorum) |
 | **2.0.0** | 25 Ocak 2026 | JWT Auth, BCrypt, Rol sistemi, PostgreSQL |
 | **1.5.0** | 20 Ocak 2026 | Admin panel modernizasyonu |
 | **1.0.0** | 6 Aralik 2025 | Ilk surum |
+
+---
+
+## 📋 Son Güncellemeler (v2.2.0 - 27 Ocak 2026)
+
+### 🎨 AdminUI Tam Modernizasyon
+
+Tüm modüllerin form sayfaları (Ekle.cshtml ve Guncelle.cshtml) modern tasarımla yeniden düzenlendi.
+
+#### Modernize Edilen Modüller:
+- ✅ Haber (Ekle, Guncelle)
+- ✅ Kategori (Ekle, Guncelle)
+- ✅ Yazar (Ekle, Guncelle)
+- ✅ Yorum (Ekle, Guncelle)
+- ✅ Slayt (Ekle, Guncelle)
+- ✅ Blog (Ekle, Guncelle)
+- ✅ BlogKategori (Ekle, Guncelle)
+- ✅ BlogYorum (Ekle, Guncelle)
+- ✅ Kullanici (Ekle, Guncelle)
+
+#### Modern Tasarım Özellikleri:
+```css
+/* Gradient Header */
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+
+/* Card Style Forms */
+- Box-shadow: 0 4px 15px rgba(0,0,0,0.1)
+- Border-radius: 15px
+- Icon-based section titles
+
+/* Responsive Design */
+- Mobil uyumlu (768px, 991px breakpoints)
+- Touch-friendly form controls
+- Flexible grid layout
+
+/* Interactive Elements */
+- Hover effects
+- Focus states
+- Smooth transitions
+```
+
+#### Teknik Detaylar:
+- **Razor Syntax Fix**: CSS içinde `@media` → `@@media` (Razor escape)
+- **Form Validation**: Bootstrap 5 validation classes
+- **Icon Integration**: Font Awesome 6.5.2
+- **Media Preview**: Mevcut görseller için önizleme bölümü
+
+---
+
+### 🔥 Toplu Silme (Bulk Delete) Özelliği
+
+Tüm AdminUI modüllerine checkbox tabanlı toplu silme işlevi eklendi.
+
+#### Eklenen Controller Metotları:
+```csharp
+[HttpPost]
+public IActionResult SilAjax(int id)
+{
+    try
+    {
+        _service.Delete(id);
+        return Json(new { success = true, message = "Kayıt silindi." });
+    }
+    catch (Exception ex)
+    {
+        return Json(new { success = false, message = ex.Message });
+    }
+}
+```
+
+#### Özellikler:
+- ✅ Checkbox ile çoklu seçim
+- ✅ "Seçili Sil" butonu (dinamik görünürlük)
+- ✅ AJAX tabanlı silme işlemi
+- ✅ Toast bildirimleri (başarı/hata)
+- ✅ Otomatik sayfa yenileme
+
+#### Entegre Edilen Modüller:
+- Slayt, Kategori, Yazar, Yorum
+- Blog, BlogKategori, BlogYorum
+- Kullanici
+
+---
+
+### 🌐 WebUI Entegrasyonu ve Modernizasyon
+
+Bağımsız WebUI projesi, MASKER ana projesiğine entegre edildi ve tamamen modernize edildi.
+
+#### Entegrasyon Adımları:
+1. **Proje Taşıma**: `/home/ubuntu_user/projects/WebUI` → `/home/ubuntu_user/projects/MASKER/WebUI`
+2. **Referans Güncelleme**: `WebUI.csproj` içinde project reference path düzeltmeleri
+3. **Solution Entegrasyonu**: `HaberSitesi.sln` dosyasına WebUI eklendi
+4. **API Bağlantısı**: ApiAccess layer üzerinden ApiUI'ye bağlandı
+
+#### WebUI Controller Güncellemeleri:
+
+**HomeController.cs**:
+```csharp
+// Sadece aktif içerikleri getir
+var slaytlar = _slaytService.GetAllSlayt()
+    ?.Where(x => x.Aktifmi)
+    .OrderByDescending(x => x.Id)
+    .ToList();
+
+var haberler = _haberService.GetAllHaber()
+    ?.Where(x => x.Aktifmi)
+    .OrderByDescending(x => x.EklenmeTarihi)
+    .Take(12)
+    .ToList();
+
+// Null safety ile model oluşturma
+AnasayfaViewModel model = new AnasayfaViewModel
+{
+    Slaytlar = slaytlar ?? new List<SlaytlarDto>(),
+    Haberler = haberler ?? new List<HaberlerDto>()
+};
+```
+
+**HaberlerController.cs**:
+```csharp
+// Aktif kontrol ve görüntülenme sayacı
+public IActionResult Detay(int id)
+{
+    var haber = _haberApiRequest.GetHaberById(id);
+
+    // Aktif olmayan haberleri gösterme
+    if (haber == null || !haber.Aktifmi)
+        return RedirectToAction("Index");
+
+    // Görüntülenme sayısını artır
+    haber.GosterimSayisi++;
+    _haberApiRequest.UpdateHaber(haber);
+
+    return View(model);
+}
+```
+
+#### WebUI Modern Tasarım:
+
+**Home/Index.cshtml** - Ana Sayfa:
+```html
+<!-- Hero Slider -->
+- Owl Carousel entegrasyonu
+- Lazy loading desteği (owl-lazy class)
+- Gradient overlay efektleri
+- Responsive image handling
+
+<!-- Breaking News Carousel -->
+- Son 5 haber döngüsü
+- Otomatik scroll
+- Mobil uyumlu
+
+<!-- News Grid -->
+- Card-based layout
+- Hover transform effects
+- Category badges
+- View counter display
+- Excerpt truncation (120 karakter)
+
+<!-- Popular Sidebar -->
+- En çok okunanlar (GosterimSayisi)
+- Compact card design
+- Image thumbnail preview
+```
+
+**Haberler/Index.cshtml** - Haber Listesi:
+```html
+<!-- Features -->
+- Sticky category sidebar
+- Filtered news by category
+- Pagination support
+- Responsive grid (3 column → 1 column)
+```
+
+**Haberler/Detay.cshtml** - Haber Detay:
+```html
+<!-- Features -->
+- Full-width header image
+- Rich content display
+- Video embed support
+- Related news section
+- Comment system integration
+- Social share buttons
+```
+
+#### CSS Modern Patterns:
+```css
+/* Gradient Backgrounds */
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+/* Card Hover Effects */
+.news-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* Image Zoom on Hover */
+.news-card:hover .news-card-img img {
+    transform: scale(1.1);
+}
+
+/* Smooth Transitions */
+transition: all 0.3s ease;
+```
+
+---
+
+### 🐛 Bug Fixes ve Optimizasyonlar
+
+#### Lazy Loading Düzeltmesi:
+**Sorun**: Hero slider görsellerinde `data-src` kullanıldı ancak Owl Carousel lazy loading yapılandırılmamıştı.
+
+**Çözüm**:
+```javascript
+// wwwroot/js/main.js
+$(".main-carousel").owlCarousel({
+    autoplay: true,
+    smartSpeed: 1500,
+    items: 1,
+    dots: true,
+    loop: true,
+    center: true,
+    lazyLoad: true  // ✅ Eklendi
+});
+```
+
+```html
+<!-- Hero slider görselleri -->
+<img class="owl-lazy" data-src="..." alt="...">
+
+<!-- Diğer görseller -->
+<img src="..." alt="..." loading="lazy">
+```
+
+#### Session Cookie Uyarıları:
+- DataProtection key rotasyonu nedeniyle session cookie hataları
+- Uygulama yeniden başlatıldığında otomatik düzelir
+- Güvenlik üzerinde etkisi yok (sadece kullanıcı oturumu sıfırlanır)
+
+#### Razor Syntax Hataları:
+**Sorun**: CSS `@media` Razor tarafından kod olarak yorumlandı.
+
+**Çözüm**:
+```cshtml
+/* YANLIŞ */
+@media (max-width: 768px) { ... }
+
+/* DOĞRU */
+@@media (max-width: 768px) { ... }
+```
+
+---
+
+### 📦 Dosya Yapısı Güncellemeleri
+
+#### Yeni Dizin Yapısı:
+```
+MASKER/
+├── ApiUI/              (Port: 5100)
+├── AdminUI/            (Port: 5251)
+├── WebUI/              (Port: 5167) ✅ YENİ
+│   ├── Controllers/
+│   │   ├── HomeController.cs        ✅ Güncellendi
+│   │   └── HaberlerController.cs    ✅ Güncellendi
+│   ├── Views/
+│   │   ├── Home/
+│   │   │   └── Index.cshtml         ✅ Modernize edildi
+│   │   └── Haberler/
+│   │       ├── Index.cshtml         ✅ Modernize edildi
+│   │       └── Detay.cshtml         ✅ Modernize edildi
+│   └── wwwroot/
+│       └── js/
+│           └── main.js              ✅ Owl Carousel lazy load eklendi
+├── ApiAccess/
+├── Business/
+├── DataAccess/
+├── Infrastructure/
+└── Shared/
+```
+
+#### AdminUI Form Sayfaları (Her Modül İçin):
+```
+AdminUI/Views/[ModulAdi]/
+├── Index.cshtml        (Liste - Zaten moderndi)
+├── Ekle.cshtml         ✅ Modernize edildi
+└── Guncelle.cshtml     ✅ Modernize edildi
+```
+
+---
+
+### 🔧 Teknik İyileştirmeler
+
+#### Performans:
+- **Lazy Loading**: Görseller viewport'a girene kadar yüklenmiyor
+- **Carousel Optimization**: Smooth animation (smartSpeed: 1500ms)
+- **Query Optimization**: `.Where(x => x.Aktifmi)` ile aktif kayıt filtresi
+
+#### Güvenlik:
+- **Null Safety**: Tüm API çağrılarında null check (`??` operator)
+- **XSS Protection**: `@Html.DisplayFor()` ve encoded output
+
+#### Kullanılabilirlik:
+- **Responsive Breakpoints**: 768px (mobile), 991px (tablet), 1200px (desktop)
+- **Touch Friendly**: Minimum 44x44px button size
+- **Accessibility**: Alt text, ARIA labels, semantic HTML
+
+---
+
+### 📝 Geliştirici Notları
+
+#### AdminUI Form Modernizasyonu:
+1. Tüm modüller için tutarlı tasarım dili
+2. Gradient renkleri (Ekle: mavi-mor, Guncelle: turuncu-kırmızı)
+3. Icon-based section headers
+4. Preview bölümü (Guncelle sayfalarında mevcut medya görüntüleme)
+
+#### WebUI Entegrasyonu:
+1. ApiAccess layer üzerinden ApiUI'ye bağlanır
+2. JWT veya Cookie authentication desteği
+3. Session yönetimi (30 dakika timeout)
+4. Static files URL: `appsettings.json` → `Ayarlar:StaticFilesUrl`
+
+#### Bulk Delete Implementasyonu:
+1. Frontend: Checkbox + jQuery selection logic
+2. Backend: `[HttpPost] SilAjax(int id)` metodu
+3. Response: `{ success: bool, message: string }`
+4. UI Feedback: Toast notifications (success/error)
+
+---
+
+### 🚀 Deployment Notları
+
+#### WebUI Başlatma:
+```bash
+cd /home/ubuntu_user/projects/MASKER/WebUI
+/home/ubuntu_user/.dotnet/dotnet run --urls "http://localhost:5167"
+```
+
+#### Tüm Servisleri Başlatma:
+```bash
+# 1. PostgreSQL + pgAdmin
+docker-compose up -d
+
+# 2. ApiUI (Port: 5100)
+cd ApiUI && nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
+
+# 3. AdminUI (Port: 5251)
+cd AdminUI && nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
+
+# 4. WebUI (Port: 5167)
+cd WebUI && nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&1 &
+```
+
+#### Erişim Adresleri:
+| Servis | URL | Açıklama |
+|--------|-----|----------|
+| **WebUI** | http://localhost:5167 | Son kullanıcı arayüzü ✅ YENİ |
+| **AdminUI** | http://localhost:5251 | Yönetim paneli |
+| **ApiUI** | http://localhost:5100 | REST API |
+| **Swagger** | http://localhost:5100/swagger | API dokümantasyonu |
+| **pgAdmin** | http://localhost:5050 | Veritabanı yönetimi |
+
+---
+
+### ✅ Test Edilen Özellikler
+
+#### AdminUI:
+- [x] Tüm modül form sayfaları (Ekle/Guncelle) görsel kontrol
+- [x] Razor syntax hataları giderildi (`@@media`)
+- [x] Responsive tasarım testi (mobile, tablet, desktop)
+- [x] Toplu silme işlevi (checkbox selection)
+- [x] AJAX silme ve toast bildirimleri
+
+#### WebUI:
+- [x] Ana sayfa hero slider çalışıyor
+- [x] Breaking news carousel otomatik scroll
+- [x] Haber kartları hover efektleri
+- [x] Popüler haberler sidebar
+- [x] Haber detay sayfası görüntülenme sayacı
+- [x] Kategori filtreleme
+- [x] Lazy loading (Owl Carousel)
+- [x] Responsive tasarım (mobile, tablet, desktop)
+
+#### API Entegrasyonu:
+- [x] WebUI → ApiAccess → ApiUI bağlantısı
+- [x] Aktif kayıt filtreleme
+- [x] Null safety ve error handling
+- [x] Static files URL yapılandırması
 
 ---
 
