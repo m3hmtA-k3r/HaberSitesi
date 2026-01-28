@@ -1,0 +1,106 @@
+@model WebUI.Models.PaginationInfo
+
+@{
+    var baseUrl = ViewData["BaseUrl"]?.ToString() ?? "";
+    var queryParams = ViewData["QueryParams"]?.ToString() ?? "";
+}
+
+<style>
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 3rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .pagination-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        height: 45px;
+        padding: 0 1rem;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        background: #fff;
+        color: #4a5568;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    .pagination-btn:hover:not(.disabled):not(.active) {
+        border-color: #667eea;
+        color: #667eea;
+        background: #f7fafc;
+    }
+    .pagination-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: transparent;
+        color: #fff;
+    }
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .pagination-info {
+        color: #718096;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+    }
+</style>
+
+@if (Model != null && Model.TotalPages > 1)
+{
+    <nav class="pagination-container" aria-label="Sayfa navigasyonu">
+        <!-- Previous Button -->
+        <a href="@(baseUrl)?sayfa=@(Model.CurrentPage - 1)@queryParams"
+           class="pagination-btn @(!Model.HasPreviousPage ? "disabled" : "")"
+           @(!Model.HasPreviousPage ? "tabindex=-1" : "")
+           aria-label="Onceki sayfa">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+
+        <!-- First Page -->
+        @if (Model.StartPage > 1)
+        {
+            <a href="@(baseUrl)?sayfa=1@queryParams" class="pagination-btn">1</a>
+            @if (Model.StartPage > 2)
+            {
+                <span class="pagination-btn disabled">...</span>
+            }
+        }
+
+        <!-- Page Numbers -->
+        @for (int i = Model.StartPage; i <= Model.EndPage; i++)
+        {
+            <a href="@(baseUrl)?sayfa=@i@queryParams"
+               class="pagination-btn @(i == Model.CurrentPage ? "active" : "")">
+                @i
+            </a>
+        }
+
+        <!-- Last Page -->
+        @if (Model.EndPage < Model.TotalPages)
+        {
+            @if (Model.EndPage < Model.TotalPages - 1)
+            {
+                <span class="pagination-btn disabled">...</span>
+            }
+            <a href="@(baseUrl)?sayfa=@Model.TotalPages@queryParams" class="pagination-btn">@Model.TotalPages</a>
+        }
+
+        <!-- Next Button -->
+        <a href="@(baseUrl)?sayfa=@(Model.CurrentPage + 1)@queryParams"
+           class="pagination-btn @(!Model.HasNextPage ? "disabled" : "")"
+           @(!Model.HasNextPage ? "tabindex=-1" : "")
+           aria-label="Sonraki sayfa">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+
+        <span class="pagination-info">
+            @Model.TotalItems icinden @((Model.CurrentPage - 1) * Model.PageSize + 1)-@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalItems) gosteriliyor
+        </span>
+    </nav>
+}

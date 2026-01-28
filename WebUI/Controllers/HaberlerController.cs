@@ -19,8 +19,10 @@ namespace WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(int id = 0)
+        public IActionResult Index(int? kategoriId = null, int sayfa = 1)
         {
+            const int sayfaBoyutu = 9;
+
             var haberler = _haberApiRequest.GetAllHaber();
             var kategoriler = _kategoriApiRequest.GetKategoriler();
 
@@ -31,14 +33,27 @@ namespace WebUI.Controllers
                 kategoriler = new List<KategorilerDto>();
 
             // Sadece aktif haberleri filtrele
-            var aktifHaberler = haberler.Where(x => x.Aktifmi);
+            var aktifHaberler = haberler.Where(x => x.Aktifmi).ToList();
+
+            // Kategori filtresi
+            if (kategoriId.HasValue && kategoriId.Value > 0)
+            {
+                aktifHaberler = aktifHaberler.Where(x => x.KategoriId == kategoriId.Value).ToList();
+            }
+
+            // Tarihe gore sirala
+            var siraliHaberler = aktifHaberler.OrderByDescending(x => x.EklenmeTarihi).ToList();
+
+            // Pagination
+            var paginationInfo = PaginationHelper.GetPaginationInfo(siraliHaberler.Count, sayfa, sayfaBoyutu);
+            var sayfaliHaberler = PaginationHelper.GetPaginatedList(siraliHaberler, sayfa, sayfaBoyutu);
 
             var model = new HaberlerViewModel
             {
-                Haberler = id == 0
-                    ? aktifHaberler.OrderByDescending(x => x.EklenmeTarihi).ToList()
-                    : aktifHaberler.Where(x => x.KategoriId == id).OrderByDescending(x => x.EklenmeTarihi).ToList(),
-                Kategoriler = kategoriler.Where(x => x.Aktifmi).OrderByDescending(x => x.Id).ToList()
+                Haberler = sayfaliHaberler,
+                Kategoriler = kategoriler.Where(x => x.Aktifmi).OrderByDescending(x => x.Id).ToList(),
+                Pagination = paginationInfo,
+                SeciliKategoriId = kategoriId
             };
 
             return View(model);
@@ -54,19 +69,28 @@ namespace WebUI.Controllers
             if (haber == null || !haber.Aktifmi)
                 return RedirectToAction("Index");
 
-            // Gösterim sayısını artır
+            // Gosterim sayisini artir
             haber.GosterimSayisi++;
             _haberApiRequest.UpdateHaber(haber);
 
             var yorumlar = _yorumApiRequest.GetAllYorum();
             var kategoriler = _kategoriApiRequest.GetKategoriler();
+            var tumHaberler = _haberApiRequest.GetAllHaber();
+
+            // Ilgili haberler (ayni kategoriden, mevcut haber haric)
+            var ilgiliHaberler = tumHaberler?
+                .Where(x => x.Aktifmi && x.KategoriId == haber.KategoriId && x.Id != haber.Id)
+                .OrderByDescending(x => x.EklenmeTarihi)
+                .Take(4)
+                .ToList() ?? new List<HaberlerDto>();
 
             var model = new HaberDetayViewModel
             {
                 Haber = haber,
                 Yorumlar = yorumlar?.Where(x => x.HaberId == id && x.Aktifmi)
                     .OrderByDescending(x => x.EklenmeTarihi).ToList() ?? new List<YorumlarDto>(),
-                Kategoriler = kategoriler?.Where(x => x.Aktifmi).OrderByDescending(x => x.Id).ToList() ?? new List<KategorilerDto>()
+                Kategoriler = kategoriler?.Where(x => x.Aktifmi).OrderByDescending(x => x.Id).ToList() ?? new List<KategorilerDto>(),
+                IlgiliHaberler = ilgiliHaberler
             };
 
             return View(model);

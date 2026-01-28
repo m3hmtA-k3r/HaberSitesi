@@ -1,0 +1,269 @@
+@{
+    ViewData["Title"] = "Iletisim - MASKER";
+    ViewData["Description"] = "MASKER ile iletisime gecin. Sorulariniz, onerileriniz ve geri bildirimleriniz icin bize ulasin.";
+    ViewData["Keywords"] = "iletisim, MASKER, destek, geri bildirim";
+}
+
+<style>
+    .contact-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        color: #fff;
+        text-align: center;
+    }
+    .contact-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .contact-subtitle { font-size: 1.1rem; opacity: 0.9; }
+
+    .contact-section { padding-bottom: 4rem; }
+
+    .contact-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    .contact-card-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f0f0f0;
+    }
+    .contact-card-header i { color: #667eea; margin-right: 0.5rem; }
+
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: #fff;
+        padding: 1rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f7fafc;
+        border-radius: 15px;
+        transition: all 0.3s;
+    }
+    .info-item:hover {
+        background: #edf2f7;
+        transform: translateX(5px);
+    }
+    .info-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+    .info-icon i { color: #fff; font-size: 1.5rem; }
+    .info-content h5 { font-weight: 700; color: #2d3748; margin-bottom: 0.3rem; }
+    .info-content p { color: #718096; margin: 0; line-height: 1.6; }
+    .info-content a { color: #667eea; text-decoration: none; }
+    .info-content a:hover { text-decoration: underline; }
+
+    .social-links { display: flex; gap: 1rem; margin-top: 2rem; }
+    .social-link {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    .social-link:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        color: #fff;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    .map-container {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-top: 3rem;
+    }
+    .map-container iframe { width: 100%; height: 400px; border: none; }
+</style>
+
+<!-- Contact Header -->
+<div class="contact-header">
+    <div class="container">
+        <h1 class="contact-title"><i class="fas fa-envelope mr-2"></i>Iletisim</h1>
+        <p class="contact-subtitle">Bizimle iletisime gecin, en kisa surede size donelim</p>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<div class="container contact-section">
+    <div class="row">
+        <!-- Contact Form -->
+        <div class="col-lg-7 mb-4">
+            <div class="contact-card">
+                <h3 class="contact-card-header">
+                    <i class="fas fa-paper-plane"></i>Mesaj Gonderin
+                </h3>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+                    </div>
+                }
+
+                <form action="/Iletisim/Gonder" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="ad"><i class="fas fa-user mr-1"></i>Adiniz *</label>
+                                <input type="text" class="form-control" id="ad" name="ad" required placeholder="Adinizi girin">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email"><i class="fas fa-envelope mr-1"></i>E-posta *</label>
+                                <input type="email" class="form-control" id="email" name="email" required placeholder="ornek@email.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="konu"><i class="fas fa-tag mr-1"></i>Konu *</label>
+                        <input type="text" class="form-control" id="konu" name="konu" required placeholder="Mesaj konusu">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mesaj"><i class="fas fa-comment mr-1"></i>Mesajiniz *</label>
+                        <textarea class="form-control" id="mesaj" name="mesaj" rows="6" required placeholder="Mesajinizi buraya yazin..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane mr-2"></i>Mesaji Gonder
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="col-lg-5 mb-4">
+            <div class="contact-card">
+                <h3 class="contact-card-header">
+                    <i class="fas fa-info-circle"></i>Iletisim Bilgileri
+                </h3>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>Adres</h5>
+                        <p>Istanbul, Turkiye</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>E-posta</h5>
+                        <p><a href="mailto:info@masker.com">info@masker.com</a></p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>Calisma Saatleri</h5>
+                        <p>Pazartesi - Cuma: 09:00 - 18:00<br>Cumartesi - Pazar: Kapali</p>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3" style="color: #2d3748; font-weight: 700;">Bizi Takip Edin</h5>
+                <div class="social-links">
+                    <a href="https://x.com/MehmetAsker10" class="social-link" target="_blank" title="X (Twitter)">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=717434260" class="social-link" target="_blank" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/mehmet-asker-813608211/" class="social-link" target="_blank" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://www.instagram.com/m3hm3t_ask3r/" class="social-link" target="_blank" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://github.com/m3hmtA-k3r" class="social-link" target="_blank" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map -->
+    <div class="map-container">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d385396.3202822136!2d28.731994399999998!3d41.00495495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa7040068086b%3A0xe1ccfe98bc01b0d0!2s%C4%B0stanbul!5e0!3m2!1str!2str!4v1706400000000!5m2!1str!2str" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+</div>

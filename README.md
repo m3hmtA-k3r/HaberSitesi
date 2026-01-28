@@ -73,6 +73,7 @@ docker-compose up -d
 # 2. Eski processleri temizle (varsa)
 pkill -f "dotnet.*ApiUI" 2>/dev/null
 pkill -f "dotnet.*AdminUI" 2>/dev/null
+pkill -f "dotnet.*WebUI" 2>/dev/null
 
 # 3. ApiUI baslat (Port: 5100)
 cd /home/ubuntu_user/projects/MASKER/ApiUI
@@ -82,15 +83,20 @@ nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
 cd /home/ubuntu_user/projects/MASKER/AdminUI
 nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
 
-# 5. Servislerin hazir olmasini bekle
+# 5. WebUI baslat (Port: 5167)
+cd /home/ubuntu_user/projects/MASKER/WebUI
+nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&1 &
+
+# 6. Servislerin hazir olmasini bekle
 sleep 15
 
-# 6. Durum kontrolu
+# 7. Durum kontrolu
 echo "=== Servis Durumu ==="
 nc -zv localhost 5432 2>&1 && echo "PostgreSQL: OK" || echo "PostgreSQL: FAIL"
 nc -zv localhost 5050 2>&1 && echo "pgAdmin: OK" || echo "pgAdmin: FAIL"
 nc -zv localhost 5100 2>&1 && echo "ApiUI: OK" || echo "ApiUI: FAIL"
 nc -zv localhost 5251 2>&1 && echo "AdminUI: OK" || echo "AdminUI: FAIL"
+nc -zv localhost 5167 2>&1 && echo "WebUI: OK" || echo "WebUI: FAIL"
 ```
 
 ### Hizli Baslatma Script'i
@@ -111,6 +117,7 @@ chmod +x /home/ubuntu_user/projects/MASKER/start-masker.sh
 # .NET uygulamalarini durdur
 pkill -f "dotnet.*ApiUI"
 pkill -f "dotnet.*AdminUI"
+pkill -f "dotnet.*WebUI"
 
 # Docker servislerini durdur (opsiyonel)
 cd /home/ubuntu_user/projects/MASKER
@@ -127,6 +134,9 @@ tail -f /tmp/apiui.log
 
 # AdminUI loglari
 tail -f /tmp/adminui.log
+
+# WebUI loglari
+tail -f /tmp/webui.log
 ```
 
 ---
@@ -135,6 +145,7 @@ tail -f /tmp/adminui.log
 
 | Servis | URL | Aciklama |
 |--------|-----|----------|
+| **WebUI** | http://localhost:5167 | Kullanici arayuzu (Frontend) |
 | **Admin Panel** | http://localhost:5251 | Yonetim arayuzu |
 | **API** | http://localhost:5100 | REST API |
 | **Swagger** | http://localhost:5100/swagger | API dokumantasyonu |
@@ -1531,20 +1542,114 @@ cd WebUI && nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&
 - [x] AJAX silme ve toast bildirimleri
 
 #### WebUI:
-- [x] Ana sayfa hero slider çalışıyor
+- [x] Ana sayfa genisleyen kartlar (Expanding Panels)
 - [x] Breaking news carousel otomatik scroll
-- [x] Haber kartları hover efektleri
-- [x] Popüler haberler sidebar
-- [x] Haber detay sayfası görüntülenme sayacı
+- [x] Haber kartlari hover efektleri
+- [x] Populer haberler sidebar
+- [x] Haber detay sayfasi goruntulenme sayaci
 - [x] Kategori filtreleme
-- [x] Lazy loading (Owl Carousel)
-- [x] Responsive tasarım (mobile, tablet, desktop)
+- [x] Responsive tasarim (mobile, tablet, desktop)
+- [x] Gorsel yukleme duzeltildi (Phase 1)
+- [x] Arama fonksiyonu eklendi (Phase 1)
+- [x] Iletisim sayfasi eklendi (Phase 1)
+- [x] Blog entegrasyonu - **Phase 2** ✅
+- [x] Yazar profil sayfasi - **Phase 2** ✅
 
 #### API Entegrasyonu:
-- [x] WebUI → ApiAccess → ApiUI bağlantısı
-- [x] Aktif kayıt filtreleme
+- [x] WebUI -> ApiAccess -> ApiUI baglantisi
+- [x] Aktif kayit filtreleme
 - [x] Null safety ve error handling
-- [x] Static files URL yapılandırması
+- [x] Static files URL yapilandirmasi
+- [x] Blog API entegrasyonu - **Phase 2** ✅
+
+---
+
+## 🌐 WebUI Gelistirme Plani
+
+WebUI (Kullanici Arayuzu) icin yapilmasi gereken gelistirmeler asagida oncelik sirasina gore listelenmi§tir.
+
+### Mevcut Durum
+
+| Bilesen | Durum | Aciklama |
+|---------|-------|----------|
+| Ana Sayfa | ✅ Calisiyor | Genisleyen kartlar (expanding panels), haber kartlari |
+| Haberler Listesi | ✅ Calisiyor | Kategori filtresi, sayfalama |
+| Haber Detay | ✅ Calisiyor | Yorum sistemi, ilgili haberler, yazar linki |
+| Blog | ✅ Calisiyor | Blog listesi, detay, kategori filtresi, yorum sistemi |
+| Yazar Profil | ✅ Calisiyor | Yazar bilgileri, yazarin haberleri |
+| Arama | ✅ Calisiyor | Haber arama fonksiyonu |
+| Iletisim | ✅ Calisiyor | Iletisim formu, harita |
+| SEO | ✅ Calisiyor | Meta tags, Open Graph, Twitter Card |
+| API Entegrasyonu | ✅ Calisiyor | 8 modul entegre (Haber, Kategori, Yazar, Yorum, Slayt, Blog, BlogKategori, BlogYorum) |
+
+### 🔴 PHASE 1: Kritik Duzeltmeler ✅ TAMAMLANDI
+
+| # | Gorev | Dosya | Durum |
+|---|-------|-------|-------|
+| 1.1 | Gorsel src hatasi duzelt | `Haberler/Index.cshtml`, `Detay.cshtml` | ✅ |
+| 1.2 | Ana sayfa genisleyen kartlar (1.proje referans) | `Home/Index.cshtml` | ✅ |
+| 1.3 | Arama fonksiyonu | `SearchController.cs`, `SearchViewModel.cs`, `Search/Index.cshtml` | ✅ |
+| 1.4 | Iletisim sayfasi | `IletisimController.cs`, `Iletisim/Index.cshtml` | ✅ |
+
+### 🟠 PHASE 2: Temel Ozellikler ✅ TAMAMLANDI
+
+| # | Gorev | Dosya | Durum |
+|---|-------|-------|-------|
+| 2.1 | Blog modulu entegrasyonu | `BlogController.cs`, `BlogViewModel.cs`, `Blog/Index.cshtml`, `Blog/Detay.cshtml` | ✅ |
+| 2.2 | Sayfalama (Pagination) | `PaginationViewModel.cs`, `_Pagination.cshtml`, `HaberlerController.cs`, `BlogController.cs` | ✅ |
+| 2.3 | Ilgili haberler | `HaberDetayViewModel.cs`, `Haberler/Detay.cshtml` | ✅ |
+| 2.4 | Yazar profil sayfasi | `YazarController.cs`, `YazarViewModel.cs`, `Yazar/Profil.cshtml` | ✅ |
+| 2.5 | SEO meta tags | `_Layout.cshtml`, tum view dosyalari | ✅ |
+
+### 🟡 PHASE 3: Gelismis Ozellikler
+
+| # | Gorev | Dosya | Durum |
+|---|-------|-------|-------|
+| 3.1 | Sosyal paylasim butonlari | `Detay.cshtml` | [ ] |
+| 3.2 | Breadcrumb navigasyon | `_Layout.cshtml` | [ ] |
+| 3.3 | Footer gelistirme | `_Layout.cshtml` | [ ] |
+| 3.4 | 404 hata sayfasi | `Error/NotFound.cshtml` | [ ] |
+| 3.5 | Siralama secenekleri | `Haberler/Index.cshtml` | [ ] |
+
+### Dosya Yapisi (Guncel)
+
+```
+WebUI/
+├── Program.cs                 ✅ Guncellendi (Blog servisleri DI eklendi)
+├── Controllers/
+│   ├── HomeController.cs      ✅ Mevcut
+│   ├── HaberlerController.cs  ✅ Guncellendi (Pagination, IlgiliHaberler)
+│   ├── SearchController.cs    ✅ Eklendi (Phase 1)
+│   ├── IletisimController.cs  ✅ Eklendi (Phase 1)
+│   ├── BlogController.cs      ✅ Eklendi (Phase 2)
+│   └── YazarController.cs     ✅ Eklendi (Phase 2)
+├── Views/
+│   ├── Home/
+│   │   └── Index.cshtml       ✅ Guncellendi (Genisleyen kartlar)
+│   ├── Haberler/
+│   │   ├── Index.cshtml       ✅ Guncellendi (src duzeltme, pagination, SEO)
+│   │   └── Detay.cshtml       ✅ Guncellendi (src duzeltme, ilgili haberler, yazar linki, SEO)
+│   ├── Search/
+│   │   └── Index.cshtml       ✅ Eklendi (Phase 1)
+│   ├── Iletisim/
+│   │   └── Index.cshtml       ✅ Eklendi (Phase 1)
+│   ├── Blog/
+│   │   ├── Index.cshtml       ✅ Eklendi (Phase 2)
+│   │   └── Detay.cshtml       ✅ Eklendi (Phase 2)
+│   ├── Yazar/
+│   │   └── Profil.cshtml      ✅ Eklendi (Phase 2)
+│   └── Shared/
+│       ├── _Layout.cshtml     ✅ Guncellendi (Arama formu, Blog linki, SEO meta tags)
+│       └── _Pagination.cshtml ✅ Eklendi (Phase 2)
+└── Models/
+    ├── AnasayfaViewModel.cs   ✅ Mevcut
+    ├── HaberlerViewModel.cs   ✅ Guncellendi (Pagination eklendi)
+    ├── HaberDetayViewModel.cs ✅ Guncellendi (IlgiliHaberler eklendi)
+    ├── SearchViewModel.cs     ✅ Eklendi (Phase 1)
+    ├── BlogViewModel.cs       ✅ Eklendi (Phase 2)
+    ├── YazarViewModel.cs      ✅ Eklendi (Phase 2)
+    └── PaginationViewModel.cs ✅ Eklendi (Phase 2)
+```
 
 ---
 
@@ -1555,26 +1660,20 @@ cd WebUI && nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&
 - [x] ~~BCrypt sifre hashleme~~ ✅ Tamamlandi
 - [x] ~~Rol bazli yetkilendirme~~ ✅ Tamamlandi
 - [x] ~~PostgreSQL entegrasyonu~~ ✅ Tamamlandi
-- [x] ~~Blog Modulu~~ ✅ Tamamlandi
-- [ ] Modul bazli yetkiler (Permission sistemi)
-- [ ] Rol-Modul-Aksiyon matrisi
-- [ ] Audit log sistemi
-- [ ] Redis cache destegi
+- [x] ~~Blog Modulu (API)~~ ✅ Tamamlandi
+- [x] ~~WebUI Phase 1 (Kritik duzeltmeler)~~ ✅ Tamamlandi
+- [x] ~~WebUI Phase 2 (Temel ozellikler)~~ ✅ Tamamlandi
 
 ### Orta Vadeli (Q2 2026)
-- [ ] Elasticsearch entegrasyonu
-- [ ] SignalR ile canli bildirimler
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-- [ ] E-ticaret modulu entegrasyonu
+- [ ] WebUI Phase 3 (Gelismis ozellikler)
 - [ ] SEO optimizasyonlari
+- [ ] Redis cache destegi
+- [ ] E-ticaret modulu
 
 ### Uzun Vadeli
-- [ ] Microservices mimarisi
-- [ ] Cloud deployment (Azure/AWS)
-- [ ] AI-powered icerik onerileri
 - [ ] Mobile app (React Native / Flutter)
-- [ ] Real-time collaboration tools
+- [ ] Multi-language support
+- [ ] Advanced analytics dashboard
 
 ---
 

@@ -21,6 +21,7 @@ echo ""
 echo -e "${YELLOW}[1/2] .NET uygulamalari durduruluyor...${NC}"
 pkill -f "dotnet.*ApiUI" 2>/dev/null && echo -e "  ApiUI: ${GREEN}Durduruldu${NC}" || echo -e "  ApiUI: ${YELLOW}Zaten calismiyordu${NC}"
 pkill -f "dotnet.*AdminUI" 2>/dev/null && echo -e "  AdminUI: ${GREEN}Durduruldu${NC}" || echo -e "  AdminUI: ${YELLOW}Zaten calismiyordu${NC}"
+pkill -f "dotnet.*WebUI" 2>/dev/null && echo -e "  WebUI: ${GREEN}Durduruldu${NC}" || echo -e "  WebUI: ${YELLOW}Zaten calismiyordu${NC}"
 
 # Docker servislerini durdur (opsiyonel)
 echo ""

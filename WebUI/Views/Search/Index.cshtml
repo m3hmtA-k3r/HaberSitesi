@@ -1,0 +1,192 @@
+@model SearchViewModel
+
+@{
+    ViewData["Title"] = string.IsNullOrEmpty(Model.Keyword) ? "Arama - MASKER" : "\"" + Model.Keyword + "\" icin arama sonuclari - MASKER";
+    ViewData["Description"] = string.IsNullOrEmpty(Model.Keyword) ? "MASKER haber portali arama sayfasi. Haberler, blog yazilari ve daha fazlasini arayin." : Model.Keyword + " ile ilgili " + Model.Haberler.Count + " haber bulundu.";
+    ViewData["Keywords"] = "arama, haberler, " + (Model.Keyword ?? "MASKER");
+}
+
+<style>
+    .search-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        color: #fff;
+    }
+    .search-title { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+    .search-form { max-width: 600px; margin: 0 auto; }
+    .search-input-group {
+        display: flex;
+        background: #fff;
+        border-radius: 50px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .search-input {
+        flex: 1;
+        border: none;
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        outline: none;
+    }
+    .search-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        padding: 1rem 2rem;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+    .search-btn:hover { opacity: 0.9; }
+
+    .search-results { padding: 2rem 0; }
+    .results-info {
+        background: #f7fafc;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .results-text { color: #4a5568; font-size: 1rem; }
+    .results-count { color: #667eea; font-weight: 700; }
+    .results-keyword {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .news-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s ease; margin-bottom: 2rem; border: 1px solid #e2e8f0; }
+    .news-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+    .news-card-img { position: relative; height: 200px; overflow: hidden; }
+    .news-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .news-card:hover .news-card-img img { transform: scale(1.1); }
+    .news-card-body { padding: 1.5rem; }
+    .news-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .news-badge { display: inline-block; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; text-decoration: none; }
+    .news-date { color: #a0aec0; font-size: 0.85rem; }
+    .news-title { font-size: 1.15rem; font-weight: 700; color: #2d3748; margin-bottom: 0.8rem; line-height: 1.4; text-decoration: none; display: block; transition: color 0.2s; }
+    .news-title:hover { color: #667eea; }
+    .news-excerpt { color: #718096; font-size: 0.9rem; line-height: 1.6; }
+
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #f7fafc;
+        border-radius: 20px;
+    }
+    .no-results i { font-size: 4rem; color: #a0aec0; margin-bottom: 1rem; }
+    .no-results h4 { color: #4a5568; margin-bottom: 0.5rem; }
+    .no-results p { color: #718096; }
+
+    .sidebar-card { background: #fff; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .sidebar-header { font-size: 1.3rem; font-weight: 700; color: #2d3748; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
+    .category-list { list-style: none; padding: 0; margin: 0; }
+    .category-item { margin-bottom: 0.5rem; }
+    .category-link { display: block; padding: 0.8rem 1rem; border-radius: 10px; color: #4a5568; text-decoration: none; transition: all 0.3s; font-weight: 500; }
+    .category-link:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+</style>
+
+<!-- Search Header -->
+<div class="search-header">
+    <div class="container text-center">
+        <h1 class="search-title"><i class="fas fa-search mr-2"></i>Arama</h1>
+        <form action="/Search" method="get" class="search-form">
+            <div class="search-input-group">
+                <input type="text" name="q" class="search-input" placeholder="Haber, kategori veya yazar ara..." value="@Model.Keyword">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search mr-1"></i> Ara
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Search Results -->
+<div class="container search-results">
+    <div class="row">
+        <div class="col-lg-8">
+            @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+            {
+                <div class="results-info">
+                    <span class="results-text">
+                        <span class="results-keyword">"@Model.Keyword"</span> icin
+                        <span class="results-count">@Model.Haberler.Count</span> sonuc bulundu
+                    </span>
+                </div>
+
+                @if (Model.Haberler.Any())
+                {
+                    <div class="row">
+                        @foreach (var item in Model.Haberler)
+                        {
+                            <div class="col-md-6 mb-4">
+                                <div class="news-card">
+                                    <div class="news-card-img">
+                                        <a href="/Haberler/Detay/@item.Id">
+                                            <img src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" loading="lazy">
+                                        </a>
+                                    </div>
+                                    <div class="news-card-body">
+                                        <div class="news-meta">
+                                            <a href="/Haberler/Index/@item.KategoriId" class="news-badge">@item.Kategori</a>
+                                            <span class="news-date"><i class="far fa-clock"></i> @item.EklenmeTarihi</span>
+                                        </div>
+                                        <a href="/Haberler/Detay/@item.Id" class="news-title">@item.Baslik</a>
+                                        <p class="news-excerpt">
+                                            @if (item.Icerik.Length <= 100)
+                                            {
+                                                @item.Icerik
+                                            }
+                                            else
+                                            {
+                                                @(item.Icerik.Substring(0, 100) + "...")
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h4>Sonuc bulunamadi</h4>
+                        <p>"@Model.Keyword" ile eslesen haber bulunamadi. Farkli anahtar kelimeler deneyin.</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-results">
+                    <i class="fas fa-lightbulb"></i>
+                    <h4>Aramaya baslayin</h4>
+                    <p>Haber, kategori veya yazar adiyla arama yapabilirsiniz.</p>
+                </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sidebar-card">
+                <h3 class="sidebar-header"><i class="fas fa-folder mr-2"></i>Kategoriler</h3>
+                <ul class="category-list">
+                    @foreach (var item in Model.Kategoriler)
+                    {
+                        <li class="category-item">
+                            <a href="/Haberler/Index/@item.Id" class="category-link">
+                                <i class="fas fa-chevron-right mr-2"></i>@item.Aciklama
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

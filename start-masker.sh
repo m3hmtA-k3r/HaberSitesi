@@ -29,7 +29,7 @@ export PATH="$HOME/.dotnet:$PATH"
 export DOTNET_ROOT="$HOME/.dotnet"
 
 # 1. Docker kontrolu
-echo -e "${YELLOW}[1/5] Docker kontrol ediliyor...${NC}"
+echo -e "${YELLOW}[1/6] Docker kontrol ediliyor...${NC}"
 if ! command -v docker &> /dev/null; then
     echo -e "${RED}HATA: Docker bulunamadi!${NC}"
     echo -e "${YELLOW}Docker Desktop'i acin ve WSL Integration'i aktif edin:${NC}"
@@ -40,7 +40,7 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # 2. Docker servislerini baslat
-echo -e "${YELLOW}[2/5] Docker servisleri baslatiliyor (PostgreSQL + pgAdmin)...${NC}"
+echo -e "${YELLOW}[2/6] Docker servisleri baslatiliyor (PostgreSQL + pgAdmin)...${NC}"
 cd "$PROJECT_DIR"
 docker-compose up -d
 
@@ -48,24 +48,32 @@ docker-compose up -d
 sleep 3
 
 # 3. Eski processleri temizle
-echo -e "${YELLOW}[3/5] Eski processler temizleniyor...${NC}"
+echo -e "${YELLOW}[3/6] Eski processler temizleniyor...${NC}"
 pkill -f "dotnet.*ApiUI" 2>/dev/null || true
 pkill -f "dotnet.*AdminUI" 2>/dev/null || true
+pkill -f "dotnet.*WebUI" 2>/dev/null || true
 sleep 2
 
 # 4. ApiUI baslat
-echo -e "${YELLOW}[4/5] ApiUI baslatiliyor (Port: 5100)...${NC}"
+echo -e "${YELLOW}[4/6] ApiUI baslatiliyor (Port: 5100)...${NC}"
 cd "$PROJECT_DIR/ApiUI"
 nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
 API_PID=$!
 echo "  PID: $API_PID"
 
 # 5. AdminUI baslat
-echo -e "${YELLOW}[5/5] AdminUI baslatiliyor (Port: 5251)...${NC}"
+echo -e "${YELLOW}[5/6] AdminUI baslatiliyor (Port: 5251)...${NC}"
 cd "$PROJECT_DIR/AdminUI"
 nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
 ADMIN_PID=$!
 echo "  PID: $ADMIN_PID"
+
+# 6. WebUI baslat
+echo -e "${YELLOW}[6/6] WebUI baslatiliyor (Port: 5167)...${NC}"
+cd "$PROJECT_DIR/WebUI"
+nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&1 &
+WEB_PID=$!
+echo "  PID: $WEB_PID"
 
 # Servislerin hazir olmasini bekle
 echo ""
@@ -92,11 +100,13 @@ check_service 5432 "PostgreSQL (5432)"
 check_service 5050 "pgAdmin    (5050)"
 check_service 5100 "ApiUI      (5100)"
 check_service 5251 "AdminUI    (5251)"
+check_service 5167 "WebUI      (5167)"
 
 echo ""
 echo -e "${BLUE}============================================${NC}"
 echo -e "${BLUE}   Erisim Adresleri${NC}"
 echo -e "${BLUE}============================================${NC}"
+echo -e "  WebUI       : ${GREEN}http://localhost:5167${NC}"
 echo -e "  Admin Panel : ${GREEN}http://localhost:5251${NC}"
 echo -e "  API Swagger : ${GREEN}http://localhost:5100/swagger${NC}"
 echo -e "  pgAdmin     : ${GREEN}http://localhost:5050${NC}"
@@ -119,6 +129,7 @@ echo ""
 echo -e "${YELLOW}Log dosyalari:${NC}"
 echo "  ApiUI   : tail -f /tmp/apiui.log"
 echo "  AdminUI : tail -f /tmp/adminui.log"
+echo "  WebUI   : tail -f /tmp/webui.log"
 echo ""
 echo -e "${YELLOW}Servisleri durdurmak icin:${NC}"
 echo "  ./stop-masker.sh"

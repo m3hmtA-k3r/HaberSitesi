@@ -1,5 +1,11 @@
 @model HaberlerViewModel
 
+@{
+    ViewData["Title"] = "Tum Haberler - MASKER";
+    ViewData["Description"] = "MASKER haber portali - Guncel haberler ve son dakika gelismeler. Tum kategorilerde en son haberleri takip edin.";
+    ViewData["Keywords"] = "haberler, guncel, son dakika, MASKER";
+}
+
 <style>
     .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 0; margin-bottom: 3rem; color: #fff; }
     .page-title { font-size: 2.5rem; font-weight: 700; margin: 0; }
@@ -65,17 +71,17 @@
                     <h3 class="category-header">Kategoriler</h3>
                     <ul class="category-list">
                         <li class="category-item">
-                            <a href="/Haberler" class="category-link @(ViewBag.SelectedCategory == null ? "active" : "")">
+                            <a href="/Haberler" class="category-link @(Model.SeciliKategoriId == null ? "active" : "")">
                                 <div class="d-flex align-items-center">
                                     <div class="category-icon"><i class="fas fa-th"></i></div>
-                                    <span>Tüm Haberler</span>
+                                    <span>Tum Haberler</span>
                                 </div>
                             </a>
                         </li>
                         @foreach (var item in Model.Kategoriler)
                         {
                             <li class="category-item">
-                                <a href="/Haberler/Index/@item.Id" class="category-link @(ViewBag.SelectedCategory == item.Id ? "active" : "")">
+                                <a href="/Haberler?kategoriId=@item.Id" class="category-link @(Model.SeciliKategoriId == item.Id ? "active" : "")">
                                     <div class="d-flex align-items-center">
                                         <div class="category-icon"><i class="fas fa-folder"></i></div>
                                         <span>@item.Aciklama</span>
@@ -92,7 +98,7 @@
                 <div class="filter-info">
                     <span class="filter-text">
                         <i class="fas fa-newspaper mr-2"></i>
-                        Toplam <span class="filter-count">@Model.Haberler.Count()</span> haber bulundu
+                        Toplam <span class="filter-count">@Model.Pagination.TotalItems</span> haber bulundu
                     </span>
                 </div>
 
@@ -103,12 +109,12 @@
                             <div class="news-card">
                                 <div class="news-card-img">
                                     <a href="/Haberler/Detay/@item.Id">
-                                        <img data-src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" loading="lazy">
+                                        <img src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + item.Resim)" alt="@item.Baslik" loading="lazy">
                                     </a>
                                 </div>
                                 <div class="news-card-body">
                                     <div class="news-meta">
-                                        <a href="/Haberler/Index/@item.KategoriId" class="news-badge">@item.Kategori</a>
+                                        <a href="/Haberler?kategoriId=@item.KategoriId" class="news-badge">@item.Kategori</a>
                                         <span class="news-date"><i class="far fa-clock"></i>@item.EklenmeTarihi</span>
                                     </div>
                                     <a href="/Haberler/Detay/@item.Id" class="news-title">@item.Baslik</a>
@@ -125,7 +131,7 @@
                                     <div class="news-footer">
                                         <div class="news-author">
                                             <i class="far fa-user"></i>
-                                            <span>@item.Yazar</span>
+                                            <a href="/Yazar/Profil/@item.YazarId" style="color: #4a5568; text-decoration: none;">@item.Yazar</a>
                                         </div>
                                         <div class="news-views">
                                             <i class="far fa-eye"></i>
@@ -142,10 +148,16 @@
                 {
                     <div class="text-center py-5">
                         <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                        <h4 class="text-muted">Bu kategoride henüz haber bulunmuyor</h4>
-                        <p class="text-muted">Lütfen başka bir kategori seçin</p>
+                        <h4 class="text-muted">Bu kategoride henuz haber bulunmuyor</h4>
+                        <p class="text-muted">Lutfen baska bir kategori secin</p>
                     </div>
                 }
+
+                @{
+                    ViewData["BaseUrl"] = "/Haberler";
+                    ViewData["QueryParams"] = Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "";
+                }
+                @await Html.PartialAsync("_Pagination", Model.Pagination)
             </div>
         </div>
     </div>

@@ -3,12 +3,36 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Robot Dreams News</title>
+    <title>@(ViewData["Title"] ?? "MASKER - Haber Portali")</title>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#814C9E">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="@(ViewData["Description"] ?? "MASKER - Guncel haberler, blog yazilari ve daha fazlasi. En son gelismeler ve teknik icerikler icin takipte kalin.")">
+    <meta name="keywords" content="@(ViewData["Keywords"] ?? "haberler, blog, teknoloji, guncel, MASKER")">
+    <meta name="author" content="MASKER">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="@Context.Request.Path">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@(ViewData["OgType"] ?? "website")">
+    <meta property="og:url" content="@Context.Request.Path">
+    <meta property="og:title" content="@(ViewData["Title"] ?? "MASKER - Haber Portali")">
+    <meta property="og:description" content="@(ViewData["Description"] ?? "MASKER - Guncel haberler, blog yazilari ve daha fazlasi.")">
+    <meta property="og:image" content="@(ViewData["OgImage"] ?? "/img/og-default.jpg")">
+    <meta property="og:site_name" content="MASKER">
+    <meta property="og:locale" content="tr_TR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="@Context.Request.Path">
+    <meta name="twitter:title" content="@(ViewData["Title"] ?? "MASKER - Haber Portali")">
+    <meta name="twitter:description" content="@(ViewData["Description"] ?? "MASKER - Guncel haberler, blog yazilari ve daha fazlasi.")">
+    <meta name="twitter:image" content="@(ViewData["OgImage"] ?? "/img/og-default.jpg")">
+
     <!-- Favicon -->
     <link href="/img/favicon.ico" rel="icon">
 
@@ -106,16 +130,17 @@
                 <div class="navbar-nav mr-auto py-0">
                     <a href="/Home" class="nav-item nav-link active">ANASAYFA</a>
                     <a href="/Haberler" class="nav-item nav-link">HABERLER</a>
+                    <a href="/Blog" class="nav-item nav-link">BLOG</a>
                     <a href="/Iletisim" class="nav-item nav-link">İLETİŞİM</a>
                 </div>
-                <div class="input-group ml-auto d-none d-lg-flex" style="width: 100%; max-width: 300px;">
-                    <input type="text" class="form-control border-0" placeholder="Keyword">
+                <form action="/Search" method="get" class="input-group ml-auto d-none d-lg-flex" style="width: 100%; max-width: 300px;">
+                    <input type="text" name="q" class="form-control border-0" placeholder="Haber ara...">
                     <div class="input-group-append">
-                        <button class="input-group-text bg-primary text-dark border-0 px-3">
+                        <button type="submit" class="input-group-text bg-primary text-dark border-0 px-3">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </nav>
     </div>

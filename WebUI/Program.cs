@@ -27,6 +27,9 @@ builder.Services.AddScoped<IKategoriApiRequest, KategoriApiRequest>();
 builder.Services.AddScoped<IYorumApiRequest, YorumApiRequest>();
 builder.Services.AddScoped<ICommonApiRequest, CommonApiRequest>();
 builder.Services.AddScoped<ISlaytApiRequest, SlaytApiRequest>();
+builder.Services.AddScoped<IBlogApiRequest, BlogApiRequest>();
+builder.Services.AddScoped<IBlogKategoriApiRequest, BlogKategoriApiRequest>();
+builder.Services.AddScoped<IBlogYorumApiRequest, BlogYorumApiRequest>();
 #endregion
 
 var app = builder.Build();

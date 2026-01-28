@@ -1,0 +1,272 @@
+@model WebUI.Models.YazarProfilViewModel
+
+@{
+    ViewData["Title"] = Model.Yazar.Ad + " " + Model.Yazar.Soyad + " - MASKER Yazar";
+    ViewData["Description"] = Model.Yazar.Ad + " " + Model.Yazar.Soyad + " tarafindan yazilan " + Model.ToplamHaberSayisi + " haber. Toplam " + Model.ToplamGoruntulenme + " goruntulenme.";
+    ViewData["Keywords"] = Model.Yazar.Ad + " " + Model.Yazar.Soyad + ", yazar, haberler, MASKER";
+    ViewData["OgImage"] = conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Yazar.Resim;
+}
+
+<style>
+    .author-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        color: #fff;
+    }
+    .author-profile {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    .author-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid rgba(255,255,255,0.3);
+        object-fit: cover;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .author-info h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .author-email {
+        opacity: 0.9;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    .author-stats {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    .stat-item {
+        text-align: center;
+        background: rgba(255,255,255,0.15);
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+    }
+    .stat-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: block;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .author-section { padding-bottom: 4rem; }
+
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f0f0f0;
+    }
+    .section-title i { color: #667eea; margin-right: 0.5rem; }
+
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    .news-card {
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        border: 1px solid #e2e8f0;
+    }
+    .news-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    .news-card-img {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+    .news-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+    .news-card:hover .news-card-img img { transform: scale(1.1); }
+
+    .news-card-body { padding: 1.5rem; }
+
+    .news-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: #fff;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+
+    .news-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+        text-decoration: none;
+        display: block;
+    }
+    .news-title:hover { color: #667eea; }
+
+    .news-excerpt {
+        color: #718096;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .news-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+        color: #a0aec0;
+    }
+
+    .no-news {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #f7fafc;
+        border-radius: 20px;
+    }
+    .no-news i { font-size: 4rem; color: #cbd5e0; margin-bottom: 1rem; }
+    .no-news h3 { color: #4a5568; margin-bottom: 0.5rem; }
+    .no-news p { color: #718096; }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.5rem;
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        margin-bottom: 2rem;
+    }
+    .back-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: #fff;
+    }
+
+    @@media (max-width: 768px) {
+        .author-profile { flex-direction: column; text-align: center; }
+        .author-avatar { width: 120px; height: 120px; }
+        .author-info h1 { font-size: 1.75rem; }
+        .author-stats { justify-content: center; }
+        .news-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<!-- Author Header -->
+<div class="author-header">
+    <div class="container">
+        <a href="/Haberler" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Haberlere Don
+        </a>
+
+        <div class="author-profile">
+            @if (!string.IsNullOrEmpty(Model.Yazar.Resim))
+            {
+                <img src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + Model.Yazar.Resim)" alt="@Model.Yazar.Ad @Model.Yazar.Soyad" class="author-avatar">
+            }
+            else
+            {
+                <div class="author-avatar d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.2);">
+                    <i class="fas fa-user" style="font-size: 4rem;"></i>
+                </div>
+            }
+            <div class="author-info">
+                <h1>@Model.Yazar.Ad @Model.Yazar.Soyad</h1>
+                <p class="author-email">
+                    <i class="fas fa-envelope mr-2"></i>@Model.Yazar.Eposta
+                </p>
+                <div class="author-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">@Model.ToplamHaberSayisi</span>
+                        <span class="stat-label">Haber</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">@Model.ToplamGoruntulenme.ToString("N0")</span>
+                        <span class="stat-label">Goruntulenme</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Author News Section -->
+<div class="container author-section">
+    <h2 class="section-title">
+        <i class="fas fa-newspaper"></i>@Model.Yazar.Ad @Model.Yazar.Soyad Yazilari
+    </h2>
+
+    @if (Model.Haberler.Any())
+    {
+        <div class="news-grid">
+            @foreach (var haber in Model.Haberler)
+            {
+                <article class="news-card">
+                    <div class="news-card-img">
+                        <a href="/Haberler/Detay/@haber.Id">
+                            <img src="@Url.Content(conf.GetSection("Ayarlar")["StaticFilesUrl"] + haber.Resim)" alt="@haber.Baslik" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="news-card-body">
+                        <span class="news-badge">@haber.Kategori</span>
+                        <a href="/Haberler/Detay/@haber.Id" class="news-title">@haber.Baslik</a>
+                        <p class="news-excerpt">
+                            @(haber.Icerik.Length > 100 ? haber.Icerik.Substring(0, 100) + "..." : haber.Icerik)
+                        </p>
+                        <div class="news-meta">
+                            <span><i class="far fa-calendar mr-1"></i>@haber.EklenmeTarihi.ToString("dd MMM yyyy")</span>
+                            <span><i class="far fa-eye mr-1"></i>@haber.GosterimSayisi</span>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+
+        @{
+            ViewData["BaseUrl"] = $"/Yazar/Profil/{Model.Yazar.Id}";
+            ViewData["QueryParams"] = "";
+        }
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+    else
+    {
+        <div class="no-news">
+            <i class="fas fa-inbox"></i>
+            <h3>Henuz haber bulunmuyor</h3>
+            <p>Bu yazar henuz haber yazmamis.</p>
+        </div>
+    }
+</div>
