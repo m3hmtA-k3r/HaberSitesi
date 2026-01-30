@@ -1,73 +1,305 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@using Shared.Dtos
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var sonHaberler = ViewBag.SonHaberler as List<HaberlerDto> ?? new List<HaberlerDto>();
+    var sonBloglar = ViewBag.SonBloglar as List<BloglarDto> ?? new List<BloglarDto>();
 }
-@using Shared.Dtos
-@model List<HaberlerDto>
 
+<div class="container-fluid">
 
+    <!-- Ust kisim: Hosgeldin mesaji + tarih -->
+    <div class="page-header mb-4">
+        <div class="page-pretitle">Masker Yonetim Sistemi - @DateTime.Now.ToString("dd MMMM yyyy, dddd", new System.Globalization.CultureInfo("tr-TR"))</div>
+        <h2 class="page-title">Kontrol Paneli</h2>
+    </div>
 
-    <div class="container-fluid">
-
-    <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
-
-     <div class="row">
-
+    <!-- Satir 1: 4 ozet kart -->
+    <div class="row">
+        <!-- Toplam Haber -->
         <div class="col-xl-3 col-md-6 mb-4">
-            @{
-                // Dinamik renk için küçük bir kontrol
-                var yorumKartRengi = (int)ViewBag.BekleyenYorum > 0 ? "warning" : "secondary";
-            }
-            <div class="card border-warning" style="width: 100%;">
-                <div class="card-header bg-warning text-white">Onay Bekleyen Yorumlar</div>
-                <div class="card-body text-dark text-center">
-                    <h3 class="card-title font-weight-bold text-@yorumKartRengi">@ViewBag.BekleyenYorum</h3>
-                    <p class="card-text">Adet yorum onaya sunuldu.</p>
-                </div>
-                <div class="card-footer bg-transparent border-warning">
-                    <a href="/Yorum" class="btn btn-outline-warning btn-block">
-                        Yorumları Yönet <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
+            <div class="dashboard-card card-blue">
+                <div class="dashboard-card-body">
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-stat">@ViewBag.ToplamHaber</div>
+                        <div class="dashboard-card-title">Toplam Haber</div>
+                        <div class="dashboard-card-subtitle">@ViewBag.AktifHaber aktif</div>
+                    </div>
+                    <div class="dashboard-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-            <div class="col-xl-3 col-md-6 mb-4">
-
-                <div class="card border-info" style="width: 100%;">
-                    <div class="card-header bg-info text-white">Toplam Haber</div>
-                    <div class="card-body text-dark text-center">
-                    <h3 class="card-title font-weight-bold text-info">@ViewBag.Haberler</h3>
-                    <p class="card-text">Var olan Toplam haber sayısı.</p>
+        <!-- Toplam Blog -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card card-purple">
+                <div class="dashboard-card-body">
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-stat">@ViewBag.ToplamBlog</div>
+                        <div class="dashboard-card-title">Toplam Blog</div>
+                        <div class="dashboard-card-subtitle">@ViewBag.AktifBlog aktif</div>
                     </div>
-                    <div class="card-footer bg-transparent border-info">
-                        <a href="/Haber" class="btn btn-outline-info btn-block">
-                        Haberleri Gör <i class="fas fa-arrow-right ml-1"></i>
+                    <div class="dashboard-icon">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bekleyen Yorumlar -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card card-orange">
+                <div class="dashboard-card-body">
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-stat">@ViewBag.BekleyenYorum</div>
+                        <div class="dashboard-card-title">Bekleyen Yorumlar</div>
+                        <div class="dashboard-card-subtitle">Onay bekliyor</div>
+                    </div>
+                    <div class="dashboard-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kullanicilar -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card card-green">
+                <div class="dashboard-card-body">
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-stat">@ViewBag.ToplamKullanici</div>
+                        <div class="dashboard-card-title">Kullanicilar</div>
+                        <div class="dashboard-card-subtitle">Kayitli kullanici</div>
+                    </div>
+                    <div class="dashboard-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Satir 2: 2 grafik -->
+    <div class="row">
+        <!-- Icerik Dagilimi - Doughnut Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie me-2" style="color: #8B5CF6;"></i>Icerik Dagilimi</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="contentDistribution"
+                            data-haberler="@ViewBag.ToplamHaber"
+                            data-bloglar="@ViewBag.ToplamBlog"
+                            data-slaytlar="@ViewBag.ToplamSlayt"
+                            data-kategoriler="@ViewBag.ToplamKategori"
+                            height="260"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yorum Durumu - Bar Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2" style="color: #06B6D4;"></i>Yorum Durumu</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="commentStatus"
+                            data-onaylanan-haber="@ViewBag.OnaylananHaberYorum"
+                            data-bekleyen-haber="@ViewBag.BekleyenHaberYorum"
+                            data-onaylanan-blog="@ViewBag.OnaylananBlogYorum"
+                            data-bekleyen-blog="@ViewBag.BekleyenBlogYorum"
+                            height="260"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Satir 3: 3 kucuk bilgi karti -->
+    <div class="row">
+        <!-- Kategoriler -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card info-card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="info-card-icon bg-purple-light">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="info-card-value">@ViewBag.ToplamKategori</div>
+                        <div class="info-card-label">Kategoriler</div>
+                        <div class="info-card-detail">@ViewBag.HaberKategoriSayisi haber + @ViewBag.BlogKategoriSayisi blog</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yazarlar -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card info-card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="info-card-icon bg-blue-light">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="info-card-value">@ViewBag.ToplamYazar</div>
+                        <div class="info-card-label">Yazarlar</div>
+                        <div class="info-card-detail">Toplam yazar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pasif Slaytlar -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card info-card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="info-card-icon bg-orange-light">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="info-card-value">@ViewBag.PasifSlayt</div>
+                        <div class="info-card-label">Pasif Slaytlar</div>
+                        <div class="info-card-detail">Yayinlanmamis slayt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Satir 4: 2 tablo -->
+    <div class="row">
+        <!-- Son Eklenen Haberler -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-newspaper me-2" style="color: #667eea;"></i>Son Eklenen Haberler</h6>
+                    <a href="/Haber" class="btn btn-sm btn-outline-primary">Tumunu Gor</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table recent-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Baslik</th>
+                                    <th>Kategori</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (sonHaberler.Any())
+                                {
+                                    @foreach (var haber in sonHaberler)
+                                    {
+                                        <tr>
+                                            <td class="text-truncate" style="max-width: 200px;" title="@haber.Baslik">@haber.Baslik</td>
+                                            <td><span class="badge bg-light text-dark">@(haber.Kategori ?? "-")</span></td>
+                                            <td>@haber.EklenmeTarihi.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                @if (haber.Aktifmi)
+                                                {
+                                                    <span class="badge bg-success">Aktif</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Pasif</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">Henuz haber eklenmemis</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son Eklenen Bloglar -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-blog me-2" style="color: #764ba2;"></i>Son Eklenen Bloglar</h6>
+                    <a href="/Blog" class="btn btn-sm btn-outline-primary">Tumunu Gor</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table recent-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Baslik</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (sonBloglar.Any())
+                                {
+                                    @foreach (var blog in sonBloglar)
+                                    {
+                                        <tr>
+                                            <td class="text-truncate" style="max-width: 250px;" title="@blog.Baslik">@blog.Baslik</td>
+                                            <td>@blog.OlusturmaTarihi.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                @if (blog.AktifMi)
+                                                {
+                                                    <span class="badge bg-success">Aktif</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Pasif</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">Henuz blog eklenmemis</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Satir 5: Hizli erisim butonlari -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2" style="color: #f59e0b;"></i>Hizli Erisim</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/Haber/HaberEkle" class="quick-action-btn btn-action-blue">
+                            <i class="fas fa-plus-circle me-1"></i> Yeni Haber Ekle
+                        </a>
+                        <a href="/Blog/BlogEkle" class="quick-action-btn btn-action-purple">
+                            <i class="fas fa-plus-circle me-1"></i> Yeni Blog Ekle
+                        </a>
+                        <a href="/Slayt/SlaytEkle" class="quick-action-btn btn-action-cyan">
+                            <i class="fas fa-plus-circle me-1"></i> Yeni Slayt Ekle
+                        </a>
+                        <a href="/Yorum" class="quick-action-btn btn-action-orange">
+                            <i class="fas fa-comments me-1"></i> Yorumlari Yonet
                         </a>
                     </div>
                 </div>
-
             </div>
+        </div>
+    </div>
 
-          <div class="col-xl-3 col-md-6 mb-4">
-
-            <div class="card border-red" style="width: 100%;">
-                <div class="card-header bg-info text-white">Pasif Slayt Sayısı</div>
-                <div class="card-body text-dark text-center">
-                    <h3 class="card-title font-weight-bold text-info">@ViewBag.BekleyenSlayt</h3>
-                    <p class="card-text">Yayınlanmamış Slayt Sayısı.</p>
-                </div>
-                <div class="card-footer bg-transparent border-info">
-                    <a href="/Slayt" class="btn btn-outline-info btn-block">
-                        Slaytları Gör <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            </div>
-
-       </div>          
-   </div>
-
+</div>
