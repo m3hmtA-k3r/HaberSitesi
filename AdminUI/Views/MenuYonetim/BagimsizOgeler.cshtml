@@ -1,0 +1,181 @@
+@using Shared.Dtos
+@model List<MenuOgeleriDto>
+
+@{
+    var aktifSayisi = Model.Count(x => x.AktifMi);
+    var pasifSayisi = Model.Count(x => !x.AktifMi);
+}
+
+<style>
+    .stats-card { border-radius: 12px; padding: 1.5rem; color: #fff; transition: transform 0.2s ease; }
+    .stats-card:hover { transform: translateY(-3px); }
+    .stats-card .stats-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(255,255,255,0.2); }
+    .stats-card .stats-number { font-size: 2rem; font-weight: 700; }
+    .stats-card .stats-label { font-size: 0.85rem; opacity: 0.9; }
+    .stats-total { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .stats-active { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .stats-passive { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+
+    .data-table th { background: #f8f9fa; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #495057; }
+    .data-table td { vertical-align: middle; font-size: 0.9rem; }
+    .item-name { font-weight: 600; color: #2d3748; }
+    .badge-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 500; font-size: 0.75rem; }
+    .badge-active { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; }
+    .badge-passive { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: #fff; }
+
+    .btn-action { width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s ease; }
+    .btn-action:hover { transform: scale(1.1); }
+    .btn-add { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; }
+    .btn-add:hover { transform: translateY(-2px); color: #fff; }
+    .btn-back { background: #fff; border: 2px solid #e2e8f0; color: #4a5568; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; }
+    .btn-back:hover { background: #f7fafc; color: #2d3748; }
+
+    .card-header-custom { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; }
+
+    .modal-confirm .modal-body { text-align: center; padding: 2rem; }
+    .modal-confirm .icon-box { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; background: #fff3f3; }
+    .modal-confirm .icon-box i { font-size: 2.5rem; color: #ef4444; }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1"><i class="fas fa-link text-info me-2"></i>Bağımsız Menü Öğeleri</h3>
+            <p class="text-muted mb-0">Herhangi bir menü grubuna bağlı olmayan öğeler (Kontrol Paneli gibi)</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/MenuYonetim" class="btn btn-back"><i class="fa fa-arrow-left me-2"></i>Geri</a>
+            <a href="/MenuYonetim/MenuOgesiEkle" class="btn btn-add"><i class="fa fa-plus me-2"></i>Yeni Öğe</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="stats-card stats-total">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@Model.Count</div><div class="stats-label">Toplam Öğe</div></div>
+                    <div class="stats-icon"><i class="fas fa-link"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="stats-card stats-active">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@aktifSayisi</div><div class="stats-label">Aktif Öğe</div></div>
+                    <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card stats-passive">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@pasifSayisi</div><div class="stats-label">Pasif Öğe</div></div>
+                    <div class="stats-icon"><i class="fas fa-pause-circle"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header-custom">
+            <h5 class="mb-0"><i class="fas fa-list me-2 text-info"></i>Bağımsız Öğeler</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <table class="table table-hover data-table">
+                    <thead>
+                        <tr>
+                            <th>Sıra</th>
+                            <th>Öğe Adı</th>
+                            <th>URL</th>
+                            <th>İkon</th>
+                            <th>Durum</th>
+                            <th style="width: 120px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderBy(o => o.Sira))
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@item.Sira</span></td>
+                                <td><span class="item-name">@item.Adi</span></td>
+                                <td><code>@(item.Url ?? "-")</code></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Ikon))
+                                    {
+                                        <i class="@item.Ikon text-primary"></i>
+                                        <small class="text-muted ms-1">@item.Ikon</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.AktifMi)
+                                    {
+                                        <span class="badge-status badge-active">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-passive">Pasif</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="/MenuYonetim/MenuOgesiGuncelle?menuOgeId=@item.Id" class="btn btn-primary btn-action" title="Düzenle"><i class="fa fa-edit"></i></a>
+                                        <button type="button" class="btn btn-danger btn-action" onclick="confirmDelete(@item.Id, '@item.Adi.Replace("'", "\\'")')" title="Sil"><i class="fa fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">Henüz bağımsız öğe yok</h5>
+                    <p class="text-muted">"Yeni Öğe" butonuyla menü grubuna bağlı olmayan öğeler ekleyebilirsiniz.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-confirm" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                <h4 class="mb-3">Öğeyi silmek istiyor musunuz?</h4>
+                <p class="text-muted mb-0" id="deleteMessage">Bu menü öğesi silinecektir.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-2">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger px-4" onclick="executeDelete()"><i class="fas fa-trash-alt me-1"></i>Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var deleteOgeId = 0;
+    function confirmDelete(id, name) {
+        deleteOgeId = id;
+        document.getElementById('deleteMessage').innerHTML = '<strong>"' + name + '"</strong> öğesi silinecektir.<br><small class="text-muted">Bu işlem geri alınamaz.</small>';
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+    function executeDelete() {
+        fetch('/MenuYonetim/MenuOgesiSil?menuOgeId=' + deleteOgeId, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { location.reload(); }
+                else { alert(data.message); }
+            });
+        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+    }
+</script>

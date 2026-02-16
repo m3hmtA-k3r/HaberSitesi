@@ -26,15 +26,21 @@ namespace ApiUI.Controllers
 		[Route("GetKategoriById")]
 		public BlogKategorilerDto GetKategoriById(int kategoriId) => _blogKategoriService.GetKategoriById(kategoriId);
 
-		[HttpGet]
-		[Route("DeleteKategori")]
-		public bool DeleteKategori(int kategoriId) => _blogKategoriService.DeleteKategori(kategoriId);
+		[HttpDelete]
+		[Route("DeleteKategori/{kategoriId}")]
+		public IActionResult DeleteKategori(int kategoriId)
+		{
+			var result = _blogKategoriService.DeleteKategori(kategoriId);
+			if (!result)
+				return NotFound(new { message = "Kategori bulunamadi" });
+			return Ok(new { message = "Kategori silindi" });
+		}
 
 		[HttpPost]
 		[Route("InsertKategori")]
 		public BlogKategorilerDto InsertKategori(BlogKategorilerDto model) => _blogKategoriService.InsertKategori(model);
 
-		[HttpPost]
+		[HttpPut]
 		[Route("UpdateKategori")]
 		public BlogKategorilerDto UpdateKategori(BlogKategorilerDto model) => _blogKategoriService.UpdateKategori(model);
 	}

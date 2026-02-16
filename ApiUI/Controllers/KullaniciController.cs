@@ -20,6 +20,7 @@ namespace ApiUI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
             var kullanicilar = _kullaniciService.GetKullanicilar();

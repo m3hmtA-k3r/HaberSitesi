@@ -22,12 +22,12 @@ namespace ApiAccess.Base
 
 		public KategorilerDto UpdateKategori(KategorilerDto model)
 		{
-			return _requestService.Post<KategorilerDto>("/kategori/updatekategori", model);
+			return _requestService.Put<KategorilerDto>("/kategori/updatekategori", model);
 		}
 
 		public bool DeleteKategori(int kategoriId)
 		{
-			return _requestService.Get<bool>("/kategori/deletekategori?kategoriId=" + kategoriId);
+			return _requestService.Delete<bool>("/kategori/deletekategori/" + kategoriId);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 using ApiAccess.Abstract;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Shared.Dtos;
 using WebUI.Models;
 
@@ -9,11 +11,15 @@ namespace WebUI.Controllers
     {
         private readonly IHaberApiRequest _haberApiRequest;
         private readonly IKategoriApiRequest _kategoriApiRequest;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<SearchController> _logger;
 
-        public SearchController(IHaberApiRequest haberApiRequest, IKategoriApiRequest kategoriApiRequest)
+        public SearchController(IHaberApiRequest haberApiRequest, IKategoriApiRequest kategoriApiRequest, IMemoryCache cache, ILogger<SearchController> logger)
         {
             _haberApiRequest = haberApiRequest;
             _kategoriApiRequest = kategoriApiRequest;
+            _cache = cache;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -27,29 +33,36 @@ namespace WebUI.Controllers
             };
 
             if (string.IsNullOrWhiteSpace(q))
-            {
                 return View(model);
-            }
 
-            var allHaberler = _haberApiRequest.GetAllHaber();
-            var kategoriler = _kategoriApiRequest.GetKategoriler();
-
-            if (allHaberler != null)
+            try
             {
-                var searchTerm = q.ToLower().Trim();
-                model.Haberler = allHaberler
-                    .Where(x => x.Aktifmi &&
-                        (x.Baslik.ToLower().Contains(searchTerm) ||
-                         x.Icerik.ToLower().Contains(searchTerm) ||
-                         x.Kategori.ToLower().Contains(searchTerm) ||
-                         x.Yazar.ToLower().Contains(searchTerm)))
-                    .OrderByDescending(x => x.EklenmeTarihi)
-                    .ToList();
-            }
+                var allHaberler = _haberApiRequest.GetAllHaber();
+                var kategoriler = _cache.GetOrCreate("haber_kategoriler", entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                    return _kategoriApiRequest.GetKategoriler();
+                });
 
-            if (kategoriler != null)
+                if (allHaberler != null)
+                {
+                    var searchTerm = q.ToLower().Trim();
+                    model.Haberler = allHaberler
+                        .Where(x => x.Aktifmi &&
+                            (x.Baslik.ToLower().Contains(searchTerm) ||
+                             x.Icerik.ToLower().Contains(searchTerm) ||
+                             (x.Kategori ?? "").ToLower().Contains(searchTerm) ||
+                             (x.Yazar ?? "").ToLower().Contains(searchTerm)))
+                        .OrderByDescending(x => x.EklenmeTarihi)
+                        .ToList();
+                }
+
+                if (kategoriler != null)
+                    model.Kategoriler = kategoriler.Where(x => x.Aktifmi).ToList();
+            }
+            catch (Exception ex)
             {
-                model.Kategoriler = kategoriler.Where(x => x.Aktifmi).ToList();
+                _logger.LogError(ex, "Arama sirasinda hata olustu: {Query}", q);
             }
 
             return View(model);

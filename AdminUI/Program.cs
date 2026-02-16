@@ -39,6 +39,15 @@ builder.Services.AddScoped<IRolApiRequest, RolApiRequest>();
 builder.Services.AddScoped<IBlogApiRequest, BlogApiRequest>();
 builder.Services.AddScoped<IBlogKategoriApiRequest, BlogKategoriApiRequest>();
 builder.Services.AddScoped<IBlogYorumApiRequest, BlogYorumApiRequest>();
+
+// Iletisim Module API Access
+builder.Services.AddScoped<IIletisimApiRequest, IletisimApiRequest>();
+
+// Menu Module API Access
+builder.Services.AddScoped<IMenuApiRequest, MenuApiRequest>();
+
+// Sistem Log Module API Access
+builder.Services.AddScoped<ISistemLogApiRequest, SistemLogApiRequest>();
 #endregion
 
 // Cookie Authentication

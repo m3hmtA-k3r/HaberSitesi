@@ -20,7 +20,7 @@ namespace ApiAccess.Base
 
         public bool DeleteYorum(int yorumId)
         {
-            return _requestService.Get<bool>("Yorum/DeleteYorum?yorumId=" + yorumId);
+            return _requestService.Delete<bool>("Yorum/DeleteYorum/" + yorumId);
         }
 
         public List<YorumlarDto> GetAllYorum()
@@ -38,7 +38,7 @@ namespace ApiAccess.Base
 
         public YorumlarDto UpdateYorum(YorumlarDto model)
         {
-            return _requestService.Post<YorumlarDto>("Yorum/UpdateYorum", model);
+            return _requestService.Put<YorumlarDto>("Yorum/UpdateYorum", model);
         }
     }
 }

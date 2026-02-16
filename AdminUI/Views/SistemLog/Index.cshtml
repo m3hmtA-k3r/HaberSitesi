@@ -1,0 +1,260 @@
+@using Shared.Dtos
+@model List<SistemLogDto>
+
+@{
+    var toplamSayisi = Model.Count;
+    var hatasSayisi = Model.Count(x => x.Seviye == "Error");
+    var uyariSayisi = Model.Count(x => x.Seviye == "Warning");
+    var infoSayisi = Model.Count(x => x.Seviye == "Info");
+}
+
+<style>
+    .stats-card { border-radius: 12px; padding: 1.5rem; color: #fff; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .stats-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .stats-card .stats-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(255,255,255,0.2); }
+    .stats-card .stats-number { font-size: 2rem; font-weight: 700; }
+    .stats-card .stats-label { font-size: 0.85rem; opacity: 0.9; }
+    .stats-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stats-error { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+    .stats-warning { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); }
+    .stats-info { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .data-table th { background: #f8f9fa; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #495057; border-bottom: 2px solid #dee2e6; }
+    .data-table td { vertical-align: middle; font-size: 0.9rem; }
+    .badge-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 500; font-size: 0.75rem; }
+    .badge-error { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: #fff; }
+    .badge-warning { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #fff; }
+    .badge-info { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; }
+    .badge-debug { background: #e2e8f0; color: #718096; }
+    .log-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; }
+    .log-icon-error { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+    .log-icon-warning { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); }
+    .log-icon-info { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .log-icon-debug { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+    .log-module { font-weight: 600; color: #2d3748; }
+    .log-desc { color: #718096; font-size: 0.85rem; max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .log-date { color: #718096; font-size: 0.85rem; }
+    .log-user { color: #4a5568; font-size: 0.85rem; }
+    .btn-action { width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s ease; }
+    .btn-action:hover { transform: scale(1.1); }
+    .btn-clear { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+    .btn-clear:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4); color: #fff; }
+    .btn-bulk-delete { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: #fff; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; display: none; }
+    .btn-bulk-delete.show { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .form-check-input { width: 18px; height: 18px; cursor: pointer; }
+    .form-check-input:checked { background-color: #667eea; border-color: #667eea; }
+    .card-header-custom { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; }
+    .card-header-custom h5 { margin: 0; font-weight: 600; color: #2d3748; }
+    .modal-confirm .modal-header { border-bottom: none; padding: 1.5rem 1.5rem 0; }
+    .modal-confirm .modal-body { text-align: center; padding: 1.5rem; }
+    .modal-confirm .modal-footer { border-top: none; justify-content: center; padding: 0 1.5rem 1.5rem; gap: 0.5rem; }
+    .modal-confirm .icon-box { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; background: #fff3f3; }
+    .modal-confirm .icon-box i { font-size: 2.5rem; color: #ef4444; }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1"><i class="fas fa-clipboard-list me-2 text-primary"></i>Sistem Loglari</h3>
+            <p class="text-muted mb-0">Sistem islem kayitlarini goruntuleyin</p>
+        </div>
+        @if (Model.Any())
+        {
+            <button type="button" class="btn btn-clear" onclick="confirmClearAll()"><i class="fas fa-trash-alt me-2"></i>Tum Loglari Temizle</button>
+        }
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="stats-card stats-total">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@toplamSayisi</div><div class="stats-label">Toplam Log</div></div>
+                    <div class="stats-icon"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="stats-card stats-error">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@hatasSayisi</div><div class="stats-label">Hata</div></div>
+                    <div class="stats-icon"><i class="fas fa-times-circle"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="stats-card stats-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@uyariSayisi</div><div class="stats-label">Uyari</div></div>
+                    <div class="stats-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stats-card stats-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@infoSayisi</div><div class="stats-label">Bilgi</div></div>
+                    <div class="stats-icon"><i class="fas fa-info-circle"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-list me-2 text-primary"></i>Log Kayitlari</h5>
+            <button type="button" class="btn btn-bulk-delete" id="bulkDeleteBtn" onclick="bulkDelete()">
+                <i class="fas fa-trash-alt"></i> <span id="selectedCount">0</span> Secili Sil
+            </button>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard-check text-muted" style="font-size: 4rem;"></i>
+                    <h5 class="mt-3 text-muted">Henuz log kaydi bulunmuyor</h5>
+                    <p class="text-muted">Sistem islemleri gerceklestikce loglar burada gorunecektir.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table table-hover data-table" id="dataTables-example" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll()"></th>
+                            <th style="width: 50px;">Seviye</th>
+                            <th>Modul</th>
+                            <th>Islem</th>
+                            <th>Aciklama</th>
+                            <th>Kullanici</th>
+                            <th>Tarih</th>
+                            <th style="width: 80px;">Islem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var iconClass = item.Seviye.ToLower() switch
+                            {
+                                "error" => "log-icon-error",
+                                "warning" => "log-icon-warning",
+                                "info" => "log-icon-info",
+                                _ => "log-icon-debug"
+                            };
+                            var iconName = item.Seviye.ToLower() switch
+                            {
+                                "error" => "fas fa-times-circle",
+                                "warning" => "fas fa-exclamation-triangle",
+                                "info" => "fas fa-info-circle",
+                                _ => "fas fa-bug"
+                            };
+                            var badgeClass = item.Seviye.ToLower() switch
+                            {
+                                "error" => "badge-error",
+                                "warning" => "badge-warning",
+                                "info" => "badge-info",
+                                _ => "badge-debug"
+                            };
+                            <tr>
+                                <td><input type="checkbox" class="form-check-input row-checkbox" value="@item.Id" onchange="updateBulkButton()"></td>
+                                <td><div class="log-icon @iconClass"><i class="@iconName"></i></div></td>
+                                <td><div class="log-module">@item.Modul</div></td>
+                                <td><span class="badge-status @badgeClass">@item.IslemTipi</span></td>
+                                <td><div class="log-desc" title="@item.Aciklama">@item.Aciklama</div></td>
+                                <td><div class="log-user">@(item.KullaniciAdi ?? "-")</div></td>
+                                <td><div class="log-date">@item.Tarih.ToString("dd.MM.yyyy HH:mm")</div></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-action" onclick="confirmDelete(@item.Id)" title="Sil"><i class="fa fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-confirm" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                <h4 class="mb-3">Silmek istediginize emin misiniz?</h4>
+                <p class="text-muted mb-0">Bu log kaydini silmek uzeresiniz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Iptal</button>
+                <a href="#" class="btn btn-danger px-4" id="confirmDeleteBtn"><i class="fas fa-trash-alt me-1"></i> Sil</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-confirm" id="clearAllModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                <h4 class="mb-3">Tum loglari temizle</h4>
+                <p class="text-muted mb-0">Tum log kayitlari silinecek. Bu islem geri alinamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Iptal</button>
+                <form asp-action="TumunuTemizle" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger px-4"><i class="fas fa-trash-alt me-1"></i> Tumunu Temizle</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-confirm" id="bulkDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                <h4 class="mb-3">Toplu silme islemi</h4>
+                <p class="text-muted mb-0"><span id="bulkDeleteCount">0</span> log silinecek.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Iptal</button>
+                <button type="button" class="btn btn-danger px-4" onclick="executeBulkDelete()"><i class="fas fa-trash-alt me-1"></i> Tumunu Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(id) {
+        document.getElementById('confirmDeleteBtn').href = '/SistemLog/Sil?logId=' + id;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+    function confirmClearAll() {
+        new bootstrap.Modal(document.getElementById('clearAllModal')).show();
+    }
+    function toggleSelectAll() {
+        var selectAll = document.getElementById('selectAll');
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = selectAll.checked);
+        updateBulkButton();
+    }
+    function updateBulkButton() {
+        var checked = document.querySelectorAll('.row-checkbox:checked').length;
+        document.getElementById('selectedCount').textContent = checked;
+        document.getElementById('bulkDeleteBtn').classList.toggle('show', checked > 0);
+        var all = document.querySelectorAll('.row-checkbox').length;
+        document.getElementById('selectAll').checked = checked === all && all > 0;
+    }
+    function bulkDelete() {
+        document.getElementById('bulkDeleteCount').textContent = document.querySelectorAll('.row-checkbox:checked').length;
+        new bootstrap.Modal(document.getElementById('bulkDeleteModal')).show();
+    }
+    function executeBulkDelete() {
+        var ids = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+        if (ids.length > 0) {
+            Promise.all(ids.map(id => fetch('/SistemLog/SilAjax?logId=' + id, { method: 'POST' }))).then(() => location.reload());
+        }
+        bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal')).hide();
+    }
+</script>

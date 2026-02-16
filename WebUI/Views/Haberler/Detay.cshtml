@@ -1,4 +1,5 @@
 @model HaberDetayViewModel
+@inject Ganss.Xss.HtmlSanitizer HtmlSanitizer
 
 @{
     ViewData["Title"] = Model.Haber.Baslik + " - MASKER";
@@ -24,8 +25,25 @@
     .meta-author { display: flex; align-items: center; gap: 0.8rem; }
     .meta-author-img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #667eea; }
 
-    .news-content { font-size: 1.1rem; line-height: 1.8; color: #2d3748; margin-bottom: 2rem; }
-    .news-content p { margin-bottom: 1.5rem; }
+    .news-content { font-size: 1.1rem; line-height: 1.9; color: #2d3748; margin-bottom: 2rem; word-wrap: break-word; }
+    .news-content p { margin-bottom: 1.5rem; text-align: justify; }
+    .news-content p:first-child::first-letter { font-size: 2.5rem; font-weight: 700; color: #667eea; float: left; line-height: 1; margin-right: 0.5rem; margin-top: 0.1rem; }
+    .news-content h2, .news-content h3, .news-content h4 { color: #2d3748; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+    .news-content h2 { font-size: 1.6rem; border-left: 4px solid #667eea; padding-left: 1rem; }
+    .news-content h3 { font-size: 1.35rem; }
+    .news-content h4 { font-size: 1.15rem; }
+    .news-content ul, .news-content ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+    .news-content li { margin-bottom: 0.5rem; }
+    .news-content blockquote { border-left: 4px solid #667eea; background: #f7fafc; padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; font-style: italic; color: #4a5568; }
+    .news-content img { max-width: 100%; height: auto; border-radius: 10px; margin: 1.5rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .news-content strong, .news-content b { color: #1a202c; }
+    .news-content a { color: #667eea; text-decoration: underline; }
+    .news-content a:hover { color: #764ba2; }
+    .news-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .news-content table th, .news-content table td { border: 1px solid #e2e8f0; padding: 0.75rem 1rem; text-align: left; }
+    .news-content table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; font-weight: 600; }
+    .news-content table tr:nth-child(even) { background: #f7fafc; }
+    .news-content table tr:hover { background: #edf2f7; }
 
     .video-section { margin: 2rem 0; }
     .video-title { font-size: 1.5rem; font-weight: 700; color: #2d3748; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -74,6 +92,16 @@
     .related-item-title:hover { color: #667eea; }
     .related-item-date { font-size: 0.8rem; color: #a0aec0; }
 
+    .share-section { margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .share-title { font-weight: 700; color: #2d3748; font-size: 1.1rem; }
+    .share-buttons { display: flex; gap: 0.75rem; }
+    .share-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1rem; transition: all 0.3s; text-decoration: none; }
+    .share-btn:hover { transform: translateY(-3px); color: #fff; }
+    .share-btn.twitter { background: #1da1f2; }
+    .share-btn.facebook { background: #4267b2; }
+    .share-btn.linkedin { background: #0077b5; }
+    .share-btn.whatsapp { background: #25d366; }
+
     @@media (max-width: 768px) {
         .news-detail-header { height: 350px; }
         .news-detail-title { font-size: 1.75rem; }
@@ -84,6 +112,24 @@
 
 <div class="news-detail-container">
     <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+            <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList" style="background: #fff; border-radius: 10px; padding: 0.75rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 0; font-size: 0.9rem;">
+                <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" style="color: #667eea; text-decoration: none;"><i class="fas fa-home mr-1"></i><span itemprop="name">Anasayfa</span></a>
+                    <meta itemprop="position" content="1" />
+                </li>
+                <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/Haberler" itemprop="item" style="color: #667eea; text-decoration: none;"><span itemprop="name">Haberler</span></a>
+                    <meta itemprop="position" content="2" />
+                </li>
+                <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
+                    <span itemprop="name" style="color: #764ba2; font-weight: 600;">@(Model.Haber.Baslik.Length > 50 ? Model.Haber.Baslik.Substring(0, 50) + "..." : Model.Haber.Baslik)</span>
+                    <meta itemprop="position" content="3" />
+                </li>
+            </ol>
+        </nav>
+
         <div class="row">
             <!-- Main Content -->
             <div class="col-lg-8">
@@ -120,7 +166,78 @@
 
                     <div class="news-detail-body">
                         <div class="news-content">
-                            @Model.Haber.Icerik
+                            @{
+                                var icerik = Model.Haber.Icerik ?? "";
+                                var hasHtml = System.Text.RegularExpressions.Regex.IsMatch(icerik, @"<(p|h[1-6]|div|table|ul|ol)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                                if (hasHtml)
+                                {
+                                    // HTML icerik: once sanitize et
+                                    var sanitized = HtmlSanitizer.Sanitize(icerik);
+                                    // Table icindeki <br> etiketlerini kaldir (sanitizer whitespace'i <br> yapiyor)
+                                    sanitized = System.Text.RegularExpressions.Regex.Replace(sanitized, @"<table[^>]*>[\s\S]*?</table>", m =>
+                                        m.Value.Replace("<br>", "").Replace("<br />", ""),
+                                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    // Duz metin parcalarini (HTML tag disinda) paragraflara donustur
+                                    // Regex: HTML bloklari bul ve ayir
+                                    var blokRegex = new System.Text.RegularExpressions.Regex(
+                                        @"(<table[^>]*>[\s\S]*?</table>|<div[^>]*>[\s\S]*?</div>|<ul[^>]*>[\s\S]*?</ul>|<ol[^>]*>[\s\S]*?</ol>|<h[1-6][^>]*>[\s\S]*?</h[1-6]>|<p[^>]*>[\s\S]*?</p>)",
+                                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    var parcalar = blokRegex.Split(sanitized);
+                                    foreach (var parca in parcalar)
+                                    {
+                                        var trim = parca.Trim();
+                                        if (string.IsNullOrWhiteSpace(trim)) { continue; }
+                                        if (blokRegex.IsMatch(trim))
+                                        {
+                                            @Html.Raw(trim)
+                                        }
+                                        else
+                                        {
+                                            // Duz metin: <br> zaten var, <p> ile sar
+                                            <p>@Html.Raw(trim)</p>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Tamamen duz metin: tab ile tablolari algilayip render et
+                                    var satirlar = icerik.Replace("\r\n", "\n").Split('\n');
+                                    var idx = 0;
+                                    while (idx < satirlar.Length)
+                                    {
+                                        var satir = satirlar[idx];
+                                        if (satir.Contains('\t'))
+                                        {
+                                            var tabloSatirlari = new List<string>();
+                                            while (idx < satirlar.Length && satirlar[idx].Contains('\t'))
+                                            {
+                                                tabloSatirlari.Add(satirlar[idx]);
+                                                idx++;
+                                            }
+                                            <table>
+                                                @for (var r = 0; r < tabloSatirlari.Count; r++)
+                                                {
+                                                    var hucreler = tabloSatirlari[r].Split('\t');
+                                                    <tr>
+                                                        @foreach (var hucre in hucreler)
+                                                        {
+                                                            if (r == 0) { <th>@HtmlSanitizer.Sanitize(hucre.Trim())</th> }
+                                                            else { <td>@HtmlSanitizer.Sanitize(hucre.Trim())</td> }
+                                                        }
+                                                    </tr>
+                                                }
+                                            </table>
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(satir))
+                                        {
+                                            <p>@Html.Raw(HtmlSanitizer.Sanitize(satir))</p>
+                                            idx++;
+                                        }
+                                        else { idx++; }
+                                    }
+                                }
+                            }
                         </div>
 
                         @if (!string.IsNullOrEmpty(Model.Haber.Video))
@@ -138,6 +255,27 @@
                                 </div>
                             </div>
                         }
+
+                        @{
+                            var shareUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+                        }
+                        <div class="share-section">
+                            <span class="share-title"><i class="fas fa-share-alt mr-2"></i>Bu haberi paylas</span>
+                            <div class="share-buttons">
+                                <a href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(shareUrl)&text=@Uri.EscapeDataString(Model.Haber.Baslik)" target="_blank" class="share-btn twitter" title="Twitter'da Paylas">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(shareUrl)" target="_blank" class="share-btn facebook" title="Facebook'ta Paylas">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=@Uri.EscapeDataString(shareUrl)&title=@Uri.EscapeDataString(Model.Haber.Baslik)" target="_blank" class="share-btn linkedin" title="LinkedIn'de Paylas">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="https://wa.me/?text=@Uri.EscapeDataString(Model.Haber.Baslik + " " + shareUrl)" target="_blank" class="share-btn whatsapp" title="WhatsApp'ta Paylas">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -12,6 +12,17 @@ namespace ApiAccess.Base
             _requestService = requestService;
         }
         public List<HaberlerDto> GetAllHaber() => _requestService.Get<List<HaberlerDto>>("Haber/GetAllHaber");
+
+		public PagedResultDto<HaberlerDto> GetHaberlerPaged(int sayfa = 1, int boyut = 9, bool? aktif = null, int? kategoriId = null, string siralama = "yeni")
+		{
+			var url = $"Haber/GetHaberlerPaged?sayfa={sayfa}&boyut={boyut}&siralama={siralama}";
+			if (aktif.HasValue)
+				url += $"&aktif={aktif.Value}";
+			if (kategoriId.HasValue && kategoriId.Value > 0)
+				url += $"&kategoriId={kategoriId.Value}";
+			return _requestService.Get<PagedResultDto<HaberlerDto>>(url);
+		}
+
 		public HaberlerDto HaberEkle(HaberlerDto model)
 		{
 			return _requestService.Post<HaberlerDto>("/Haber/InsertHaber", model);
@@ -20,12 +31,12 @@ namespace ApiAccess.Base
 
 		public HaberlerDto UpdateHaber(HaberlerDto model)
 		{
-			return _requestService.Post<HaberlerDto>("/haber/updatehaber", model);
+			return _requestService.Put<HaberlerDto>("/haber/updatehaber", model);
 		}
 
 		public bool DeleteHaber(int haberId)
 		{
-			return _requestService.Get<bool>("/haber/deletehaber?haberId=" + haberId);
+			return _requestService.Delete<bool>("/haber/deletehaber/" + haberId);
 		}
 	}
 }

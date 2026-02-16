@@ -171,6 +171,22 @@
     </div>
 </div>
 
+<!-- Breadcrumb -->
+<div class="container" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList" style="background: #fff; border-radius: 10px; padding: 0.75rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 0; font-size: 0.9rem;">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/" itemprop="item" style="color: #667eea; text-decoration: none;"><i class="fas fa-home mr-1"></i><span itemprop="name">Anasayfa</span></a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
+                <span itemprop="name" style="color: #764ba2; font-weight: 600;">Blog</span>
+                <meta itemprop="position" content="2" />
+            </li>
+        </ol>
+    </nav>
+</div>
+
 <!-- Blog Section -->
 <div class="container blog-section">
     <!-- Category Filter -->
@@ -182,7 +198,7 @@
         {
             <a href="/Blog?kategoriId=@kategori.Id"
                class="category-btn @(Model.SeciliKategoriId == kategori.Id ? "active" : "")">
-                @kategori.Ad
+                @kategori.Adi
             </a>
         }
     </div>

@@ -23,6 +23,18 @@ namespace DataAccess.Abstract.UnitOfWork
 		IRepository<BlogKategoriler> BlogKategorilerRepository { get; }
 		IRepository<BlogYorumlar> BlogYorumlarRepository { get; }
 
+		// Iletisim Repository
+		IRepository<IletisimMesajlari> IletisimMesajlariRepository { get; }
+
+		// Sistem Log Repository
+		IRepository<SistemLog> SistemLoglarRepository { get; }
+
+		// Menu Repositories
+		IRepository<Menuler> MenulerRepository { get; }
+		IRepository<MenuOgeleri> MenuOgeleriRepository { get; }
+		IRepository<MenuRoller> MenuRollerRepository { get; }
+		IRepository<MenuOgeRoller> MenuOgeRollerRepository { get; }
+
 		// Transaction methods
 		int SaveChanges();
 		Task<int> SaveChangesAsync();

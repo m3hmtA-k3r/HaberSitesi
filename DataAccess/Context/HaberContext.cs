@@ -28,6 +28,18 @@ namespace DataAccess.Context
 		public DbSet<BlogKategoriler> BlogKategoriler { get; set; }
 		public DbSet<BlogYorumlar> BlogYorumlar { get; set; }
 
+		// Iletisim Modulu
+		public DbSet<IletisimMesajlari> IletisimMesajlari { get; set; }
+
+		// Sistem Log Modulu
+		public DbSet<SistemLog> SistemLoglari { get; set; }
+
+		// Menu Modulu
+		public DbSet<Menuler> Menuler { get; set; }
+		public DbSet<MenuOgeleri> MenuOgeleri { get; set; }
+		public DbSet<MenuRoller> MenuRoller { get; set; }
+		public DbSet<MenuOgeRoller> MenuOgeRoller { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
@@ -75,6 +87,32 @@ namespace DataAccess.Context
 					.OnDelete(DeleteBehavior.Cascade);
 			});
 
+			// Menu configuration
+			modelBuilder.Entity<Menuler>(entity =>
+			{
+				entity.HasIndex(e => e.Sira);
+				entity.HasMany(e => e.MenuOgeleri)
+					.WithOne(o => o.Menu)
+					.HasForeignKey(o => o.MenuId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+
+			modelBuilder.Entity<MenuOgeleri>(entity =>
+			{
+				entity.HasIndex(e => e.MenuId);
+				entity.HasIndex(e => e.Sira);
+			});
+
+			modelBuilder.Entity<MenuRoller>(entity =>
+			{
+				entity.HasIndex(e => new { e.MenuId, e.RolId }).IsUnique();
+			});
+
+			modelBuilder.Entity<MenuOgeRoller>(entity =>
+			{
+				entity.HasIndex(e => new { e.MenuOgeId, e.RolId }).IsUnique();
+			});
+
 			// Seed default roles
 			modelBuilder.Entity<Roller>().HasData(
 				new Roller { Id = 1, RolAdi = "Admin", Aciklama = "Sistem yöneticisi - tüm yetkiler", AktifMi = true },
@@ -82,6 +120,52 @@ namespace DataAccess.Context
 				new Roller { Id = 3, RolAdi = "Yazar", Aciklama = "Yazar - kendi haberlerini yönetir", AktifMi = true },
 				new Roller { Id = 4, RolAdi = "Moderator", Aciklama = "Moderatör - yorum moderasyonu", AktifMi = true }
 			);
+		}
+
+		/// <summary>
+		/// Seed default admin user at runtime (called from Program.cs)
+		/// </summary>
+		/// <param name="passwordHash">BCrypt hashed password string</param>
+		public async Task SeedAdminUserAsync(string passwordHash)
+		{
+			// Check if admin already exists
+			var existingAdmin = await Kullanicilar.FirstOrDefaultAsync(k => k.Eposta == "admin@masker.com");
+			if (existingAdmin != null)
+				return;
+
+			// Check if Admin role exists
+			var adminRole = await Roller.FirstOrDefaultAsync(r => r.RolAdi == "Admin");
+			if (adminRole == null)
+			{
+				adminRole = new Roller { RolAdi = "Admin", Aciklama = "Sistem yöneticisi - tüm yetkiler", AktifMi = true };
+				Roller.Add(adminRole);
+				await SaveChangesAsync();
+			}
+
+			// Create admin user with hashed password
+			var adminUser = new Kullanicilar
+			{
+				Ad = "Admin",
+				Soyad = "User",
+				Eposta = "admin@masker.com",
+				SifreHash = passwordHash,
+				AktifMi = true,
+				OlusturmaTarihi = DateTime.UtcNow
+			};
+
+			Kullanicilar.Add(adminUser);
+			await SaveChangesAsync();
+
+			// Assign admin role
+			var kullaniciRol = new KullaniciRol
+			{
+				KullaniciId = adminUser.Id,
+				RolId = adminRole.Id,
+				AtanmaTarihi = DateTime.UtcNow
+			};
+
+			KullaniciRoller.Add(kullaniciRol);
+			await SaveChangesAsync();
 		}
 	}
 }

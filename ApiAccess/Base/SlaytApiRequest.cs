@@ -17,10 +17,10 @@ namespace ApiAccess.Base
 			return _requestService.Get<int>("Slayt/GetUnpublishedSlidesCount");
         }
 
-       
+
 		public bool DeleteSlayt(int slaytId)
 		{
-			return _requestService.Get<bool>("Slayt/DeleteSlayt?slaytId=" + slaytId);
+			return _requestService.Delete<bool>($"Slayt/DeleteSlayt/{slaytId}");
 		}
 
 		public List<SlaytlarDto> GetAllSlayt()
@@ -38,7 +38,7 @@ namespace ApiAccess.Base
 
 		public SlaytlarDto UpdateSlayt(SlaytlarDto model)
 		{
-			return _requestService.Post<SlaytlarDto>("Slayt/UpdateSlayt", model);
+			return _requestService.Put<SlaytlarDto>("Slayt/UpdateSlayt", model);
 		}
 	}
 }

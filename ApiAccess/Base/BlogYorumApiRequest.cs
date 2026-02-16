@@ -27,12 +27,12 @@ namespace ApiAccess.Base
 
 		public BlogYorumlarDto UpdateYorum(BlogYorumlarDto model)
 		{
-			return _requestService.Post<BlogYorumlarDto>("/BlogYorum/UpdateYorum", model);
+			return _requestService.Put<BlogYorumlarDto>("/BlogYorum/UpdateYorum", model);
 		}
 
 		public bool DeleteYorum(int yorumId)
 		{
-			return _requestService.Get<bool>("/BlogYorum/DeleteYorum?yorumId=" + yorumId);
+			return _requestService.Delete<bool>("/BlogYorum/DeleteYorum/" + yorumId);
 		}
 
 		public bool OnaylaYorum(int yorumId)

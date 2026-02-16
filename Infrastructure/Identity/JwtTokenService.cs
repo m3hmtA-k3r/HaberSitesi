@@ -19,11 +19,20 @@ namespace Infrastructure.Identity
 
 		public JwtTokenService(IConfiguration configuration)
 		{
-			_secretKey = configuration["JwtSettings:SecretKey"]
-				?? throw new ArgumentNullException("JWT SecretKey is not configured");
-			_issuer = configuration["JwtSettings:Issuer"] ?? "HaberSitesiAPI";
-			_audience = configuration["JwtSettings:Audience"] ?? "HaberSitesiClients";
-			_expirationMinutes = int.Parse(configuration["JwtSettings:ExpirationMinutes"] ?? "60");
+			// Environment variable takes priority over configuration
+			_secretKey = Environment.GetEnvironmentVariable("MASKER_JWT_SECRET")
+				?? configuration["JwtSettings:SecretKey"]
+				?? throw new ArgumentNullException("JWT SecretKey is not configured. Set MASKER_JWT_SECRET environment variable.");
+			_issuer = Environment.GetEnvironmentVariable("MASKER_JWT_ISSUER")
+				?? configuration["JwtSettings:Issuer"]
+				?? "MaskerAPI";
+			_audience = Environment.GetEnvironmentVariable("MASKER_JWT_AUDIENCE")
+				?? configuration["JwtSettings:Audience"]
+				?? "MaskerClients";
+			_expirationMinutes = int.Parse(
+				Environment.GetEnvironmentVariable("MASKER_JWT_EXPIRATION_MINUTES")
+				?? configuration["JwtSettings:ExpirationMinutes"]
+				?? "60");
 		}
 
 		public string GenerateToken(int userId, string email, string fullName)

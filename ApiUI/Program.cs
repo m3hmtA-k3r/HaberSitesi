@@ -1,3 +1,4 @@
+using ApiUI.Middleware;
 using Business.Abstract;
 using Business.Base;
 using DataAccess.Abstract.UnitOfWork;
@@ -65,11 +66,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<HaberContext>(option =>
     option.UseNpgsql(connectionString));
 
-// JWT Authentication
-var jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"]
-    ?? "HaberSitesi_Default_Secret_Key_Min_32_Characters_Long_12345";
-var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "HaberSitesiAPI";
-var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "HaberSitesiClients";
+// JWT Authentication - Environment variable takes priority over appsettings
+var jwtSecretKey = Environment.GetEnvironmentVariable("MASKER_JWT_SECRET")
+    ?? builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new InvalidOperationException(
+        "JWT SecretKey is not configured. Set MASKER_JWT_SECRET environment variable or configure JwtSettings:SecretKey in appsettings.json");
+var jwtIssuer = Environment.GetEnvironmentVariable("MASKER_JWT_ISSUER")
+    ?? builder.Configuration["JwtSettings:Issuer"]
+    ?? "MaskerAPI";
+var jwtAudience = Environment.GetEnvironmentVariable("MASKER_JWT_AUDIENCE")
+    ?? builder.Configuration["JwtSettings:Audience"]
+    ?? "MaskerClients";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -91,12 +98,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS
+// CORS - Environment variable or config takes priority
+var corsOrigins = Environment.GetEnvironmentVariable("MASKER_CORS_ORIGINS")
+    ?? builder.Configuration["CorsSettings:AllowedOrigins"]
+    ?? "http://localhost:5200,http://localhost:5251,http://localhost:5167";
+var allowedOrigins = corsOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MaskerPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5200", "http://localhost:5300")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -121,12 +133,44 @@ builder.Services.AddAutoMapper(typeof(Application.Mappings.MappingProfile));
 builder.Services.AddValidatorsFromAssemblyContaining<Application.Features.Haberler.Commands.CreateHaber.CreateHaberCommandValidator>();
 
 // INFRASTRUCTURE LAYER
-// File Storage Service (Local implementation)
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+// File Storage Service - Environment variable or config determines provider
+// MASKER_STORAGE_PROVIDER: "s3", "hybrid", or "local" (default)
+var storageProvider = Environment.GetEnvironmentVariable("MASKER_STORAGE_PROVIDER")
+	?? builder.Configuration["FileStorage:Provider"]
+	?? "local";
 
-// Caching Service (InMemory implementation)
+switch (storageProvider.ToLower())
+{
+	case "s3":
+		builder.Services.AddSingleton<IFileStorageService, S3FileStorageService>();
+		break;
+	case "hybrid":
+		builder.Services.AddSingleton<IFileStorageService, HybridFileStorageService>();
+		break;
+	default:
+		builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+		break;
+}
+
+// Caching Service - Environment variable or config determines provider
+// MASKER_CACHE_PROVIDER: "redis", "hybrid", or "memory" (default)
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
+var cacheProvider = Environment.GetEnvironmentVariable("MASKER_CACHE_PROVIDER")
+	?? builder.Configuration["Cache:Provider"]
+	?? "memory";
+
+switch (cacheProvider.ToLower())
+{
+	case "redis":
+		builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+		break;
+	case "hybrid":
+		builder.Services.AddSingleton<ICacheService, HybridCacheService>();
+		break;
+	default:
+		builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
+		break;
+}
 
 // JWT Token Service
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -142,6 +186,9 @@ builder.Services.AddScoped<ISlaytService, SlaytManager>();
 builder.Services.AddScoped<IYorumService, YorumManager>();
 builder.Services.AddScoped<IYazarService, YazarManager>();
 
+// Yazar-Kullanici Migration Service (for legacy system consolidation)
+builder.Services.AddScoped<IYazarMigrationService, YazarMigrationService>();
+
 // User and Role Management Services
 builder.Services.AddScoped<IKullaniciService, KullaniciManager>();
 builder.Services.AddScoped<IRolService, RolManager>();
@@ -151,18 +198,62 @@ builder.Services.AddScoped<IAuthService, AuthManager>();
 builder.Services.AddScoped<IBlogService, BlogManager>();
 builder.Services.AddScoped<IBlogKategoriService, BlogKategoriManager>();
 builder.Services.AddScoped<IBlogYorumService, BlogYorumManager>();
+
+// Iletisim Module Service
+builder.Services.AddScoped<IIletisimService, IletisimManager>();
+
+// Menu Module Service
+builder.Services.AddScoped<IMenuService, MenuManager>();
+
+// Sistem Log Module Service
+builder.Services.AddScoped<ISistemLogService, SistemLogManager>();
 #endregion
 
 var app = builder.Build();
 
-// Veritabanını oluştur (yoksa)
+// Veritabanını oluştur ve seed data ekle
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<HaberContext>();
     db.Database.EnsureCreated();
+
+    // Eksik tablolari olustur (EnsureCreated mevcut DB'ye yeni tablo eklemez)
+    await db.Database.ExecuteSqlRawAsync(@"
+        CREATE TABLE IF NOT EXISTS ""ILETISIM_MESAJLARI"" (
+            ""ID"" SERIAL PRIMARY KEY,
+            ""AD"" VARCHAR(100) NOT NULL,
+            ""EPOSTA"" VARCHAR(255) NOT NULL,
+            ""KONU"" VARCHAR(200) NOT NULL,
+            ""MESAJ"" TEXT NOT NULL,
+            ""IP_ADRESI"" VARCHAR(45),
+            ""EKLEME_TARIHI"" TIMESTAMP NOT NULL DEFAULT NOW(),
+            ""OKUNDU_MU"" BOOLEAN NOT NULL DEFAULT FALSE,
+            ""CEVAPLANDI_MI"" BOOLEAN NOT NULL DEFAULT FALSE,
+            ""CEVAP_TARIHI"" TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS ""SISTEM_LOGLARI"" (
+            ""ID"" SERIAL PRIMARY KEY,
+            ""KULLANICI_ID"" INTEGER,
+            ""KULLANICI_ADI"" VARCHAR(100),
+            ""ISLEM_TIPI"" VARCHAR(50) NOT NULL,
+            ""MODUL"" VARCHAR(100) NOT NULL,
+            ""ACIKLAMA"" TEXT NOT NULL,
+            ""IP_ADRESI"" VARCHAR(45),
+            ""TARIH"" TIMESTAMP NOT NULL DEFAULT NOW(),
+            ""SEVIYE"" VARCHAR(20) NOT NULL DEFAULT 'Info'
+        );
+    ");
+
+    // Seed default admin user (admin@masker.com / Admin123)
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    var adminPasswordHash = passwordHasher.HashPassword("Admin123");
+    await db.SeedAdminUserAsync(adminPasswordHash);
 }
 
 // Configure the HTTP request pipeline.
+// Global Exception Handler - must be first in pipeline
+app.UseGlobalExceptionHandler();
+
 // Enable Swagger in all environments for testing
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -194,6 +285,25 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Cache Invalidation Signal - AdminUI uzerinden veri degistiginde WebUI cache'ini bilgilendir
+app.Use(async (context, next) =>
+{
+    await next();
+
+    var method = context.Request.Method;
+    if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300 &&
+        (method == "POST" || method == "PUT" || method == "DELETE"))
+    {
+        try
+        {
+            await System.IO.File.WriteAllTextAsync(
+                "/tmp/masker_cache_signal",
+                DateTime.UtcNow.Ticks.ToString());
+        }
+        catch { /* Sinyal yazilamazsa cache dogal TTL ile expire olur */ }
+    }
+});
 
 app.MapControllers();
 

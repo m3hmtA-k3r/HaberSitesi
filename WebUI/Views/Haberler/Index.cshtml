@@ -38,9 +38,14 @@
     .news-author { display: flex; align-items: center; gap: 0.5rem; color: #4a5568; font-size: 0.9rem; }
     .news-views { color: #a0aec0; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem; }
 
-    .filter-info { background: #f7fafc; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .filter-info { background: #f7fafc; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
     .filter-text { color: #4a5568; font-size: 1rem; }
     .filter-count { color: #667eea; font-weight: 700; }
+
+    .sort-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .sort-btn { padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid #e2e8f0; background: #fff; color: #4a5568; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: all 0.3s; }
+    .sort-btn:hover { border-color: #667eea; color: #667eea; }
+    .sort-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: transparent; }
 
     @@media (max-width: 991px) {
         .category-sidebar { margin-bottom: 2rem; position: static; }
@@ -59,6 +64,22 @@
         <h1 class="page-title">Tüm Haberler</h1>
         <p class="page-subtitle">Güncel haberler ve son dakika gelişmeler</p>
     </div>
+</div>
+
+<!-- Breadcrumb -->
+<div class="container" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList" style="background: #fff; border-radius: 10px; padding: 0.75rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 0; font-size: 0.9rem;">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/" itemprop="item" style="color: #667eea; text-decoration: none;"><i class="fas fa-home mr-1"></i><span itemprop="name">Anasayfa</span></a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
+                <span itemprop="name" style="color: #764ba2; font-weight: 600;">Haberler</span>
+                <meta itemprop="position" content="2" />
+            </li>
+        </ol>
+    </nav>
 </div>
 
 <!-- Main Content -->
@@ -100,6 +121,20 @@
                         <i class="fas fa-newspaper mr-2"></i>
                         Toplam <span class="filter-count">@Model.Pagination.TotalItems</span> haber bulundu
                     </span>
+                    <div class="sort-buttons">
+                        <a href="/Haberler?siralama=yeni@(Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "")" class="sort-btn @(Model.SiralamaSecimi == "yeni" ? "active" : "")">
+                            <i class="fas fa-clock mr-1"></i>En Yeni
+                        </a>
+                        <a href="/Haberler?siralama=eski@(Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "")" class="sort-btn @(Model.SiralamaSecimi == "eski" ? "active" : "")">
+                            <i class="fas fa-history mr-1"></i>En Eski
+                        </a>
+                        <a href="/Haberler?siralama=populer@(Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "")" class="sort-btn @(Model.SiralamaSecimi == "populer" ? "active" : "")">
+                            <i class="fas fa-fire mr-1"></i>En Populer
+                        </a>
+                        <a href="/Haberler?siralama=az@(Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "")" class="sort-btn @(Model.SiralamaSecimi == "az" ? "active" : "")">
+                            <i class="fas fa-sort-amount-down-alt mr-1"></i>En Az Okunan
+                        </a>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -155,7 +190,7 @@
 
                 @{
                     ViewData["BaseUrl"] = "/Haberler";
-                    ViewData["QueryParams"] = Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "";
+                    ViewData["QueryParams"] = (Model.SeciliKategoriId.HasValue ? $"&kategoriId={Model.SeciliKategoriId}" : "") + (Model.SiralamaSecimi != "yeni" ? $"&siralama={Model.SiralamaSecimi}" : "");
                 }
                 @await Html.PartialAsync("_Pagination", Model.Pagination)
             </div>

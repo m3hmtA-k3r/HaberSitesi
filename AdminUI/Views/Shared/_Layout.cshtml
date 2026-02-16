@@ -12,23 +12,140 @@
 	<link href="/assets/css/master.css" rel="stylesheet">
 	<link href="/assets/vendor/flagiconcss/css/flag-icon.min.css" rel="stylesheet">
 	<style>
+		/* Sidebar Temel Stiller */
 		.sidebar-header { background: linear-gradient(135deg, #1F2937 0%, #374151 100%); padding: 1rem !important; }
 		.app-logo { height: 38px; width: auto; }
-		#sidebar { background: #1F2937; }
-		#sidebar ul li a { color: #B8BCC4; transition: all 0.2s ease; border-left: 3px solid transparent; }
-		#sidebar ul li a:hover { background: rgba(139, 92, 246, 0.15); color: #B8BCC4; border-left-color: #8B5CF6; }
-		#sidebar ul li a .fas { color: #8B5CF6; }
-		.menu-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #B8BCC4; padding: 1.2rem 1.5rem 0.5rem; margin-top: 0.5rem; }
+		#sidebar { background: #1F2937; overflow-y: auto; }
 
-		/* Modul Grubu Stilleri */
-		.module-header { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1.5rem; color: #B8BCC4; cursor: pointer; transition: all 0.2s ease; border-left: 3px solid transparent; }
-		.module-header:hover { background: rgba(139, 92, 246, 0.15); color: #B8BCC4; border-left-color: #8B5CF6; }
-		.module-header .module-icon { color: #8B5CF6; margin-right: 10px; }
-		.module-header .module-title { font-weight: 500; font-size: 0.9rem; }
-		.module-header .collapse-icon { color: #B8BCC4; transition: transform 0.3s ease; font-size: 0.75rem; }
-		.module-header[aria-expanded="true"] .collapse-icon { transform: rotate(180deg); }
-		.module-submenu { background: transparent; }
-		.module-submenu li a { padding-left: 2.5rem !important; font-size: 0.85rem; }
+		/* Menü Bölüm Başlığı */
+		.menu-section {
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			color: #9CA3AF;
+			padding: 1.2rem 1.5rem 0.5rem;
+			margin-top: 0.5rem;
+			font-weight: 600;
+		}
+
+		/* Menü Öğeleri - Temel Stil */
+		#sidebar ul li a {
+			color: #D1D5DB;
+			transition: all 0.25s ease;
+			border-left: 3px solid transparent;
+			padding: 0.75rem 1.5rem;
+			display: flex;
+			align-items: center;
+		}
+
+		/* Menü Öğeleri - Hover Durumu */
+		#sidebar ul li a:hover {
+			background: rgba(139, 92, 246, 0.15);
+			color: #FFFFFF;
+			border-left-color: #8B5CF6;
+			transform: translateX(2px);
+		}
+
+		/* Menü Öğeleri - Aktif Sayfa */
+		#sidebar ul li a.active {
+			background: rgba(139, 92, 246, 0.25);
+			color: #FFFFFF;
+			border-left-color: #8B5CF6;
+			font-weight: 600;
+		}
+
+		/* Menü İkonları */
+		#sidebar ul li a .fas {
+			color: #8B5CF6;
+			margin-right: 10px;
+			width: 20px;
+			text-align: center;
+		}
+
+		/* Modul Grubu Başlık */
+		.module-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0.85rem 1.5rem;
+			color: #D1D5DB;
+			cursor: pointer;
+			transition: all 0.25s ease;
+			border-left: 3px solid transparent;
+		}
+
+		.module-header:hover {
+			background: rgba(139, 92, 246, 0.15);
+			color: #FFFFFF;
+			border-left-color: #8B5CF6;
+		}
+
+		.module-header .module-icon {
+			color: #8B5CF6;
+			margin-right: 10px;
+			font-size: 1rem;
+		}
+
+		.module-header .module-title {
+			font-weight: 600;
+			font-size: 0.9rem;
+		}
+
+		.module-header .collapse-icon {
+			color: #9CA3AF;
+			transition: transform 0.3s ease;
+			font-size: 0.75rem;
+		}
+
+		.module-header[aria-expanded="true"] {
+			background: rgba(139, 92, 246, 0.1);
+			border-left-color: #8B5CF6;
+		}
+
+		.module-header[aria-expanded="true"] .collapse-icon {
+			transform: rotate(180deg);
+			color: #8B5CF6;
+		}
+
+		/* Alt Menü */
+		.module-submenu {
+			background: rgba(0, 0, 0, 0.1);
+			border-left: 1px solid rgba(139, 92, 246, 0.2);
+			margin-left: 1.5rem;
+		}
+
+		.module-submenu li a {
+			padding: 0.65rem 1rem 0.65rem 2rem !important;
+			font-size: 0.85rem;
+			color: #D1D5DB;
+		}
+
+		.module-submenu li a:hover {
+			background: rgba(139, 92, 246, 0.2);
+			padding-left: 2.25rem !important;
+		}
+
+		.module-submenu li a.active {
+			background: rgba(139, 92, 246, 0.3);
+			font-weight: 600;
+		}
+
+		/* Badge Stilleri */
+		.menu-badge {
+			background: #EF4444;
+			color: #FFFFFF;
+			font-size: 0.7rem;
+			padding: 2px 6px;
+			border-radius: 10px;
+			margin-left: auto;
+			font-weight: 600;
+			min-width: 20px;
+			text-align: center;
+		}
+
+		.menu-badge.success { background: #10B981; }
+		.menu-badge.warning { background: #F59E0B; }
+		.menu-badge.info { background: #3B82F6; }
 
 		/* Toast Bildirimleri */
 		#toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
@@ -49,69 +166,7 @@
             <div class="sidebar-header">
                 <img src="/assets/img/masker-bo-logo.svg" alt="MASKER BO" class="app-logo">
             </div>
-            <ul class="list-unstyled components">
-                <li>
-                    <a href="/Home"><i class="fas fa-th-large"></i> Kontrol Paneli</a>
-                </li>
-
-                <!-- Haber Modülü -->
-                <div class="menu-section">Modüller</div>
-                <li>
-                    <div class="module-header" data-bs-toggle="collapse" data-bs-target="#haberModulu" aria-expanded="false" aria-controls="haberModulu">
-                        <span>
-                            <i class="fas fa-newspaper module-icon"></i>
-                            <span class="module-title">Haber Modülü</span>
-                        </span>
-                        <i class="fas fa-chevron-down collapse-icon"></i>
-                    </div>
-                    <div class="collapse module-submenu" id="haberModulu">
-                        <ul class="list-unstyled">
-                            <li>
-                                <a href="/Haber"><i class="fas fa-file-alt"></i> İçerik Yönetimi</a>
-                            </li>
-                            <li>
-                                <a href="/Slayt"><i class="fas fa-tv"></i> Vitrin & Medya</a>
-                            </li>
-                            <li>
-                                <a href="/Kategori"><i class="fas fa-sitemap"></i> Taksonomi</a>
-                            </li>
-                            <li>
-                                <a href="/Yorum"><i class="fas fa-comments"></i> Etkileşim Merkezi</a>
-                            </li>
-                            <li>
-                                <a href="/Yazar"><i class="fas fa-user-edit"></i> Editör Yönetimi</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <!-- Blog Modülü -->
-                <li>
-                    <div class="module-header" data-bs-toggle="collapse" data-bs-target="#blogModulu" aria-expanded="false" aria-controls="blogModulu">
-                        <span>
-                            <i class="fas fa-blog module-icon"></i>
-                            <span class="module-title">Blog Modülü</span>
-                        </span>
-                        <i class="fas fa-chevron-down collapse-icon"></i>
-                    </div>
-                    <div class="collapse module-submenu" id="blogModulu">
-                        <ul class="list-unstyled">
-                            <li>
-                                <a href="/Blog"><i class="fas fa-pen-fancy"></i> Blog Yazıları</a>
-                            </li>
-                            <li>
-                                <a href="/BlogKategori"><i class="fas fa-folder-open"></i> Blog Kategorileri</a>
-                            </li>
-                            <li>
-                                <a href="/BlogYorum"><i class="fas fa-comment-dots"></i> Blog Yorumları</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <!-- Gelecek modüller için yer ayrıldı -->
-
-            </ul>
+@await Component.InvokeAsync("DinamikMenu")
         </nav>
         <div id="body" class="active">
             <!-- navbar navigation component -->
@@ -130,6 +185,9 @@
                                 {
                                     <a class="dropdown-item" href="/Kullanici">
                                         <i class="fas fa-users-cog"></i> Kullanıcı Yönetimi
+                                    </a>
+                                    <a class="dropdown-item" href="/MenuYonetim">
+                                        <i class="fas fa-bars"></i> Menü Yönetimi
                                     </a>
                                     <div class="dropdown-divider"></div>
                                 }
@@ -182,6 +240,68 @@
         {
             <text>showToast('@TempData["Warning"]', 'warning');</text>
         }
+    </script>
+
+    <!-- Menü İyileştirmeleri Scripti -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aktif sayfa algılama ve vurgulama
+            const currentPath = window.location.pathname;
+            const menuLinks = document.querySelectorAll('#sidebar ul li a:not(.module-header)');
+
+            menuLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href) && href !== '/') {
+                    link.classList.add('active');
+
+                    // Eğer alt menü öğesiyse, parent menüyü aç
+                    const parentCollapse = link.closest('.collapse');
+                    if (parentCollapse) {
+                        parentCollapse.classList.add('show');
+                        const parentHeader = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+                        if (parentHeader) {
+                            parentHeader.setAttribute('aria-expanded', 'true');
+                        }
+                    }
+                } else if (href === '/' && currentPath === '/') {
+                    link.classList.add('active');
+                }
+            });
+
+            // Accordion davranışı - Sadece bir menü açık olsun
+            const moduleHeaders = document.querySelectorAll('.module-header');
+            moduleHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+
+                    // Eğer menü kapalıysa ve başka menüler açıksa, onları kapat
+                    if (!isExpanded) {
+                        moduleHeaders.forEach(otherHeader => {
+                            if (otherHeader !== this && otherHeader.getAttribute('aria-expanded') === 'true') {
+                                const targetId = otherHeader.getAttribute('data-bs-target');
+                                const collapseElement = document.querySelector(targetId);
+                                if (collapseElement) {
+                                    const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+                                    if (bsCollapse) {
+                                        bsCollapse.hide();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Smooth scroll için menü öğelerine tıklama efekti
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Aktif class'ı kaldır
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    // Tıklanan öğeye ekle
+                    this.classList.add('active');
+                });
+            });
+        });
     </script>
 </body>
 </html>

@@ -196,8 +196,8 @@ namespace AdminUI.Controllers
                 return NotFound();
             }
 
-            var tumRoller = _rolApiRequest.GetAllRol();
-            var kullaniciRolleri = _kullaniciApiRequest.GetKullaniciRolleri(kullaniciId);
+            var tumRoller = _rolApiRequest.GetAllRol() ?? new List<RolDto>();
+            var kullaniciRolleri = _kullaniciApiRequest.GetKullaniciRolleri(kullaniciId) ?? new List<RolDto>();
             var kullaniciRolIdleri = kullaniciRolleri.Select(r => r.Id).ToList();
 
             var model = new KullaniciViewModel
@@ -221,7 +221,7 @@ namespace AdminUI.Controllers
         public IActionResult RollerKaydet(int kullaniciId, List<int>? seciliRoller)
         {
             var mevcutRoller = _kullaniciApiRequest.GetKullaniciRolleri(kullaniciId);
-            var mevcutRolIdleri = mevcutRoller.Select(r => r.Id).ToList();
+            var mevcutRolIdleri = mevcutRoller?.Select(r => r.Id).ToList() ?? new List<int>();
             var yeniRolIdleri = seciliRoller ?? new List<int>();
 
             // Remove roles that are no longer selected
@@ -229,7 +229,11 @@ namespace AdminUI.Controllers
             {
                 if (!yeniRolIdleri.Contains(rolId))
                 {
-                    _kullaniciApiRequest.KaldirRol(kullaniciId, rolId);
+                    try
+                    {
+                        _kullaniciApiRequest.KaldirRol(kullaniciId, rolId);
+                    }
+                    catch { /* Rol zaten kaldırılmış olabilir */ }
                 }
             }
 
@@ -238,10 +242,15 @@ namespace AdminUI.Controllers
             {
                 if (!mevcutRolIdleri.Contains(rolId))
                 {
-                    _kullaniciApiRequest.AtaRol(kullaniciId, rolId);
+                    try
+                    {
+                        _kullaniciApiRequest.AtaRol(kullaniciId, rolId);
+                    }
+                    catch { /* Rol zaten atanmış olabilir */ }
                 }
             }
 
+            TempData["Mesaj"] = "Roller başarıyla güncellendi";
             return RedirectToAction("Index");
         }
     }

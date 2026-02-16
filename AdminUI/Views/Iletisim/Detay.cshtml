@@ -1,0 +1,99 @@
+@using Shared.Dtos
+@model IletisimMesajlariDto
+
+<style>
+    .detail-card { border-radius: 12px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .detail-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 12px 12px 0 0; padding: 1.5rem; }
+    .detail-body { padding: 1.5rem; }
+    .detail-label { font-weight: 600; color: #495057; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem; }
+    .detail-value { color: #2d3748; font-size: 0.95rem; margin-bottom: 1rem; }
+    .detail-message { background: #f8f9fa; border-radius: 8px; padding: 1.2rem; font-size: 0.95rem; color: #2d3748; line-height: 1.6; white-space: pre-wrap; }
+    .badge-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 500; font-size: 0.75rem; }
+    .badge-unread { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; }
+    .badge-read { background: #e2e8f0; color: #718096; }
+    .badge-replied { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; }
+    .btn-back { background: #e2e8f0; color: #495057; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+    .btn-back:hover { background: #cbd5e0; color: #2d3748; }
+    .btn-reply { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+    .btn-reply:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4); color: #fff; }
+    .btn-delete { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+    .btn-delete:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4); color: #fff; }
+    .info-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .info-item { flex: 1; min-width: 200px; }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1"><i class="fas fa-envelope-open-text me-2 text-primary"></i>Mesaj Detayi</h3>
+            <p class="text-muted mb-0">Iletisim mesaji detaylari</p>
+        </div>
+        <a href="/Iletisim" class="btn btn-back"><i class="fas fa-arrow-left me-2"></i>Geri Don</a>
+    </div>
+
+    <div class="detail-card card">
+        <div class="detail-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1">@Model.Konu</h4>
+                    <div style="opacity: 0.9;">
+                        <i class="fas fa-user me-1"></i>@Model.Ad &nbsp;
+                        <i class="fas fa-envelope me-1"></i>@Model.Eposta
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    @if (Model.CevaplandiMi)
+                    {
+                        <span class="badge-status badge-replied">Cevaplandi</span>
+                    }
+                    else if (Model.OkunduMu)
+                    {
+                        <span class="badge-status badge-read">Okundu</span>
+                    }
+                    else
+                    {
+                        <span class="badge-status badge-unread">Okunmadi</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="detail-body">
+            <div class="info-row">
+                <div class="info-item">
+                    <div class="detail-label"><i class="fas fa-calendar-alt me-1"></i>Gonderim Tarihi</div>
+                    <div class="detail-value">@Model.EklemeTarihi.ToString("dd MMMM yyyy HH:mm")</div>
+                </div>
+                @if (Model.IpAdresi != null)
+                {
+                    <div class="info-item">
+                        <div class="detail-label"><i class="fas fa-globe me-1"></i>IP Adresi</div>
+                        <div class="detail-value">@Model.IpAdresi</div>
+                    </div>
+                }
+                @if (Model.CevapTarihi.HasValue)
+                {
+                    <div class="info-item">
+                        <div class="detail-label"><i class="fas fa-reply me-1"></i>Cevap Tarihi</div>
+                        <div class="detail-value">@Model.CevapTarihi.Value.ToString("dd MMMM yyyy HH:mm")</div>
+                    </div>
+                }
+            </div>
+
+            <div class="detail-label"><i class="fas fa-comment-alt me-1"></i>Mesaj</div>
+            <div class="detail-message">@Model.Mesaj</div>
+
+            <hr class="my-4">
+
+            <div class="d-flex gap-2 flex-wrap">
+                @if (!Model.CevaplandiMi)
+                {
+                    <form asp-action="CevaplandiIsaretle" method="post" style="display:inline;">
+                        <input type="hidden" name="mesajId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-reply"><i class="fas fa-check me-1"></i>Cevaplandi Olarak Isaretle</button>
+                    </form>
+                }
+                <a href="/Iletisim/Sil?mesajId=@Model.Id" class="btn btn-delete" onclick="return confirm('Bu mesaji silmek istediginize emin misiniz?');"><i class="fas fa-trash-alt me-1"></i>Sil</a>
+            </div>
+        </div>
+    </div>
+</div>

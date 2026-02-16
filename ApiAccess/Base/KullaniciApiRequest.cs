@@ -40,7 +40,8 @@ namespace ApiAccess.Base
 
         public bool AtaRol(int kullaniciId, int rolId)
         {
-            var result = _requestService.Post<dynamic>($"Kullanici/{kullaniciId}/rol/{rolId}", null);
+            // POST without body - pass empty object instead of null for RestSharp compatibility
+            var result = _requestService.Post<dynamic>($"Kullanici/{kullaniciId}/rol/{rolId}", new { });
             return result != null;
         }
 

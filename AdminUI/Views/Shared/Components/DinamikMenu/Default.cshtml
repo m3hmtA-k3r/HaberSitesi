@@ -1,0 +1,74 @@
+@model Shared.Dtos.MenuYapisiDto
+
+@if (Model == null)
+{
+    <ul class="list-unstyled components">
+        <li><a href="/Home/Index"><i class="fas fa-exclamation-triangle"></i> Menü Yüklenemedi</a></li>
+    </ul>
+}
+else
+{
+<ul class="list-unstyled components">
+    @* Bağımsız Menü Öğeleri (Kontrol Paneli gibi) *@
+    @if (Model.BagimsizOgeler != null && Model.BagimsizOgeler.Any())
+    {
+        @foreach (var oge in Model.BagimsizOgeler.OrderBy(o => o.Sira))
+        {
+            <li>
+                <a href="@oge.Url">
+                    <i class="@(oge.Ikon ?? "fas fa-circle")"></i>
+                    <span>@oge.Adi</span>
+                    @* Badge desteği - İleride ViewBag ile dinamik olarak eklenebilir *@
+                    @if (oge.Adi.Contains("Dashboard") && ViewBag.YeniMesajSayisi != null && ViewBag.YeniMesajSayisi > 0)
+                    {
+                        <span class="menu-badge">@ViewBag.YeniMesajSayisi</span>
+                    }
+                </a>
+            </li>
+        }
+    }
+
+    @if (Model?.Menuler != null && Model.Menuler.Any())
+    {
+        <div class="menu-section">Modüller</div>
+
+        @foreach (var menu in Model.Menuler.OrderBy(m => m.Sira))
+        {
+            <li>
+                <div class="module-header"
+                     data-bs-toggle="collapse"
+                     data-bs-target="#@menu.CollapseId"
+                     aria-expanded="false"
+                     aria-controls="@menu.CollapseId">
+                    <span style="display: flex; align-items: center;">
+                        <i class="@(menu.Ikon ?? "fas fa-folder") module-icon"></i>
+                        <span class="module-title">@menu.Adi</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
+                <div class="collapse module-submenu" id="@menu.CollapseId">
+                    <ul class="list-unstyled">
+                        @if (menu.MenuOgeleri != null)
+                        {
+                            @foreach (var oge in menu.MenuOgeleri.OrderBy(o => o.Sira))
+                            {
+                                <li>
+                                    <a href="@oge.Url">
+                                        <i class="@(oge.Ikon ?? "fas fa-circle")"></i>
+                                        <span>@oge.Adi</span>
+                                        @* Yorum badge örneği *@
+                                        @if (oge.Adi.Contains("Yorum") && ViewBag.YeniYorumSayisi != null && ViewBag.YeniYorumSayisi > 0)
+                                        {
+                                            <span class="menu-badge">@ViewBag.YeniYorumSayisi</span>
+                                        }
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </li>
+        }
+    }
+</ul>
+}

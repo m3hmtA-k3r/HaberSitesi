@@ -25,12 +25,12 @@ namespace ApiAccess.Base
 
 		public BlogKategorilerDto UpdateKategori(BlogKategorilerDto model)
 		{
-			return _requestService.Post<BlogKategorilerDto>("/BlogKategori/UpdateKategori", model);
+			return _requestService.Put<BlogKategorilerDto>("/BlogKategori/UpdateKategori", model);
 		}
 
 		public bool DeleteKategori(int kategoriId)
 		{
-			return _requestService.Get<bool>("/BlogKategori/DeleteKategori?kategoriId=" + kategoriId);
+			return _requestService.Delete<bool>("/BlogKategori/DeleteKategori/" + kategoriId);
 		}
 	}
 }

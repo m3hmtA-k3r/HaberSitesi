@@ -14,7 +14,7 @@ namespace Domain.Entities
 		public int Id { get; set; }
 
 		[Column("ACIKLAMA")]
-		public string Aciklama { get; set; }
+		public string Aciklama { get; set; } = string.Empty;
 
 		[Column("AKTIF_MI")]
 		public bool Aktifmi { get; set; }

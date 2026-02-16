@@ -1,6 +1,8 @@
 ﻿@using AdminUI.Models
 @model HaberViewModel
 
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+
 <style>
     /* Modern Form Stilleri */
     .form-container {
@@ -383,10 +385,10 @@
                                 <i class="fas fa-align-left"></i>
                                 İçerik
                             </label>
-                            @Html.TextAreaFor(x => x.Icerik, new { placeholder = "Haber içeriğini detaylı şekilde yazın...", @class = "form-control" })
+                            @Html.TextAreaFor(x => x.Icerik, new { id = "icerikEditor", @class = "form-control" })
                             <small class="form-help">
                                 <i class="fas fa-info-circle"></i>
-                                Haberin tüm detaylarını eksiksiz yazın
+                                Tablo, başlık, liste ve daha fazlası için araç çubuğunu kullanın
                             </small>
                         </div>
                     </div>
@@ -543,7 +545,30 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/lang/summernote-tr-TR.min.js"></script>
+
 <script>
+    // Summernote Editör
+    $(document).ready(function() {
+        $('#icerikEditor').summernote({
+            lang: 'tr-TR',
+            height: 350,
+            placeholder: 'Haber içeriğini buraya yazın...',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+                ['fontname', ['fontname']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video', 'hr']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+    });
+
     // Yeni görsel seçildiğinde önizleme göster
     document.getElementById('imageInput').addEventListener('change', function(e) {
         const file = e.target.files[0];

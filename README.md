@@ -2,1831 +2,485 @@
 
 # 🎭 MASKER - Modular Application System for Knowledge, Enterprise & Resources
 
-### Cok Yonlu, Olceklenebilir ve Genisleyebilir Platform
+### Çok Yönlü, Ölçeklenebilir ve Genişleyebilir Platform
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-12.0-blue.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![Entity Framework](https://img.shields.io/badge/Entity%20Framework-Core-green.svg)](https://docs.microsoft.com/en-us/ef/core/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
 [![JWT](https://img.shields.io/badge/JWT-Authentication-orange.svg)](https://jwt.io/)
-[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
-**Icerik + Ticaret + Kullanici Yonetimini Birlestiren Kurumsal Platform**
+**İçerik + Ticaret + Kullanıcı Yönetimini Birleştiren Kurumsal Platform**
 
-[Kurulum](#-kurulum-ve-calistirma) • [Mimari](#️-proje-mimarisi) • [Guvenlik](#-guvenlik-ve-yetkilendirme) • [API](#-api-endpoints)
+[Hızlı Başlangıç](#-hızlı-başlangıç) • [Mimari](#️-proje-mimarisi) • [Özellikler](#-özellikler) • [Kurulum](#-kurulum)
 
 </div>
 
 ---
 
-## 📖 Icindekiler
+## 📖 İçindekiler
 
-- [Hizli Baslangic](#-hizli-baslangic)
-- [Proje Hakkinda](#-proje-hakkinda)
-- [Modul Durumu](#-modul-durumu)
-- [Guvenlik ve Yetkilendirme](#-guvenlik-ve-yetkilendirme)
+- [Hızlı Başlangıç](#-hızlı-başlangıç)
+- [Proje Hakkında](#-proje-hakkında)
+- [Özellikler](#-özellikler)
+- [Kurulum ve Çalıştırma](#-kurulum-ve-çalıştırma)
+- [Erişim Adresleri](#-erişim-adresleri)
 - [Proje Mimarisi](#️-proje-mimarisi)
-- [Teknolojiler](#️-kullanilan-teknolojiler)
-- [Kurulum](#-kurulum-ve-calistirma)
-- [Veritabani](#-veritabani-yapisi)
-- [API Endpoints](#-api-endpoints)
-- [Yeni Modul Ekleme](#-yeni-modul-ekleme-rehberi)
-- [Lisans](#-lisans)
+- [Son Güncellemeler](#-son-güncellemeler-2026-01-31)
+- [Sorun Giderme](#-sorun-giderme)
 
 ---
 
-## ⚡ Hizli Baslangic
+## ⚡ Hızlı Başlangıç
 
-### WSL2 Ortaminda Calistirma (Onemli)
-
-WSL2 uzerinde calisiyorsaniz, asagidaki adimlari **bir kez** yapmaniz gerekmektedir:
-
-#### Sorun: "docker: command not found" Hatasi
-
-Bu hata, Docker Desktop'in WSL2 entegrasyonunun aktif edilmediginde olusur.
-
-#### Cozum Adimlari:
-
-1. **Docker Desktop'i acin** (Windows tarafinda)
-2. **Settings** (Ayarlar) > **Resources** > **WSL Integration** bolumune gidin
-3. **"Ubuntu"** veya kullandiginiz WSL dagitimi icin toggle'i **acik** konuma getirin
-4. **Apply & Restart** butonuna tiklayin
-5. WSL terminalini kapatip yeniden acin
-
-> **Not**: Bu ayar bir kez yapildiktan sonra tekrar yapmaniza gerek yoktur. Sadece Docker Desktop'in acik oldugundan emin olun.
-
----
-
-### 1. Tek Komutla Tum Servisleri Baslat
+### Tek Komutla Tüm Servisleri Başlat
 
 ```bash
-# Proje dizinine git
 cd /home/ubuntu_user/projects/MASKER
-
-# .NET PATH ayari (gerekirse)
-export PATH="$HOME/.dotnet:$PATH"
-export DOTNET_ROOT="$HOME/.dotnet"
-
-# 1. Docker servislerini baslat (PostgreSQL + pgAdmin)
-docker-compose up -d
-
-# 2. Eski processleri temizle (varsa)
-pkill -f "dotnet.*ApiUI" 2>/dev/null
-pkill -f "dotnet.*AdminUI" 2>/dev/null
-pkill -f "dotnet.*WebUI" 2>/dev/null
-
-# 3. ApiUI baslat (Port: 5100)
-cd /home/ubuntu_user/projects/MASKER/ApiUI
-nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
-
-# 4. AdminUI baslat (Port: 5251)
-cd /home/ubuntu_user/projects/MASKER/AdminUI
-nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
-
-# 5. WebUI baslat (Port: 5167)
-cd /home/ubuntu_user/projects/MASKER/WebUI
-nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&1 &
-
-# 6. Servislerin hazir olmasini bekle
-sleep 15
-
-# 7. Durum kontrolu
-echo "=== Servis Durumu ==="
-nc -zv localhost 5432 2>&1 && echo "PostgreSQL: OK" || echo "PostgreSQL: FAIL"
-nc -zv localhost 5050 2>&1 && echo "pgAdmin: OK" || echo "pgAdmin: FAIL"
-nc -zv localhost 5100 2>&1 && echo "ApiUI: OK" || echo "ApiUI: FAIL"
-nc -zv localhost 5251 2>&1 && echo "AdminUI: OK" || echo "AdminUI: FAIL"
-nc -zv localhost 5167 2>&1 && echo "WebUI: OK" || echo "WebUI: FAIL"
+./start-masker.sh
 ```
 
-### Hizli Baslatma Script'i
-
-Yukaridaki komutlari her seferinde yazmamak icin `start-masker.sh` script'ini kullanabilirsiniz:
+**Alternatif: Manuel Başlatma**
 
 ```bash
-# Script'i calistir
-chmod +x /home/ubuntu_user/projects/MASKER/start-masker.sh
+# Docker servisleri
+docker-compose up -d
+
+# .NET uygulamaları
+export PATH="$HOME/.dotnet:$PATH"
+cd ApiUI && nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
+cd ../AdminUI && nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
+cd ../WebUI && nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&1 &
+```
+
+### Servisleri Durdurma
+
+```bash
+./stop-masker.sh
+```
+
+---
+
+## 🎯 Proje Hakkında
+
+**MASKER** ASP.NET Core 8.0 ile geliştirilmiş, modern ve ölçeklenebilir bir kurumsal platformdur. **N-Tier Architecture** ve **Clean Architecture** prensiplerine uygun olarak tasarlanmıştır.
+
+### Neden MASKER?
+
+- ✅ **Modüler Yapı** - Her modül bağımsız geliştirilebilir
+- ✅ **Ölçeklenebilir** - Yatay ve dikey ölçekleme hazır
+- ✅ **Dinamik Menü Sistemi** - Veritabanı odaklı, rol bazlı menü
+- ✅ **Güvenli** - BCrypt, JWT, rol bazlı yetkilendirme
+- ✅ **Modern UI** - Responsive tasarım, smooth animasyonlar
+
+---
+
+## 🚀 Özellikler
+
+### ✅ Tamamlanan Özellikler
+
+#### 1. **Dinamik Menü Sistemi** ⭐ YENİ!
+- Veritabanı odaklı menü yönetimi
+- Rol bazlı erişim kontrolü
+- Modern CSS stilleri ve animasyonlar
+- Aktif sayfa vurgulama
+- Accordion davranışı
+- Badge desteği
+
+**Menü Yapısı:**
+```
+🏠 Dashboard
+
+📰 İçerik Yönetimi
+   ├─ Haber Yönetimi
+   ├─ Kategoriler
+   ├─ Slayt Yönetimi
+   └─ Yorumlar
+
+✍️ Blog Yönetimi
+   ├─ Blog Yazıları
+   ├─ Blog Kategorileri
+   └─ Blog Yorumları
+
+👥 Kullanıcı İşlemleri
+   ├─ Kullanıcı Yönetimi
+   ├─ Yazarlar
+   └─ Rol Yönetimi
+
+⚙️ Sistem Ayarları
+   ├─ Menü Yönetimi
+   └─ İletişim Mesajları
+```
+
+#### 2. **İçerik Yönetimi**
+- ✅ Haber CRUD işlemleri
+- ✅ Kategori yönetimi
+- ✅ Slayt/Slider yönetimi (Silme düzeltildi ⭐)
+- ✅ Yorum moderasyonu
+- ✅ Blog sistemi
+- ✅ Medya yükleme
+
+#### 3. **Kullanıcı ve Güvenlik**
+- ✅ JWT Authentication
+- ✅ BCrypt password hashing
+- ✅ Rol bazlı yetkilendirme (Admin, Editor, Yazar, Moderator)
+- ✅ Cookie-based sessions
+- ✅ Kullanıcı yönetimi
+
+#### 4. **Altyapı**
+- ✅ PostgreSQL 16 veritabanı
+- ✅ Redis cache desteği
+- ✅ Docker containerization
+- ✅ RESTful API (Swagger dokümantasyonu)
+- ✅ Global exception handling
+- ✅ Rate limiting
+
+---
+
+## 🛠 Kurulum ve Çalıştırma
+
+### Gereksinimler
+
+- .NET 8.0 SDK
+- Docker Desktop
+- PostgreSQL 16 (Docker ile gelir)
+- Redis 7 (Docker ile gelir - opsiyonel)
+
+### Kurulum Adımları
+
+#### 1. Depoyu Klonlayın
+
+```bash
+git clone https://github.com/yourusername/MASKER.git
+cd MASKER
+```
+
+#### 2. Docker Servislerini Başlatın
+
+```bash
+docker-compose up -d
+```
+
+Bu komut şunları başlatır:
+- PostgreSQL (Port: 5432)
+- pgAdmin (Port: 5050)
+- Redis (Port: 6379)
+
+#### 3. Veritabanını Oluşturun
+
+Veritabanı otomatik olarak migration'larla oluşturulur. Manuel oluşturmak için:
+
+```bash
+cd DataAccess
+dotnet ef database update
+```
+
+#### 4. Menü Yapısını Yükleyin
+
+```bash
+docker exec -i masker_postgres psql -U masker_admin -d MaskerDB < Database/Scripts/01_Menu_Structure_Setup.sql
+```
+
+#### 5. Uygulamaları Başlatın
+
+```bash
 ./start-masker.sh
 ```
 
 ---
 
-### 2. Servisleri Durdurma
+## 🌐 Erişim Adresleri
 
-```bash
-# .NET uygulamalarini durdur
-pkill -f "dotnet.*ApiUI"
-pkill -f "dotnet.*AdminUI"
-pkill -f "dotnet.*WebUI"
+| Servis | Port | URL | Açıklama |
+|--------|------|-----|----------|
+| **WebUI** | 5167 | http://localhost:5167 | Kullanıcı arayüzü (Frontend) |
+| **AdminUI** | 5251 | http://localhost:5251 | Yönetim paneli (Backoffice) |
+| **API** | 5100 | http://localhost:5100 | REST API |
+| **Swagger** | 5100 | http://localhost:5100/swagger | API dokümantasyonu |
+| **pgAdmin** | 5050 | http://localhost:5050 | Veritabanı yönetimi |
+| **PostgreSQL** | 5432 | localhost:5432 | Veritabanı sunucusu |
+| **Redis** | 6379 | localhost:6379 | Cache sunucusu |
 
-# Docker servislerini durdur (opsiyonel)
-cd /home/ubuntu_user/projects/MASKER
-docker-compose down
-```
+### Varsayılan Kullanıcılar
 
----
-
-### 3. Log Dosyalarini Izleme
-
-```bash
-# ApiUI loglari
-tail -f /tmp/apiui.log
-
-# AdminUI loglari
-tail -f /tmp/adminui.log
-
-# WebUI loglari
-tail -f /tmp/webui.log
-```
-
----
-
-### 4. Erisim Adresleri
-
-| Servis | URL | Aciklama |
-|--------|-----|----------|
-| **WebUI** | http://localhost:5167 | Kullanici arayuzu (Frontend) |
-| **Admin Panel** | http://localhost:5251 | Yonetim arayuzu |
-| **API** | http://localhost:5100 | REST API |
-| **Swagger** | http://localhost:5100/swagger | API dokumantasyonu |
-| **pgAdmin** | http://localhost:5050 | Veritabani yonetimi |
-
-### 5. Varsayilan Kullanicilar
-
-| Rol | E-posta | Sifre | Yetkiler |
+| Rol | E-posta | Şifre | Yetkiler |
 |-----|---------|-------|----------|
-| **Admin** | admin@masker.com | Admin123 | Tam yetki (Kullanici Yonetimi dahil) |
-| **Yazar** | admin@masker.com | Admin2026! | Icerik yonetimi |
+| **Admin** | admin@masker.com | Admin123 | Tam yetki (Tüm modüller) |
+| **Editor** | editor@masker.com | Editor123 | İçerik yönetimi |
 
-> **Not**: Admin ve Yazar ayni e-posta ile farkli sistemlerde kayitlidir. Admin = Yeni sistem (JWT), Yazar = Legacy sistem.
-
----
-
-## 🎯 Proje Hakkinda
-
-**MASKER (Modular Application System for Knowledge, Enterprise & Resources)**, ASP.NET Core 8.0 ile gelistirilmis, modern ve olceklenebilir bir kurumsal platformdur. Proje, **N-Katmanli Mimari (N-Tier Architecture)** ve **Clean Architecture** prensiplerine sadik kalarak, kurumsal duzeyde yazilim gelistirme standartlarina uygun olarak tasarlanmistir.
-
----
-
-## 🚀 Platform Vizyonu
-
-MASKER;
-
-- **Tek amacli bir haber sitesi degil**
-- **Moduler, olceklenebilir ve genisleyebilir**
-- **Icerik + Ticaret + Kullanici yonetimini birlestiren**
-
-**cok yonlu bir platform** olarak tasarlanmaktadir.
-
-### Neden MASKER?
-
-| Ozellik | Aciklama |
-|---------|----------|
-| **Moduler Yapi** | Her modul bagimsiz gelistirilebilir ve deploy edilebilir |
-| **Olceklenebilirlik** | Yatay ve dikey olcekleme icin hazir altyapi |
-| **Genisleyebilirlik** | Yeni moduller kolayca eklenebilir |
-| **Kurumsal Hazirlik** | Rol bazli yetkilendirme ve audit log destegi |
-
-Bu platform, sadece bir haber sitesi olmanin otesinde, icerik yonetimi, kullanici etkilesimi ve medya yonetimi icin kapsamli bir cozum sunar. Moduler yapisi sayesinde farkli icerik turlerine kolayca adapte edilebilir.
-
----
-
-## 📊 Modul Durumu
-
-### Aktif Moduller
-
-| Modul | Durum | Aciklama | API | Admin UI |
-|-------|-------|----------|-----|----------|
-| **Haber Yonetimi** | ✅ Aktif | Icerik CRUD, kategori, yazar iliskisi | ✅ | ✅ |
-| **Kategori Yonetimi** | ✅ Aktif | Hiyerarsik kategori yapisi | ✅ | ✅ |
-| **Yazar Yonetimi** | ✅ Aktif | Legacy yazar sistemi | ✅ | ✅ |
-| **Yorum Yonetimi** | ✅ Aktif | Kullanici yorumlari, moderasyon | ✅ | ✅ |
-| **Slayt Yonetimi** | ✅ Aktif | Vitrin ve medya yonetimi | ✅ | ✅ |
-| **Kullanici Yonetimi** | ✅ Aktif | JWT auth, rol bazli yetkilendirme | ✅ | ✅ |
-| **Rol Yonetimi** | ✅ Aktif | Dinamik rol tanimlari | ✅ | ✅ |
-| **Blog Yonetimi** | ✅ Aktif | Blog yazilari, kategoriler, yorumlar | ✅ | ✅ |
-
-### Planlanan Moduller
-
-| Modul | Durum | Planlanan Tarih | Aciklama |
-|-------|-------|-----------------|----------|
-| **E-Ticaret** | 🔜 Planli | Q2 2026 | Urun, siparis, odeme yonetimi |
-| **Analitik Dashboard** | 🔜 Planli | Q2 2026 | Istatistikler, raporlar |
-| **Bildirim Sistemi** | 🔜 Planli | Q3 2026 | E-posta, push notification |
-| **Dosya Yonetimi** | 🔜 Planli | Q3 2026 | Merkezi medya kutuphanesi |
-| **CRM Modulu** | 📋 Degerlendirilecek | 2027 | Musteri iliskileri yonetimi |
-
-### Modul Entegrasyon Durumu
-
-```
-MASKER Platform
-│
-├── ✅ Core Moduller (Aktif)
-│   ├── Icerik Yonetimi (Haber, Kategori, Slayt)
-│   ├── Kullanici Yonetimi (Auth, Rol, Profil)
-│   ├── Etkilesim (Yorum, Editor)
-│   └── Blog Yonetimi (Blog Yazilari, Kategoriler, Yorumlar) [YENİ]
-│
-├── 🔜 Planlanan Moduller
-│   ├── E-Ticaret
-│   ├── Analitik
-│   └── Bildirim
-│
-└── 📋 Gelecek Moduller
-    ├── CRM
-    ├── Proje Yonetimi
-    └── [Diger Projeler]
-```
-
----
-
-### 👨‍💻 Gelistirici
-
-**Mehmet Asker**
-- 🔗 GitHub: [@m3hmtA-k3r](https://github.com/m3hmtA-k3r)
-- 📧 Proje Sahibi & Bas Gelistirici
-- 📅 Gelistirme Baslangici: 2025
-
-> *Bu proje bastan sona Mehmet Asker tarafindan tasarlanmis ve gelistirilmistir.*
-
----
-
-## 🔐 Guvenlik ve Yetkilendirme
-
-MASKER, kurumsal duzeyde guvenlik standartlarina uygun olarak tasarlanmistir.
-
-### Mevcut Durum (Aktif)
-
-| Ozellik | Teknoloji | Durum |
-|---------|-----------|-------|
-| **Sifre Hashleme** | BCrypt (WorkFactor: 12) | ✅ Aktif |
-| **Token Tabanli Kimlik Dogrulama** | JWT (JSON Web Token) | ✅ Aktif |
-| **Rol Bazli Yetkilendirme** | Claims-Based Authorization | ✅ Aktif |
-| **Oturum Yonetimi** | Cookie Authentication + Session | ✅ Aktif |
-
-### Yetkilendirme Mimarisi
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    KULLANICI GIRISI                         │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│              1. Yeni Sistem (KULLANICILAR)                  │
-│              - BCrypt sifre dogrulama                       │
-│              - JWT token uretimi                            │
-│              - Rol bilgisi claims'e eklenir                 │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                   Basarisiz ↓
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│              2. Fallback (YAZARLAR - Legacy)                │
-│              - Geriye donuk uyumluluk                       │
-│              - Mevcut yazar hesaplari                       │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Cookie Authentication                          │
-│              - HttpOnly cookie                              │
-│              - 30 dakika timeout                            │
-│              - Sliding expiration                           │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Veritabani Tablolari
-
-| Tablo | Aciklama |
-|-------|----------|
-| `KULLANICILAR` | Kullanici bilgileri (BCrypt hash ile) |
-| `ROLLER` | Sistem rolleri (Admin, Editor, vb.) |
-| `KULLANICI_ROLLER` | Kullanici-Rol iliskisi (Many-to-Many) |
-
-### Gelecek Yetkilendirme Plani
-
-Su an **rol bazli yetkilendirme aktiftir**. Ilerleyen asamalarda:
-
-| Ozellik | Aciklama | Oncelik |
-|---------|----------|---------|
-| **Modul Bazli Yetkiler** | Her modul icin ayri yetki tanimlari | Yuksek |
-| **Permission (Izin) Sistemi** | Granular izin kontrolu | Yuksek |
-| **Rol-Modul-Aksiyon Matrisi** | Detayli erisim kontrol matrisi | Orta |
-| **Audit Log** | Tum islemlerin kaydi | Orta |
-| **IP Bazli Erisim** | Beyaz/kara liste yonetimi | Dusuk |
-
-Bu yapi sayesinde sistem:
-- ✅ Yeni modullerle sorunsuz genisleyebilir
-- ✅ Kurumsal erisim kontrolu saglayabilir
-- ✅ Fine-grained yetkilendirmeye hazir hale gelir
-
----
-
-## 🧩 Admin Panel ve UI Kararlari
-
-Admin panel tasariminda asagidaki prensipler benimsenmistir:
-
-### Menu Yapisi
-
-| Karar | Aciklama |
-|-------|----------|
-| **Kullanici Yonetimi** | Sol menuden kaldirildi, sag ustte "Yonetim" dropdown altina tasindi |
-| **Profil Islemleri** | Sag ust dropdown menusunde |
-| **Icerik Modulleri** | Sol menude (Haber, Slayt, Kategori) |
-| **Kullanici Modulleri** | Sol menude (Yorum, Editor Yonetimi) |
-
-### Rol Bazli Menu Gorunurlugu
-
-```csharp
-// Sadece Admin rolu gorebilir
-@if (User.IsInRole("Admin"))
-{
-    <a href="/Kullanici">Kullanici Yonetimi</a>
-}
-```
-
-### UI Kararlari
-
-Bu kararlar:
-- ✅ Panel karmasikligini azaltir
-- ✅ Yetki bazli UI kontrolunu kolaylastirir
-- ✅ Ileride eklenecek modullerle cakismayi onler
-- ✅ Kullanici deneyimini iyilestirir
-
-### Toast Bildirim Sistemi
-
-Kullanici islemlerinde gorsel geri bildirim:
-- 🟢 **Success**: Basarili islemler
-- 🔴 **Error**: Hata durumlari
-- 🟡 **Warning**: Uyari mesajlari
-- 🔵 **Info**: Bilgilendirme
-
----
-
-## ✨ Temel Ozellikler
-
-### 📰 Haber Yönetimi
-- ✅ **CRUD İşlemleri**: Haber ekleme, düzenleme, silme ve listeleme
-- ✅ **Kategori Sistemi**: Çoklu kategori desteği ve hiyerarşik yapı
-- ✅ **Görsel Yönetimi**: Haber görselleri yükleme ve düzenleme
-- ✅ **İçerik Editörü**: Zengin metin editörü desteği
-- ✅ **Yayın Durumu**: Taslak, yayında, arşiv durumları
-
-### 👥 Kullanıcı Yönetimi
-- ✅ **Yazar Profilleri**: Detaylı yazar profilleri ve biyografileri
-- ✅ **Yetki Yönetimi**: Rol tabanlı erişim kontrolü
-- ✅ **Yorum Sistemi**: Kullanıcı yorumları ve moderasyon
-- ✅ **Admin Paneli**: Kapsamlı yönetim arayüzü
-
-### 🎨 Medya ve Görsellik
-- ✅ **Slider/Slayt Yönetimi**: Ana sayfa görsel slider'ı
-- ✅ **Galeri Sistemi**: Çoklu görsel yükleme
-- ✅ **Dosya Yönetimi**: Organize edilmiş medya kütüphanesi
-
-### 🔧 Teknik Özellikler
-- ✅ **RESTful API**: Eksiksiz API desteği
-- ✅ **Repository Pattern**: Veri erişim katmanı soyutlaması
-- ✅ **Dependency Injection**: IoC Container kullanımı
-- ✅ **Entity Framework Core**: Code-First yaklaşımı
-- ✅ **Migration Desteği**: Veritabanı versiyon kontrolü
-- ✅ **DTO Pattern**: Veri transfer nesneleri
-- ✅ **Responsive Tasarım**: Tüm cihazlarda uyumlu
+**pgAdmin Girişi:**
+- E-posta: admin@masker.com
+- Şifre: MaskerAdmin2026!
 
 ---
 
 ## 🏗️ Proje Mimarisi
 
-Proje, **N-Tier (Katmanli) Mimari** ve **Clean Architecture** prensiplerine gore yapilandirilmistir. Her katman, **SOLID** prensiplerine uygun olarak bagimsiz ve test edilebilir sekilde tasarlanmistir.
-
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    PRESENTATION LAYER                       │
-│              (AdminUI, WebUI, ApiUI)                        │
-│         Controllers, Views, ViewModels                      │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                    API ACCESS LAYER                         │
-│                      (ApiAccess)                            │
-│            HTTP Client, API Requests                        │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                    BUSINESS LAYER                           │
-│                      (Business)                             │
-│         Services, Managers, Business Rules                  │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                  INFRASTRUCTURE LAYER                       │
-│                   (Infrastructure)                          │
-│     Security (BCrypt), Identity (JWT), Caching, Storage     │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                   DATA ACCESS LAYER                         │
-│                     (DataAccess)                            │
-│         Repositories, DbContext, Migrations                 │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                     DOMAIN LAYER                            │
-│                (Domain + Shared)                            │
-│         Entities, DTOs, Interfaces, Helpers                 │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│         PRESENTATION LAYER                  │
+│     (AdminUI, WebUI, ApiUI)                 │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│          API ACCESS LAYER                   │
+│           (ApiAccess)                       │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│         BUSINESS LAYER                      │
+│     (Business + Application)                │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│       INFRASTRUCTURE LAYER                  │
+│  (Security, Identity, Cache, Storage)       │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│       DATA ACCESS LAYER                     │
+│  (DataAccess - Repositories, DbContext)     │
+└──────────────────┬──────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────┐
+│          DOMAIN LAYER                       │
+│     (Domain + Shared - Entities, DTOs)      │
+└─────────────────────────────────────────────┘
 ```
 
-### 📦 Katman Detayları
+### Katmanlar
 
-#### 1️⃣ **Shared** - Ortak Katman
-**Sorumluluk**: Tüm katmanlar tarafından kullanılan ortak yapılar
-
-```
-Shared/
-├── Entities/          # Domain modelleri (Haberler, Kategoriler, vb.)
-├── Dtos/             # Data Transfer Objects
-└── Helpers/          # Utility sınıfları ve extension metodları
-```
-
-**İçerik**:
-- `Haberler.cs` - Haber entity'si
-- `Kategoriler.cs` - Kategori entity'si
-- `Yazarlar.cs` - Yazar entity'si
-- `Yorumlar.cs` - Yorum entity'si
-- `Slaytlar.cs` - Slayt/slider entity'si
-
-#### 2️⃣ **DataAccess** - Veri Erişim Katmanı
-**Sorumluluk**: Veritabanı işlemleri ve veri kalıcılığı
-
-```
-DataAccess/
-├── Context/
-│   ├── HaberContext.cs        # DbContext sınıfı
-│   └── HaberContextFactory.cs # Design-time factory
-├── Abstract/
-│   └── Repository/            # Repository interface'leri
-├── Base/
-│   └── Repository/            # Repository implementasyonları
-└── Migrations/                # EF Core migration dosyaları
-```
-
-**Kullanılan Pattern'ler**:
-- Repository Pattern
-- Unit of Work Pattern
-- Generic Repository
-
-#### 3️⃣ **Business** - Is Katmani
-**Sorumluluk**: Is mantigi ve business kurallari
-
-```
-Business/
-├── Abstract/
-│   ├── IHaberService.cs
-│   ├── IKategoriService.cs
-│   ├── IYazarService.cs
-│   ├── IYorumService.cs
-│   ├── ISlaytService.cs
-│   ├── IAuthService.cs        # Kimlik dogrulama
-│   ├── IKullaniciService.cs   # Kullanici yonetimi
-│   └── IRolService.cs         # Rol yonetimi
-└── Base/
-    ├── HaberManager.cs
-    ├── KategoriManager.cs
-    ├── YazarManager.cs
-    ├── YorumManager.cs
-    ├── SlaytManager.cs
-    ├── AuthManager.cs          # Login, profil, sifre islemleri
-    ├── KullaniciManager.cs     # CRUD islemleri
-    └── RolManager.cs           # Rol CRUD
-```
-
-**Ozellikler**:
-- Veri validasyonu
-- Is kurallarinin uygulanmasi
-- Transaction yonetimi
-- Loglama
-
-#### 3.5️⃣ **Infrastructure** - Altyapi Katmani (YENİ)
-**Sorumluluk**: Cross-cutting concerns ve teknik altyapi
-
-```
-Infrastructure/
-├── Security/
-│   ├── IPasswordHasher.cs      # Sifre hashleme interface
-│   └── BCryptPasswordHasher.cs # BCrypt implementasyonu
-├── Identity/
-│   ├── IJwtTokenService.cs     # JWT interface
-│   └── JwtTokenService.cs      # JWT token uretimi/dogrulama
-├── Caching/
-│   ├── ICacheService.cs        # Cache interface
-│   └── InMemoryCacheService.cs # In-memory cache
-└── Storage/
-    ├── IFileStorageService.cs  # Dosya storage interface
-    └── LocalFileStorageService.cs # Yerel dosya sistemi
-```
-
-**Ozellikler**:
-- **BCrypt**: Guvenli sifre hashleme (WorkFactor: 12)
-- **JWT**: Token tabanli kimlik dogrulama
-- **Cache**: Performans optimizasyonu
-- **Storage**: Dosya yukleme/indirme
-
-#### 4️⃣ **ApiAccess** - API İstemci Katmanı
-**Sorumluluk**: API'lere erişim için hazır servisler
-
-```
-ApiAccess/
-├── Abstract/
-│   ├── ICommonApiRequest.cs
-│   ├── IHaberApiRequest.cs
-│   └── ...
-└── Base/
-    ├── CommonApiRequest.cs
-    ├── HaberApiRequest.cs
-    └── ...
-```
-
-**Özellikler**:
-- HTTP client wrapper
-- API endpoint yönetimi
-- Error handling
-- Response deserialization
-
-#### 5️⃣ **ApiUI** - RESTful API Katmanı
-**Sorumluluk**: HTTP API endpoint'leri
-
-```
-ApiUI/
-├── Controllers/
-│   ├── HaberController.cs
-│   ├── KategoriController.cs
-│   ├── YazarController.cs
-│   ├── YorumController.cs
-│   └── SlaytController.cs
-├── wwwroot/
-│   └── Uploads/              # Yüklenen dosyalar
-├── appsettings.json
-└── Program.cs
-```
-
-**Özellikler**:
-- RESTful API tasarımı
-- Swagger/OpenAPI dokümantasyonu
-- JWT Authentication (opsiyonel)
-- CORS policy
-
-#### 6️⃣ **AdminUI** - Yönetim Paneli
-**Sorumluluk**: Admin kullanıcıları için yönetim arayüzü
-
-```
-AdminUI/
-├── Controllers/
-│   ├── AccountController.cs    # Giriş/çıkış
-│   ├── HaberController.cs
-│   ├── KategoriController.cs
-│   ├── YazarController.cs
-│   ├── YorumController.cs
-│   └── SlaytController.cs
-├── Models/
-│   ├── LoginViewModel.cs
-│   ├── HaberViewModel.cs
-│   └── ...
-├── Views/
-│   ├── Shared/
-│   ├── Haber/
-│   ├── Kategori/
-│   └── ...
-└── wwwroot/
-    ├── assets/
-    └── lib/
-```
-
-**Özellikler**:
-- MVC yapısı
-- Authentication & Authorization
-- Rich form validations
-- AJAX işlemleri
-
-#### 7️⃣ **WebUI** - Kullanıcı Arayüzü
-**Sorumluluk**: Son kullanıcılar için web arayüzü
-
-```
-WebUI/
-├── Controllers/
-├── Models/
-├── Views/
-└── wwwroot/
-```
-
-**Özellikler**:
-- Responsive tasarım
-- SEO uyumlu
-- Hızlı sayfa yükleme
-- Kullanıcı dostu arayüz
+- **Domain/Shared**: Entities, DTOs, Interfaces
+- **DataAccess**: EF Core, Repositories, Migrations
+- **Infrastructure**: Security, JWT, Cache, File Storage
+- **Business**: Business Logic, Managers
+- **Application**: CQRS, MediatR (opsiyonel)
+- **ApiAccess**: HTTP Client wrappers
+- **ApiUI**: REST API Controllers
+- **AdminUI**: Backoffice MVC
+- **WebUI**: Frontend MVC
 
 ---
 
-## 🛠️ Kullanilan Teknolojiler
+## 📝 Son Güncellemeler (2026-01-31)
 
-### Backend Framework & Libraries
+### ✅ Tamamlanan
 
-| Teknoloji | Versiyon | Amac |
-|-----------|----------|------|
-| **ASP.NET Core** | 8.0 | Web framework |
-| **C#** | 12.0 | Programlama dili |
-| **Entity Framework Core** | 8.0 | ORM |
-| **PostgreSQL** | 16 | Veritabani |
-| **Razor Pages** | 8.0 | View engine |
+#### 1. **Dinamik Menü Sistemi** ⭐
+- Veritabanı tabloları oluşturuldu (MENULER, MENU_OGELERI, MENU_ROLLER, MENU_OGELERI_ROLLER)
+- 4 menü grubu + 14 menü öğesi seed data eklendi
+- MenuYonetim sayfası tam çalışır durumda
+- Rol bazlı menü erişim kontrolü
 
-### Guvenlik & Kimlik Dogrulama
+#### 2. **UI/UX İyileştirmeleri** 🎨
+- Modern CSS stilleri (aktif sayfa vurgusu, hover efektleri)
+- JavaScript: Otomatik aktif sayfa algılama
+- Accordion davranışı (tek menü açık)
+- Badge desteği (bildirimler için hazır)
+- Null-safe menü rendering
 
-| Teknoloji | Amac |
-|-----------|------|
-| **BCrypt.Net** | Sifre hashleme |
-| **JWT (JSON Web Token)** | Token tabanli auth |
-| **Cookie Authentication** | Oturum yonetimi |
-| **Claims-Based Authorization** | Rol bazli yetkilendirme |
+#### 3. **Bug Düzeltmeleri** 🐛
+- ✅ Slayt silme sorunu (GET → DELETE metod düzeltmesi)
+- ✅ Slayt güncelleme (POST → PUT metod düzeltmesi)
+- ✅ MenuOgeRoller entity tablo adı (`MENU_OGE_ROLLER` → `MENU_OGELERI_ROLLER`)
+- ✅ DinamikMenu null reference hatası
+- ✅ API port çakışması
 
-### Frontend Technologies
-
-| Teknoloji | Amaç |
-|-----------|------|
-| **Bootstrap 5** | CSS framework |
-| **jQuery** | JavaScript library |
-| **Font Awesome** | İkonlar |
-| **AJAX** | Asenkron işlemler |
-
-### Development Tools
-
-| Araç | Kullanım |
-|------|----------|
-| **Visual Studio 2022** | IDE |
-| **VS Code** | Lightweight editor |
-| **Git** | Version control |
-| **Docker** | Containerization |
-| **pgAdmin** | PostgreSQL yonetimi |
-| **Postman** | API testing |
-
-### Design Patterns
-
-- ✅ **Repository Pattern** - Veri erişim soyutlaması
-- ✅ **Dependency Injection** - IoC Container
-- ✅ **Factory Pattern** - Nesne oluşturma
-- ✅ **DTO Pattern** - Veri transfer
-- ✅ **MVC Pattern** - UI katmanı
-- ✅ **Service Layer Pattern** - İş mantığı
+#### 4. **Veritabanı** 💾
+- Menu sistemi SQL script'i: `Database/Scripts/01_Menu_Structure_Setup.sql`
+- Otomatik rol atama
+- Veritabanı ilişkileri düzgün çalışıyor
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
+## 🔧 Sorun Giderme
 
-### 📋 Ön Gereksinimler
+### 1. Docker: "command not found"
 
-Projeyi çalıştırmak için sisteminizde aşağıdakiler kurulu olmalıdır:
+**WSL2 Kullanıcıları:**
+1. Docker Desktop'ı açın (Windows tarafında)
+2. Settings > Resources > WSL Integration
+3. Ubuntu toggle'ını aktif edin
+4. Apply & Restart
 
-- **.NET 8.0 SDK** veya üzeri ([İndir](https://dotnet.microsoft.com/download))
-- **Docker Desktop** (PostgreSQL ve pgAdmin icin) ([İndir](https://www.docker.com/products/docker-desktop))
-- **Visual Studio 2022** veya **VS Code** ([İndir](https://visualstudio.microsoft.com/))
-- **Git** ([İndir](https://git-scm.com/))
-
-### 📥 Adım 1: Projeyi İndirin
+### 2. Port Çakışması
 
 ```bash
-# Projeyi klonlayın
-git clone https://github.com/m3hmtA-k3r/HaberSitesi.git
+# Port 5100'ü temizle (ApiUI)
+lsof -ti:5100 | xargs kill -9
 
-# Proje dizinine gidin
-cd HaberSitesi
+# Port 5251'i temizle (AdminUI)
+lsof -ti:5251 | xargs kill -9
+
+# Port 5167'yi temizle (WebUI)
+lsof -ti:5167 | xargs kill -9
 ```
 
-### 🗄️ Adım 2: Veritabanını Oluşturun
-
-**Docker ile PostgreSQL Baslatin:**
+### 3. Menü Görünmüyor
 
 ```bash
-cd /home/ubuntu_user/projects/MASKER
-docker-compose up -d
+# API'yi test et
+curl http://localhost:5100/api/Menu/GetTumMenuYapisi
+
+# Veritabanını kontrol et
+docker exec masker_postgres psql -U masker_admin -d MaskerDB -c "SELECT COUNT(*) FROM \"MENULER\";"
 ```
 
-Bu komut PostgreSQL (port 5432) ve pgAdmin (port 5050) servislerini baslatir.
-
-**Entity Framework Migration (otomatik):**
-
-Uygulama ilk calistiginda veritabani otomatik olusturulur (`EnsureCreated`).
-
-### ⚙️ Adım 3: Yapılandırma
-
-Connection string varsayilan olarak Docker PostgreSQL icin ayarlidir:
-
-**ApiUI/appsettings.json**:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=masker_db;Username=masker_user;Password=masker_pass_2026"
-  }
-}
+Eğer menü verisi yoksa:
+```bash
+docker exec -i masker_postgres psql -U masker_admin -d MaskerDB < Database/Scripts/01_Menu_Structure_Setup.sql
 ```
 
-> 💡 **Not**: Farkli bir PostgreSQL sunucusu kullaniyorsaniz connection string'i guncelleyin.
+### 4. NullReferenceException Hatası
 
-### 🔨 Adım 4: Projeyi Derleyin
+Razor view cache'ini temizleyin:
+```bash
+rm -rf AdminUI/obj/Debug/net8.0/Razor
+rm -rf AdminUI/bin/Debug/net8.0
+./start-masker.sh
+```
+
+### 5. Log Dosyalarını İzleme
 
 ```bash
-# Tüm bağımlılıkları yükleyin
-dotnet restore
+# ApiUI logs
+tail -f /tmp/apiui.log
 
-# Solution'ı derleyin
-dotnet build HaberSitesi.sln
-```
+# AdminUI logs
+tail -f /tmp/adminui.log
 
-### ▶️ Adım 5: Projeleri Çalıştırın
-
-#### API Projesini Çalıştırma
-
-```bash
-cd ApiUI
-dotnet run
-```
-
-🌐 API şu adreste çalışacaktır: `https://localhost:5001` (veya konsolda görünen port)
-
-#### Admin Panelini Çalıştırma
-
-```bash
-cd AdminUI
-dotnet run
-```
-
-🌐 Admin paneli şu adreste: `https://localhost:5002` (veya konsolda görünen port)
-
-#### Kullanıcı Arayüzünü Çalıştırma
-
-```bash
-cd WebUI
-dotnet run
-```
-
-🌐 Web sitesi şu adreste: `https://localhost:5003` (veya konsolda görünen port)
-
-### 🐳 Docker ile Çalıştırma (Opsiyonel)
-
-Proje, Dev Container desteğine sahiptir:
-
-1. VS Code'da projeyi açın
-2. **F1** > **Dev Containers: Reopen in Container** seçin
-3. Container içinde proje otomatik olarak yapılandırılacaktır
-
----
-
-## 💾 Veritabanı Yapısı
-
-### 📊 Entity Relationship Diagram (ERD)
-
-```
-┌──────────────┐         ┌──────────────┐         ┌──────────────┐
-│  Kategoriler │◄────┐   │   Haberler   │         │   Yazarlar   │
-├──────────────┤     │   ├──────────────┤         ├──────────────┤
-│ Id (PK)      │     └───┤ Id (PK)      │    ┌────┤ Id (PK)      │
-│ Adi          │         │ Baslik       │    │    │ AdSoyad      │
-│ Aciklama     │         │ Icerik       │◄───┘    │ Email        │
-│ Aktif        │         │ KategoriId(FK)│        │ Telefon      │
-│ ...          │         │ YazarId (FK) │         │ Biyografi    │
-└──────────────┘         │ GorselUrl    │         │ ...          │
-                         │ GoruntuSayisi│         └──────────────┘
-                         │ Aktif        │
-                         │ OlusturmaTrh │              │
-                         │ ...          │              │
-                         └──────────────┘              │
-                                │                      │
-                                │                      │
-                                ▼                      │
-                         ┌──────────────┐              │
-                         │   Yorumlar   │              │
-                         ├──────────────┤              │
-                         │ Id (PK)      │              │
-                         │ HaberId (FK) │──────────────┘
-                         │ AdSoyad      │
-                         │ Email        │
-                         │ Yorum        │
-                         │ Onaylandi    │
-                         │ OlusturmaTrh │
-                         │ ...          │
-                         └──────────────┘
-
-                         ┌──────────────┐
-                         │   Slaytlar   │
-                         ├──────────────┤
-                         │ Id (PK)      │
-                         │ Baslik       │
-                         │ Aciklama     │
-                         │ GorselUrl    │
-                         │ Link         │
-                         │ Sira         │
-                         │ Aktif        │
-                         │ ...          │
-                         └──────────────┘
-```
-
-### 🗂️ Ana Tablolar
-
-#### 📄 Haberler
-Haber içeriklerini saklar.
-
-| Kolon | Tip | Açıklama |
-|-------|-----|----------|
-| Id | int | Primary Key |
-| Baslik | nvarchar(200) | Haber başlığı |
-| Icerik | nvarchar(MAX) | Haber içeriği |
-| Ozet | nvarchar(500) | Haber özeti |
-| GorselUrl | nvarchar(500) | Görsel yolu |
-| KategoriId | int | Foreign Key (Kategoriler) |
-| YazarId | int | Foreign Key (Yazarlar) |
-| GoruntuSayisi | int | Görüntülenme sayısı |
-| Aktif | bit | Yayın durumu |
-| OlusturmaTarihi | datetime | Oluşturulma tarihi |
-| GuncellenmeTarihi | datetime | Güncellenme tarihi |
-
-#### 📁 Kategoriler
-Haber kategorilerini yönetir.
-
-| Kolon | Tip | Açıklama |
-|-------|-----|----------|
-| Id | int | Primary Key |
-| Adi | nvarchar(100) | Kategori adı |
-| Aciklama | nvarchar(500) | Açıklama |
-| Aktif | bit | Aktif/pasif durumu |
-| Sira | int | Sıralama |
-
-#### 👤 Yazarlar
-Yazar profillerini saklar.
-
-| Kolon | Tip | Açıklama |
-|-------|-----|----------|
-| Id | int | Primary Key |
-| AdSoyad | nvarchar(100) | Ad soyad |
-| Email | nvarchar(100) | E-posta |
-| Telefon | nvarchar(20) | Telefon |
-| Biyografi | nvarchar(1000) | Yazar biyografisi |
-| ProfilFoto | nvarchar(500) | Profil fotoğrafı |
-| Aktif | bit | Aktif/pasif durumu |
-
-#### 💬 Yorumlar
-Kullanıcı yorumlarını tutar.
-
-| Kolon | Tip | Açıklama |
-|-------|-----|----------|
-| Id | int | Primary Key |
-| HaberId | int | Foreign Key (Haberler) |
-| AdSoyad | nvarchar(100) | Yorum yapan |
-| Email | nvarchar(100) | E-posta |
-| Yorum | nvarchar(1000) | Yorum içeriği |
-| Onaylandi | bit | Onay durumu |
-| OlusturmaTarihi | datetime | Oluşturulma tarihi |
-
-#### 🖼️ Slaytlar
-Ana sayfa slider gorsellerini yonetir.
-
-| Kolon | Tip | Aciklama |
-|-------|-----|----------|
-| Id | int | Primary Key |
-| Baslik | nvarchar(200) | Slayt basligi |
-| Aciklama | nvarchar(500) | Aciklama |
-| GorselUrl | nvarchar(500) | Gorsel yolu |
-| Link | nvarchar(500) | Yonlendirilecek link |
-| Sira | int | Gosterim sirasi |
-| Aktif | bit | Aktif/pasif durumu |
-
-### 🔐 Kullanici Yonetimi Tablolari (YENİ)
-
-#### 👤 KULLANICILAR
-Sistem kullanicilarini saklar (BCrypt sifre hash ile).
-
-| Kolon | Tip | Aciklama |
-|-------|-----|----------|
-| ID | int | Primary Key |
-| AD | varchar(100) | Kullanici adi |
-| SOYAD | varchar(100) | Kullanici soyadi |
-| EPOSTA | varchar(255) | E-posta (unique) |
-| SIFRE_HASH | text | BCrypt hash |
-| RESIM | varchar(500) | Profil resmi |
-| AKTIF_MI | boolean | Aktif/pasif durumu |
-| OLUSTURMA_TARIHI | timestamp | Olusturulma tarihi |
-| SON_GIRIS_TARIHI | timestamp | Son giris tarihi |
-
-#### 🎭 ROLLER
-Sistem rollerini tanimlar.
-
-| Kolon | Tip | Aciklama |
-|-------|-----|----------|
-| ID | int | Primary Key |
-| ROL_ADI | varchar(50) | Rol adi (Admin, Editor, vb.) |
-| ACIKLAMA | varchar(255) | Rol aciklamasi |
-| AKTIF_MI | boolean | Aktif/pasif durumu |
-
-#### 🔗 KULLANICI_ROLLER
-Kullanici-Rol iliskisi (Many-to-Many).
-
-| Kolon | Tip | Aciklama |
-|-------|-----|----------|
-| ID | int | Primary Key |
-| KULLANICI_ID | int | Foreign Key (KULLANICILAR) |
-| ROL_ID | int | Foreign Key (ROLLER) |
-| ATANMA_TARIHI | timestamp | Rol atanma tarihi |
-
----
-
-## 📡 API Endpoints
-
-### 🔍 Swagger Dokümantasyonu
-
-API'yi çalıştırdıktan sonra Swagger UI'ya erişin:
-
-```
-https://localhost:5001/swagger
-```
-
-### 📋 Endpoint Listesi
-
-#### 🗞️ Haber API
-
-| Method | Endpoint | Açıklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Haber` | Tüm haberleri listele | ❌ |
-| GET | `/api/Haber/{id}` | ID'ye göre haber getir | ❌ |
-| GET | `/api/Haber/Kategori/{kategoriId}` | Kategoriye göre haberler | ❌ |
-| GET | `/api/Haber/Yazar/{yazarId}` | Yazara göre haberler | ❌ |
-| POST | `/api/Haber` | Yeni haber ekle | ✅ |
-| PUT | `/api/Haber/{id}` | Haber güncelle | ✅ |
-| DELETE | `/api/Haber/{id}` | Haber sil | ✅ |
-
-#### 📁 Kategori API
-
-| Method | Endpoint | Açıklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Kategori` | Tüm kategorileri listele | ❌ |
-| GET | `/api/Kategori/{id}` | ID'ye göre kategori getir | ❌ |
-| POST | `/api/Kategori` | Yeni kategori ekle | ✅ |
-| PUT | `/api/Kategori/{id}` | Kategori güncelle | ✅ |
-| DELETE | `/api/Kategori/{id}` | Kategori sil | ✅ |
-
-#### 👤 Yazar API
-
-| Method | Endpoint | Açıklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Yazar` | Tüm yazarları listele | ❌ |
-| GET | `/api/Yazar/{id}` | ID'ye göre yazar getir | ❌ |
-| POST | `/api/Yazar` | Yeni yazar ekle | ✅ |
-| PUT | `/api/Yazar/{id}` | Yazar güncelle | ✅ |
-| DELETE | `/api/Yazar/{id}` | Yazar sil | ✅ |
-
-#### 💬 Yorum API
-
-| Method | Endpoint | Açıklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Yorum` | Tüm yorumları listele | ✅ |
-| GET | `/api/Yorum/{id}` | ID'ye göre yorum getir | ✅ |
-| GET | `/api/Yorum/Haber/{haberId}` | Habere ait yorumlar | ❌ |
-| POST | `/api/Yorum` | Yeni yorum ekle | ❌ |
-| PUT | `/api/Yorum/{id}` | Yorum güncelle | ✅ |
-| DELETE | `/api/Yorum/{id}` | Yorum sil | ✅ |
-
-#### 🖼️ Slayt API
-
-| Method | Endpoint | Aciklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Slayt` | Tum slaytlari listele | ❌ |
-| GET | `/api/Slayt/{id}` | ID'ye gore slayt getir | ❌ |
-| POST | `/api/Slayt` | Yeni slayt ekle | ✅ |
-| PUT | `/api/Slayt/{id}` | Slayt guncelle | ✅ |
-| DELETE | `/api/Slayt/{id}` | Slayt sil | ✅ |
-
-#### 🔐 Auth API (YENİ)
-
-| Method | Endpoint | Aciklama | Auth |
-|--------|----------|----------|------|
-| POST | `/api/Auth/login` | Kullanici girisi, JWT token doner | ❌ |
-| GET | `/api/Auth/profil` | Mevcut kullanici profili | ✅ |
-| PUT | `/api/Auth/profil` | Profil guncelle | ✅ |
-| POST | `/api/Auth/sifre-degistir` | Sifre degistir | ✅ |
-
-#### 👥 Kullanici API (YENİ)
-
-| Method | Endpoint | Aciklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Kullanici` | Tum kullanicilari listele | ✅ Admin |
-| GET | `/api/Kullanici/{id}` | ID'ye gore kullanici getir | ✅ Admin |
-| POST | `/api/Kullanici` | Yeni kullanici ekle | ✅ Admin |
-| PUT | `/api/Kullanici/{id}` | Kullanici guncelle | ✅ Admin |
-| DELETE | `/api/Kullanici/{id}` | Kullanici sil | ✅ Admin |
-| POST | `/api/Kullanici/{id}/roller` | Kullaniciya rol ata | ✅ Admin |
-
-#### 🎭 Rol API (YENİ)
-
-| Method | Endpoint | Aciklama | Auth |
-|--------|----------|----------|------|
-| GET | `/api/Rol` | Tum rolleri listele | ✅ Admin |
-| GET | `/api/Rol/{id}` | ID'ye gore rol getir | ✅ Admin |
-| POST | `/api/Rol` | Yeni rol ekle | ✅ Admin |
-| PUT | `/api/Rol/{id}` | Rol guncelle | ✅ Admin |
-| DELETE | `/api/Rol/{id}` | Rol sil | ✅ Admin |
-
-### 📝 Örnek API Kullanımı
-
-#### Tüm Haberleri Getir
-
-```http
-GET https://localhost:5001/api/Haber
-Content-Type: application/json
-```
-
-**Response:**
-```json
-[
-  {
-    "id": 1,
-    "baslik": "Örnek Haber Başlığı",
-    "icerik": "Haber içeriği...",
-    "gorselUrl": "/uploads/haber1.jpg",
-    "kategoriAdi": "Teknoloji",
-    "yazarAdi": "Mehmet Asker",
-    "olusturmaTarihi": "2025-12-06T10:30:00"
-  }
-]
-```
-
-#### Yeni Haber Ekle
-
-```http
-POST https://localhost:5001/api/Haber
-Content-Type: application/json
-Authorization: Bearer {token}
-
-{
-  "baslik": "Yeni Haber Başlığı",
-  "icerik": "Haber içeriği burada...",
-  "ozet": "Kısa özet",
-  "kategoriId": 1,
-  "yazarId": 1,
-  "aktif": true
-}
+# WebUI logs
+tail -f /tmp/webui.log
 ```
 
 ---
 
-## 🤝 Katkıda Bulunma
+## 📚 Kullanım Kılavuzu
 
-Bu proje şu anda kişisel bir çalışmadır. Ancak katkılarınızı memnuniyetle karşılarım!
+### Menü Yönetimi
 
-### Nasıl Katkıda Bulunabilirsiniz?
+1. Admin olarak giriş yapın: http://localhost:5251
+2. Sağ üst "Yönetim" > "Menü Yönetimi"
+3. Yeni menü grubu veya öğe ekleyin
+4. Rol bazlı erişim ayarlayın
+5. Sıralama ve ikonları düzenleyin
 
-1. **Fork** edin (`https://github.com/m3hmtA-k3r/HaberSitesi/fork`)
-2. Feature branch oluşturun (`git checkout -b feature/harika-ozellik`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: Harika özellik eklendi'`)
-4. Branch'inizi push edin (`git push origin feature/harika-ozellik`)
-5. **Pull Request** açın
+### İçerik Yönetimi
 
-### Commit Mesaj Formatı
+**Haber Ekleme:**
+1. Sol menü > İçerik Yönetimi > Haber Yönetimi
+2. "Yeni Haber" butonu
+3. Başlık, içerik, kategori seçimi
+4. Görseller yükleyin
+5. Aktif/Pasif durumu ayarlayın
 
-```
-<tip>: <açıklama>
-
-[opsiyonel gövde]
-
-[opsiyonel footer]
-```
-
-**Tipler:**
-- `feat`: Yeni özellik
-- `fix`: Hata düzeltme
-- `docs`: Dokümantasyon
-- `style`: Kod formatı
-- `refactor`: Kod yeniden yapılandırma
-- `test`: Test ekleme/düzeltme
-- `chore`: Genel bakım
+**Slayt Yönetimi:**
+1. Sol menü > İçerik Yönetimi > Slayt Yönetimi
+2. Mevcut slaytları görüntüleyin
+3. Düzenle/Sil işlemleri yapın
+4. Yeni slayt ekleyin
 
 ---
 
-## 🐛 Hata Bildirimi
+## 🛡️ Güvenlik
 
-Bir hata bulduğunuzda lütfen [GitHub Issues](https://github.com/m3hmtA-k3r/HaberSitesi/issues) üzerinden bildirin:
+### Mevcut Güvenlik Özellikleri
 
-1. Hatanın detaylı açıklaması
-2. Adım adım nasıl tekrar üretilebileceği
-3. Beklenen davranış
-4. Ekran görüntüleri (varsa)
-5. Sistem bilgileri (OS, .NET version, vb.)
+- ✅ **BCrypt Password Hashing** (WorkFactor: 12)
+- ✅ **JWT Authentication** (Token-based)
+- ✅ **Role-Based Authorization** (4 rol seviyesi)
+- ✅ **Cookie Authentication** (HttpOnly, Secure)
+- ✅ **CORS Policy** (Yapılandırılabilir)
+- ✅ **Rate Limiting** (Spam koruması)
+- ✅ **Input Validation** (Model validation)
+- ✅ **SQL Injection** koruması (EF Core parametreli sorgular)
+
+### Güvenlik Yapılandırması
+
+**JWT Secret (Gerekli):**
+```bash
+export MASKER_JWT_SECRET="your-super-secret-key-here-min-32-chars"
+export MASKER_JWT_ISSUER="MaskerAPI"
+export MASKER_JWT_AUDIENCE="MaskerClients"
+```
+
+**CORS:**
+```bash
+export MASKER_CORS_ORIGINS="http://localhost:5167,https://yourdomain.com"
+```
 
 ---
 
-## 📚 Ek Kaynaklar
+## 📊 Veritabanı Yapısı
 
-### 📖 Dokümantasyon
-- [ASP.NET Core Docs](https://docs.microsoft.com/aspnet/core)
-- [Entity Framework Core Docs](https://docs.microsoft.com/ef/core)
-- [C# Documentation](https://docs.microsoft.com/dotnet/csharp)
+### Ana Tablolar
 
-### 🎓 Öğrenme Kaynakları
-- [Microsoft Learn](https://docs.microsoft.com/learn)
-- [.NET Blog](https://devblogs.microsoft.com/dotnet)
+| Tablo | Açıklama | Kayıt Sayısı |
+|-------|----------|--------------|
+| HABERLER | Haber içerikleri | - |
+| KATEGORILER | Haber kategorileri | - |
+| SLAYTLAR | Ana sayfa slaytları | - |
+| YORUMLAR | Haber yorumları | - |
+| BLOGLAR | Blog yazıları | - |
+| KULLANICILAR | Sistem kullanıcıları | 1 (admin) |
+| ROLLER | Kullanıcı rolleri | 4 |
+| **MENULER** ⭐ | Menü grupları | 4 |
+| **MENU_OGELERI** ⭐ | Menü öğeleri | 14 |
+| **MENU_ROLLER** ⭐ | Menü-rol ilişkisi | - |
+| **MENU_OGELERI_ROLLER** ⭐ | Öğe-rol ilişkisi | - |
+
+---
+
+## 🎨 Teknolojiler
+
+### Backend
+- .NET 8.0
+- ASP.NET Core MVC
+- Entity Framework Core
+- PostgreSQL 16
+- Redis 7 (Cache)
+
+### Frontend
+- Razor Views
+- Bootstrap 5
+- Font Awesome 5
+- jQuery
+- Custom CSS/JS
+
+### DevOps
+- Docker & Docker Compose
+- GitHub Actions (CI/CD hazır)
+- Swagger/OpenAPI
+
+---
+
+## 👨‍💻 Geliştirici
+
+**Mehmet Asker**
+- GitHub: [@m3hmtA-k3r](https://github.com/m3hmtA-k3r)
+- Proje Sahibi & Baş Geliştirici
+- Başlangıç: 2025
 
 ---
 
 ## 📄 Lisans
 
-**© 2025 Mehmet Asker - Tüm Hakları Saklıdır**
-
-Bu proje ve içeriği Mehmet Asker'e aittir. Ticari veya kişisel kullanım için izin alınması gerekmektedir.
+Bu proje proprietary lisans altındadır. Tüm hakları saklıdır.
 
 ---
 
-## 📧 İletişim
-
-**Mehmet Asker**
-
-- 🔗 GitHub: [@m3hmtA-k3r](https://github.com/m3hmtA-k3r)
-- 📧 E-posta: Proje sayfası üzerinden ulaşabilirsiniz
-- 💼 LinkedIn: *Eklenecek*
-
----
-
-## 🌟 Proje Durumu
-
-![Status](https://img.shields.io/badge/Status-Aktif%20Gelistirme-success.svg)
-![Maintenance](https://img.shields.io/badge/Maintenance-Evet-green.svg)
-![Version](https://img.shields.io/badge/Version-2.2.0-blue.svg)
-![Auth](https://img.shields.io/badge/Auth-JWT%20%2B%20BCrypt-orange.svg)
-
-**Son Guncelleme:** 27 Ocak 2026
-
-### Versiyon Gecmisi
-
-| Versiyon | Tarih | Degisiklikler |
-|----------|-------|---------------|
-| **2.2.0** | 27 Ocak 2026 | AdminUI tam modernizasyon, WebUI entegrasyonu ve modernizasyon |
-| **2.1.0** | 27 Ocak 2026 | Blog Modulu tamamlandi (Blog, Kategori, Yorum) |
-| **2.0.0** | 25 Ocak 2026 | JWT Auth, BCrypt, Rol sistemi, PostgreSQL |
-| **1.5.0** | 20 Ocak 2026 | Admin panel modernizasyonu |
-| **1.0.0** | 6 Aralik 2025 | Ilk surum |
-
----
-
-## 📋 Son Güncellemeler (v2.2.0 - 27 Ocak 2026)
-
-### 🎨 AdminUI Tam Modernizasyon
-
-Tüm modüllerin form sayfaları (Ekle.cshtml ve Guncelle.cshtml) modern tasarımla yeniden düzenlendi.
-
-#### Modernize Edilen Modüller:
-- ✅ Haber (Ekle, Guncelle)
-- ✅ Kategori (Ekle, Guncelle)
-- ✅ Yazar (Ekle, Guncelle)
-- ✅ Yorum (Ekle, Guncelle)
-- ✅ Slayt (Ekle, Guncelle)
-- ✅ Blog (Ekle, Guncelle)
-- ✅ BlogKategori (Ekle, Guncelle)
-- ✅ BlogYorum (Ekle, Guncelle)
-- ✅ Kullanici (Ekle, Guncelle)
-
-#### Modern Tasarım Özellikleri:
-```css
-/* Gradient Header */
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-
-/* Card Style Forms */
-- Box-shadow: 0 4px 15px rgba(0,0,0,0.1)
-- Border-radius: 15px
-- Icon-based section titles
-
-/* Responsive Design */
-- Mobil uyumlu (768px, 991px breakpoints)
-- Touch-friendly form controls
-- Flexible grid layout
-
-/* Interactive Elements */
-- Hover effects
-- Focus states
-- Smooth transitions
-```
-
-#### Teknik Detaylar:
-- **Razor Syntax Fix**: CSS içinde `@media` → `@@media` (Razor escape)
-- **Form Validation**: Bootstrap 5 validation classes
-- **Icon Integration**: Font Awesome 6.5.2
-- **Media Preview**: Mevcut görseller için önizleme bölümü
-
----
-
-### 🔥 Toplu Silme (Bulk Delete) Özelliği
-
-Tüm AdminUI modüllerine checkbox tabanlı toplu silme işlevi eklendi.
-
-#### Eklenen Controller Metotları:
-```csharp
-[HttpPost]
-public IActionResult SilAjax(int id)
-{
-    try
-    {
-        _service.Delete(id);
-        return Json(new { success = true, message = "Kayıt silindi." });
-    }
-    catch (Exception ex)
-    {
-        return Json(new { success = false, message = ex.Message });
-    }
-}
-```
-
-#### Özellikler:
-- ✅ Checkbox ile çoklu seçim
-- ✅ "Seçili Sil" butonu (dinamik görünürlük)
-- ✅ AJAX tabanlı silme işlemi
-- ✅ Toast bildirimleri (başarı/hata)
-- ✅ Otomatik sayfa yenileme
-
-#### Entegre Edilen Modüller:
-- Slayt, Kategori, Yazar, Yorum
-- Blog, BlogKategori, BlogYorum
-- Kullanici
-
----
-
-### 🌐 WebUI Entegrasyonu ve Modernizasyon
-
-Bağımsız WebUI projesi, MASKER ana projesiğine entegre edildi ve tamamen modernize edildi.
-
-#### Entegrasyon Adımları:
-1. **Proje Taşıma**: `/home/ubuntu_user/projects/WebUI` → `/home/ubuntu_user/projects/MASKER/WebUI`
-2. **Referans Güncelleme**: `WebUI.csproj` içinde project reference path düzeltmeleri
-3. **Solution Entegrasyonu**: `HaberSitesi.sln` dosyasına WebUI eklendi
-4. **API Bağlantısı**: ApiAccess layer üzerinden ApiUI'ye bağlandı
-
-#### WebUI Controller Güncellemeleri:
-
-**HomeController.cs**:
-```csharp
-// Sadece aktif içerikleri getir
-var slaytlar = _slaytService.GetAllSlayt()
-    ?.Where(x => x.Aktifmi)
-    .OrderByDescending(x => x.Id)
-    .ToList();
-
-var haberler = _haberService.GetAllHaber()
-    ?.Where(x => x.Aktifmi)
-    .OrderByDescending(x => x.EklenmeTarihi)
-    .Take(12)
-    .ToList();
-
-// Null safety ile model oluşturma
-AnasayfaViewModel model = new AnasayfaViewModel
-{
-    Slaytlar = slaytlar ?? new List<SlaytlarDto>(),
-    Haberler = haberler ?? new List<HaberlerDto>()
-};
-```
-
-**HaberlerController.cs**:
-```csharp
-// Aktif kontrol ve görüntülenme sayacı
-public IActionResult Detay(int id)
-{
-    var haber = _haberApiRequest.GetHaberById(id);
-
-    // Aktif olmayan haberleri gösterme
-    if (haber == null || !haber.Aktifmi)
-        return RedirectToAction("Index");
-
-    // Görüntülenme sayısını artır
-    haber.GosterimSayisi++;
-    _haberApiRequest.UpdateHaber(haber);
-
-    return View(model);
-}
-```
-
-#### WebUI Modern Tasarım:
-
-**Home/Index.cshtml** - Ana Sayfa:
-```html
-<!-- Hero Slider -->
-- Owl Carousel entegrasyonu
-- Lazy loading desteği (owl-lazy class)
-- Gradient overlay efektleri
-- Responsive image handling
-
-<!-- Breaking News Carousel -->
-- Son 5 haber döngüsü
-- Otomatik scroll
-- Mobil uyumlu
-
-<!-- News Grid -->
-- Card-based layout
-- Hover transform effects
-- Category badges
-- View counter display
-- Excerpt truncation (120 karakter)
-
-<!-- Popular Sidebar -->
-- En çok okunanlar (GosterimSayisi)
-- Compact card design
-- Image thumbnail preview
-```
-
-**Haberler/Index.cshtml** - Haber Listesi:
-```html
-<!-- Features -->
-- Sticky category sidebar
-- Filtered news by category
-- Pagination support
-- Responsive grid (3 column → 1 column)
-```
-
-**Haberler/Detay.cshtml** - Haber Detay:
-```html
-<!-- Features -->
-- Full-width header image
-- Rich content display
-- Video embed support
-- Related news section
-- Comment system integration
-- Social share buttons
-```
-
-#### CSS Modern Patterns:
-```css
-/* Gradient Backgrounds */
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-/* Card Hover Effects */
-.news-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-/* Image Zoom on Hover */
-.news-card:hover .news-card-img img {
-    transform: scale(1.1);
-}
-
-/* Smooth Transitions */
-transition: all 0.3s ease;
-```
-
----
-
-### 🐛 Bug Fixes ve Optimizasyonlar
-
-#### Lazy Loading Düzeltmesi:
-**Sorun**: Hero slider görsellerinde `data-src` kullanıldı ancak Owl Carousel lazy loading yapılandırılmamıştı.
-
-**Çözüm**:
-```javascript
-// wwwroot/js/main.js
-$(".main-carousel").owlCarousel({
-    autoplay: true,
-    smartSpeed: 1500,
-    items: 1,
-    dots: true,
-    loop: true,
-    center: true,
-    lazyLoad: true  // ✅ Eklendi
-});
-```
-
-```html
-<!-- Hero slider görselleri -->
-<img class="owl-lazy" data-src="..." alt="...">
-
-<!-- Diğer görseller -->
-<img src="..." alt="..." loading="lazy">
-```
-
-#### Session Cookie Uyarıları:
-- DataProtection key rotasyonu nedeniyle session cookie hataları
-- Uygulama yeniden başlatıldığında otomatik düzelir
-- Güvenlik üzerinde etkisi yok (sadece kullanıcı oturumu sıfırlanır)
-
-#### Razor Syntax Hataları:
-**Sorun**: CSS `@media` Razor tarafından kod olarak yorumlandı.
-
-**Çözüm**:
-```cshtml
-/* YANLIŞ */
-@media (max-width: 768px) { ... }
-
-/* DOĞRU */
-@@media (max-width: 768px) { ... }
-```
-
----
-
-### 📦 Dosya Yapısı Güncellemeleri
-
-#### Yeni Dizin Yapısı:
-```
-MASKER/
-├── ApiUI/              (Port: 5100)
-├── AdminUI/            (Port: 5251)
-├── WebUI/              (Port: 5167) ✅ YENİ
-│   ├── Controllers/
-│   │   ├── HomeController.cs        ✅ Güncellendi
-│   │   └── HaberlerController.cs    ✅ Güncellendi
-│   ├── Views/
-│   │   ├── Home/
-│   │   │   └── Index.cshtml         ✅ Modernize edildi
-│   │   └── Haberler/
-│   │       ├── Index.cshtml         ✅ Modernize edildi
-│   │       └── Detay.cshtml         ✅ Modernize edildi
-│   └── wwwroot/
-│       └── js/
-│           └── main.js              ✅ Owl Carousel lazy load eklendi
-├── ApiAccess/
-├── Business/
-├── DataAccess/
-├── Infrastructure/
-└── Shared/
-```
-
-#### AdminUI Form Sayfaları (Her Modül İçin):
-```
-AdminUI/Views/[ModulAdi]/
-├── Index.cshtml        (Liste - Zaten moderndi)
-├── Ekle.cshtml         ✅ Modernize edildi
-└── Guncelle.cshtml     ✅ Modernize edildi
-```
-
----
-
-### 🔧 Teknik İyileştirmeler
-
-#### Performans:
-- **Lazy Loading**: Görseller viewport'a girene kadar yüklenmiyor
-- **Carousel Optimization**: Smooth animation (smartSpeed: 1500ms)
-- **Query Optimization**: `.Where(x => x.Aktifmi)` ile aktif kayıt filtresi
-
-#### Güvenlik:
-- **Null Safety**: Tüm API çağrılarında null check (`??` operator)
-- **XSS Protection**: `@Html.DisplayFor()` ve encoded output
-
-#### Kullanılabilirlik:
-- **Responsive Breakpoints**: 768px (mobile), 991px (tablet), 1200px (desktop)
-- **Touch Friendly**: Minimum 44x44px button size
-- **Accessibility**: Alt text, ARIA labels, semantic HTML
-
----
-
-### 📝 Geliştirici Notları
-
-#### AdminUI Form Modernizasyonu:
-1. Tüm modüller için tutarlı tasarım dili
-2. Gradient renkleri (Ekle: mavi-mor, Guncelle: turuncu-kırmızı)
-3. Icon-based section headers
-4. Preview bölümü (Guncelle sayfalarında mevcut medya görüntüleme)
-
-#### WebUI Entegrasyonu:
-1. ApiAccess layer üzerinden ApiUI'ye bağlanır
-2. JWT veya Cookie authentication desteği
-3. Session yönetimi (30 dakika timeout)
-4. Static files URL: `appsettings.json` → `Ayarlar:StaticFilesUrl`
-
-#### Bulk Delete Implementasyonu:
-1. Frontend: Checkbox + jQuery selection logic
-2. Backend: `[HttpPost] SilAjax(int id)` metodu
-3. Response: `{ success: bool, message: string }`
-4. UI Feedback: Toast notifications (success/error)
-
----
-
-### 🚀 Deployment Notları
-
-#### WebUI Başlatma:
-```bash
-cd /home/ubuntu_user/projects/MASKER/WebUI
-/home/ubuntu_user/.dotnet/dotnet run --urls "http://localhost:5167"
-```
-
-#### Tüm Servisleri Başlatma:
-```bash
-# 1. PostgreSQL + pgAdmin
-docker-compose up -d
-
-# 2. ApiUI (Port: 5100)
-cd ApiUI && nohup dotnet run --launch-profile http > /tmp/apiui.log 2>&1 &
-
-# 3. AdminUI (Port: 5251)
-cd AdminUI && nohup dotnet run --launch-profile http > /tmp/adminui.log 2>&1 &
-
-# 4. WebUI (Port: 5167)
-cd WebUI && nohup dotnet run --urls "http://localhost:5167" > /tmp/webui.log 2>&1 &
-```
-
-#### Erişim Adresleri:
-| Servis | URL | Açıklama |
-|--------|-----|----------|
-| **WebUI** | http://localhost:5167 | Son kullanıcı arayüzü ✅ YENİ |
-| **AdminUI** | http://localhost:5251 | Yönetim paneli |
-| **ApiUI** | http://localhost:5100 | REST API |
-| **Swagger** | http://localhost:5100/swagger | API dokümantasyonu |
-| **pgAdmin** | http://localhost:5050 | Veritabanı yönetimi |
-
----
-
-### ✅ Test Edilen Özellikler
-
-#### AdminUI:
-- [x] Tüm modül form sayfaları (Ekle/Guncelle) görsel kontrol
-- [x] Razor syntax hataları giderildi (`@@media`)
-- [x] Responsive tasarım testi (mobile, tablet, desktop)
-- [x] Toplu silme işlevi (checkbox selection)
-- [x] AJAX silme ve toast bildirimleri
-
-#### WebUI:
-- [x] Ana sayfa genisleyen kartlar (Expanding Panels)
-- [x] Breaking news carousel otomatik scroll
-- [x] Haber kartlari hover efektleri
-- [x] Populer haberler sidebar
-- [x] Haber detay sayfasi goruntulenme sayaci
-- [x] Kategori filtreleme
-- [x] Responsive tasarim (mobile, tablet, desktop)
-- [x] Gorsel yukleme duzeltildi (Phase 1)
-- [x] Arama fonksiyonu eklendi (Phase 1)
-- [x] Iletisim sayfasi eklendi (Phase 1)
-- [x] Blog entegrasyonu - **Phase 2** ✅
-- [x] Yazar profil sayfasi - **Phase 2** ✅
-
-#### API Entegrasyonu:
-- [x] WebUI -> ApiAccess -> ApiUI baglantisi
-- [x] Aktif kayit filtreleme
-- [x] Null safety ve error handling
-- [x] Static files URL yapilandirmasi
-- [x] Blog API entegrasyonu - **Phase 2** ✅
-
----
-
-## 🌐 WebUI Gelistirme Plani
-
-WebUI (Kullanici Arayuzu) icin yapilmasi gereken gelistirmeler asagida oncelik sirasina gore listelenmi§tir.
-
-### Mevcut Durum
-
-| Bilesen | Durum | Aciklama |
-|---------|-------|----------|
-| Ana Sayfa | ✅ Calisiyor | Genisleyen kartlar (expanding panels), haber kartlari |
-| Haberler Listesi | ✅ Calisiyor | Kategori filtresi, sayfalama |
-| Haber Detay | ✅ Calisiyor | Yorum sistemi, ilgili haberler, yazar linki |
-| Blog | ✅ Calisiyor | Blog listesi, detay, kategori filtresi, yorum sistemi |
-| Yazar Profil | ✅ Calisiyor | Yazar bilgileri, yazarin haberleri |
-| Arama | ✅ Calisiyor | Haber arama fonksiyonu |
-| Iletisim | ✅ Calisiyor | Iletisim formu, harita |
-| SEO | ✅ Calisiyor | Meta tags, Open Graph, Twitter Card |
-| API Entegrasyonu | ✅ Calisiyor | 8 modul entegre (Haber, Kategori, Yazar, Yorum, Slayt, Blog, BlogKategori, BlogYorum) |
-
-### 🔴 PHASE 1: Kritik Duzeltmeler ✅ TAMAMLANDI
-
-| # | Gorev | Dosya | Durum |
-|---|-------|-------|-------|
-| 1.1 | Gorsel src hatasi duzelt | `Haberler/Index.cshtml`, `Detay.cshtml` | ✅ |
-| 1.2 | Ana sayfa genisleyen kartlar (1.proje referans) | `Home/Index.cshtml` | ✅ |
-| 1.3 | Arama fonksiyonu | `SearchController.cs`, `SearchViewModel.cs`, `Search/Index.cshtml` | ✅ |
-| 1.4 | Iletisim sayfasi | `IletisimController.cs`, `Iletisim/Index.cshtml` | ✅ |
-
-### 🟠 PHASE 2: Temel Ozellikler ✅ TAMAMLANDI
-
-| # | Gorev | Dosya | Durum |
-|---|-------|-------|-------|
-| 2.1 | Blog modulu entegrasyonu | `BlogController.cs`, `BlogViewModel.cs`, `Blog/Index.cshtml`, `Blog/Detay.cshtml` | ✅ |
-| 2.2 | Sayfalama (Pagination) | `PaginationViewModel.cs`, `_Pagination.cshtml`, `HaberlerController.cs`, `BlogController.cs` | ✅ |
-| 2.3 | Ilgili haberler | `HaberDetayViewModel.cs`, `Haberler/Detay.cshtml` | ✅ |
-| 2.4 | Yazar profil sayfasi | `YazarController.cs`, `YazarViewModel.cs`, `Yazar/Profil.cshtml` | ✅ |
-| 2.5 | SEO meta tags | `_Layout.cshtml`, tum view dosyalari | ✅ |
-
-### 🟡 PHASE 3: Gelismis Ozellikler
-
-| # | Gorev | Dosya | Durum |
-|---|-------|-------|-------|
-| 3.1 | Sosyal paylasim butonlari | `Detay.cshtml` | [ ] |
-| 3.2 | Breadcrumb navigasyon | `_Layout.cshtml` | [ ] |
-| 3.3 | Footer gelistirme | `_Layout.cshtml` | [ ] |
-| 3.4 | 404 hata sayfasi | `Error/NotFound.cshtml` | [ ] |
-| 3.5 | Siralama secenekleri | `Haberler/Index.cshtml` | [ ] |
-
-### Dosya Yapisi (Guncel)
-
-```
-WebUI/
-├── Program.cs                 ✅ Guncellendi (Blog servisleri DI eklendi)
-├── Controllers/
-│   ├── HomeController.cs      ✅ Mevcut
-│   ├── HaberlerController.cs  ✅ Guncellendi (Pagination, IlgiliHaberler)
-│   ├── SearchController.cs    ✅ Eklendi (Phase 1)
-│   ├── IletisimController.cs  ✅ Eklendi (Phase 1)
-│   ├── BlogController.cs      ✅ Eklendi (Phase 2)
-│   └── YazarController.cs     ✅ Eklendi (Phase 2)
-├── Views/
-│   ├── Home/
-│   │   └── Index.cshtml       ✅ Guncellendi (Genisleyen kartlar)
-│   ├── Haberler/
-│   │   ├── Index.cshtml       ✅ Guncellendi (src duzeltme, pagination, SEO)
-│   │   └── Detay.cshtml       ✅ Guncellendi (src duzeltme, ilgili haberler, yazar linki, SEO)
-│   ├── Search/
-│   │   └── Index.cshtml       ✅ Eklendi (Phase 1)
-│   ├── Iletisim/
-│   │   └── Index.cshtml       ✅ Eklendi (Phase 1)
-│   ├── Blog/
-│   │   ├── Index.cshtml       ✅ Eklendi (Phase 2)
-│   │   └── Detay.cshtml       ✅ Eklendi (Phase 2)
-│   ├── Yazar/
-│   │   └── Profil.cshtml      ✅ Eklendi (Phase 2)
-│   └── Shared/
-│       ├── _Layout.cshtml     ✅ Guncellendi (Arama formu, Blog linki, SEO meta tags)
-│       └── _Pagination.cshtml ✅ Eklendi (Phase 2)
-└── Models/
-    ├── AnasayfaViewModel.cs   ✅ Mevcut
-    ├── HaberlerViewModel.cs   ✅ Guncellendi (Pagination eklendi)
-    ├── HaberDetayViewModel.cs ✅ Guncellendi (IlgiliHaberler eklendi)
-    ├── SearchViewModel.cs     ✅ Eklendi (Phase 1)
-    ├── BlogViewModel.cs       ✅ Eklendi (Phase 2)
-    ├── YazarViewModel.cs      ✅ Eklendi (Phase 2)
-    └── PaginationViewModel.cs ✅ Eklendi (Phase 2)
-```
-
----
-
-## 🎯 Gelecek Planlari
-
-### Yakin Gelecek (Q1 2026)
-- [x] ~~JWT Authentication~~ ✅ Tamamlandi
-- [x] ~~BCrypt sifre hashleme~~ ✅ Tamamlandi
-- [x] ~~Rol bazli yetkilendirme~~ ✅ Tamamlandi
-- [x] ~~PostgreSQL entegrasyonu~~ ✅ Tamamlandi
-- [x] ~~Blog Modulu (API)~~ ✅ Tamamlandi
-- [x] ~~WebUI Phase 1 (Kritik duzeltmeler)~~ ✅ Tamamlandi
-- [x] ~~WebUI Phase 2 (Temel ozellikler)~~ ✅ Tamamlandi
-
-### Orta Vadeli (Q2 2026)
-- [ ] WebUI Phase 3 (Gelismis ozellikler)
-- [ ] SEO optimizasyonlari
-- [ ] Redis cache destegi
-- [ ] E-ticaret modulu
-
-### Uzun Vadeli
-- [ ] Mobile app (React Native / Flutter)
-- [ ] Multi-language support
-- [ ] Advanced analytics dashboard
-
----
-
-## 🆕 Yeni Modul Ekleme Rehberi
-
-MASKER'e yeni bir modul/proje entegre etmek icin asagidaki adimlari izleyin:
-
-### Adim 1: Domain Layer (Entity)
-
-```csharp
-// Domain/Entities/YeniModul.cs
-[Table("YENI_MODUL")]
-public class YeniModul
-{
-    [Key]
-    [Column("ID")]
-    public int Id { get; set; }
-
-    [Column("AD")]
-    public string Ad { get; set; }
-
-    // Diger propertyler...
-}
-```
-
-### Adim 2: Data Access Layer (Repository)
-
-```csharp
-// DataAccess/Abstract/Repository/IYeniModulRepository.cs
-public interface IYeniModulRepository : IRepository<YeniModul>
-{
-    // Ozel metodlar
-}
-
-// DataAccess/Base/Repository/YeniModulRepository.cs
-public class YeniModulRepository : Repository<YeniModul>, IYeniModulRepository
-{
-    public YeniModulRepository(HaberContext context) : base(context) { }
-}
-```
-
-### Adim 3: Business Layer (Service)
-
-```csharp
-// Business/Abstract/IYeniModulService.cs
-public interface IYeniModulService
-{
-    List<YeniModulDto> GetAll();
-    YeniModulDto GetById(int id);
-    YeniModulDto Create(YeniModulDto model);
-    YeniModulDto Update(YeniModulDto model);
-    bool Delete(int id);
-}
-
-// Business/Base/YeniModulManager.cs
-public class YeniModulManager : IYeniModulService
-{
-    private readonly IUnitOfWork _unitOfWork;
-    // Implementasyon...
-}
-```
-
-### Adim 4: API Layer (Controller)
-
-```csharp
-// ApiUI/Controllers/YeniModulController.cs
-[ApiController]
-[Route("api/[controller]")]
-public class YeniModulController : ControllerBase
-{
-    private readonly IYeniModulService _service;
-
-    [HttpGet]
-    public IActionResult GetAll() => Ok(_service.GetAll());
-
-    [HttpGet("{id}")]
-    public IActionResult GetById(int id) => Ok(_service.GetById(id));
-
-    // Diger endpointler...
-}
-```
-
-### Adim 5: Admin UI (Views)
-
-```
-AdminUI/
-├── Controllers/
-│   └── YeniModulController.cs
-├── Models/
-│   └── YeniModulViewModel.cs
-└── Views/
-    └── YeniModul/
-        ├── Index.cshtml
-        ├── Ekle.cshtml
-        └── Guncelle.cshtml
-```
-
-### Adim 6: Menu ve Yetkilendirme
-
-```html
-<!-- AdminUI/Views/Shared/_Layout.cshtml -->
-@if (User.IsInRole("Admin") || User.IsInRole("YeniModulYetkisi"))
-{
-    <li>
-        <a href="/YeniModul">
-            <i class="fas fa-cube"></i> Yeni Modul
-        </a>
-    </li>
-}
-```
-
-### Adim 7: Dependency Injection
-
-```csharp
-// Program.cs veya Startup.cs
-builder.Services.AddScoped<IYeniModulRepository, YeniModulRepository>();
-builder.Services.AddScoped<IYeniModulService, YeniModulManager>();
-```
-
-### Modul Entegrasyon Kontrol Listesi
-
-- [ ] Entity olusturuldu (Domain)
-- [ ] Repository interface ve implementasyonu (DataAccess)
-- [ ] UnitOfWork'e repository eklendi
-- [ ] Service interface ve implementasyonu (Business)
-- [ ] DTO olusturuldu (Shared/Application)
-- [ ] API Controller olusturuldu (ApiUI)
-- [ ] Admin Controller olusturuldu (AdminUI)
-- [ ] ViewModeller olusturuldu (AdminUI)
-- [ ] View'lar olusturuldu (Index, Ekle, Guncelle)
-- [ ] Menu'ye link eklendi (_Layout.cshtml)
-- [ ] Rol/yetki tanimlamalari yapildi
-- [ ] DI kayitlari eklendi (Program.cs)
-- [ ] Migration olusturuldu ve uygulandi
-- [ ] Multi-tenant yapi
+## 🆘 Destek
+
+Sorun bildirmek veya öneride bulunmak için:
+- GitHub Issues: [MASKER Issues](https://github.com/m3hmtA-k3r/MASKER/issues)
+- E-posta: [İletişim]
 
 ---
 
 <div align="center">
 
-### ⭐ Bu projeyi begendinizse yildiz vermeyi unutmayin!
+**⭐ MASKER - Kurumsal İçerik Yönetim Platformu**
 
-**Made with ❤️ by [Mehmet Asker](https://github.com/m3hmtA-k3r)**
-
----
-
-**MASKER** - Modular Application System for Knowledge, Enterprise & Resources
-
-*Bu README, alinan mimari kararlarin ve yetkilendirme stratejisinin*
-*bilincli, surdurulebilir ve muhendislik temelli oldugunu belgelemek amaciyla hazirlanmistir.*
-
----
-
-[⬆ Basa Don](#-masker---modular-application-system-for-knowledge-enterprise--resources)
+Son Güncelleme: 31 Ocak 2026
 
 </div>

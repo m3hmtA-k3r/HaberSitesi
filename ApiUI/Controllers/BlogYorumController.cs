@@ -34,15 +34,21 @@ namespace ApiUI.Controllers
 		[Route("GetOnayBekleyenYorumlar")]
 		public List<BlogYorumlarDto> GetOnayBekleyenYorumlar() => _blogYorumService.GetOnayBekleyenYorumlar();
 
-		[HttpGet]
-		[Route("DeleteYorum")]
-		public bool DeleteYorum(int yorumId) => _blogYorumService.DeleteYorum(yorumId);
+		[HttpDelete]
+		[Route("DeleteYorum/{yorumId}")]
+		public IActionResult DeleteYorum(int yorumId)
+		{
+			var result = _blogYorumService.DeleteYorum(yorumId);
+			if (!result)
+				return NotFound(new { message = "Yorum bulunamadi" });
+			return Ok(new { message = "Yorum silindi" });
+		}
 
 		[HttpPost]
 		[Route("InsertYorum")]
 		public BlogYorumlarDto InsertYorum(BlogYorumlarDto model) => _blogYorumService.InsertYorum(model);
 
-		[HttpPost]
+		[HttpPut]
 		[Route("UpdateYorum")]
 		public BlogYorumlarDto UpdateYorum(BlogYorumlarDto model) => _blogYorumService.UpdateYorum(model);
 

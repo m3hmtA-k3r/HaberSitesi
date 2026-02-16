@@ -22,6 +22,11 @@ namespace DataAccess.Base.Repository
 			return context.Set<TEntity>().ToList();
 		}
 
+		public IQueryable<TEntity> Query()
+		{
+			return context.Set<TEntity>().AsQueryable();
+		}
+
 		public TEntity GetById(int id)
 		{
 			var entity = context.Set<TEntity>().Find(id);

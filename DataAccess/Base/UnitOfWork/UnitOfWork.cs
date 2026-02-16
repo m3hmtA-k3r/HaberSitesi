@@ -28,6 +28,18 @@ namespace DataAccess.Base.UnitOfWork
 		private IRepository<BlogKategoriler> _blogKategorilerRepository;
 		private IRepository<BlogYorumlar> _blogYorumlarRepository;
 
+		// Iletisim repository
+		private IRepository<IletisimMesajlari> _iletisimMesajlariRepository;
+
+		// Sistem Log repository
+		private IRepository<SistemLog> _sistemLoglarRepository;
+
+		// Menu repositories
+		private IRepository<Menuler> _menulerRepository;
+		private IRepository<MenuOgeleri> _menuOgeleriRepository;
+		private IRepository<MenuRoller> _menuRollerRepository;
+		private IRepository<MenuOgeRoller> _menuOgeRollerRepository;
+
 		public UnitOfWork(HaberContext context)
 		{
 			_context = context;
@@ -118,6 +130,54 @@ namespace DataAccess.Base.UnitOfWork
 			get
 			{
 				return _blogYorumlarRepository ??= new Repository<BlogYorumlar>(_context);
+			}
+		}
+
+		public IRepository<IletisimMesajlari> IletisimMesajlariRepository
+		{
+			get
+			{
+				return _iletisimMesajlariRepository ??= new Repository<IletisimMesajlari>(_context);
+			}
+		}
+
+		public IRepository<SistemLog> SistemLoglarRepository
+		{
+			get
+			{
+				return _sistemLoglarRepository ??= new Repository<SistemLog>(_context);
+			}
+		}
+
+		public IRepository<Menuler> MenulerRepository
+		{
+			get
+			{
+				return _menulerRepository ??= new Repository<Menuler>(_context);
+			}
+		}
+
+		public IRepository<MenuOgeleri> MenuOgeleriRepository
+		{
+			get
+			{
+				return _menuOgeleriRepository ??= new Repository<MenuOgeleri>(_context);
+			}
+		}
+
+		public IRepository<MenuRoller> MenuRollerRepository
+		{
+			get
+			{
+				return _menuRollerRepository ??= new Repository<MenuRoller>(_context);
+			}
+		}
+
+		public IRepository<MenuOgeRoller> MenuOgeRollerRepository
+		{
+			get
+			{
+				return _menuOgeRollerRepository ??= new Repository<MenuOgeRoller>(_context);
 			}
 		}
 

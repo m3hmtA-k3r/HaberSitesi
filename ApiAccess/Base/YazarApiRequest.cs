@@ -17,7 +17,7 @@ namespace ApiAccess.Base
 		}
 		public bool DeleteYazar(int yazarId)
 		{
-			return _requestService.Get<bool>("Yazar/DeleteYazar?yazarId=" + yazarId);
+			return _requestService.Delete<bool>("Yazar/DeleteYazar/" + yazarId);
 		}
 
 		public List<YazarlarDto> GetAllYazar()
@@ -35,7 +35,7 @@ namespace ApiAccess.Base
 
 		public YazarlarDto UpdateYazar(YazarlarDto model)
 		{
-			return _requestService.Post<YazarlarDto>("Yazar/UpdateYazar", model);
+			return _requestService.Put<YazarlarDto>("Yazar/UpdateYazar", model);
 		}
 	}
 }

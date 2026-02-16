@@ -34,8 +34,26 @@ services:
     volumes:
       - masker_pgadmin:/var/lib/pgadmin
 
+  # Redis - Dagitik cache (Opsiyonel - yatay olcekleme icin)
+  masker-redis:
+    image: redis:7-alpine
+    container_name: masker_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - masker_redis:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   masker_pgdata:
     name: masker_postgres_data
   masker_pgadmin:
     name: masker_pgadmin_data
+  masker_redis:
+    name: masker_redis_data

@@ -10,13 +10,13 @@ namespace Shared.Entities
         [Column("ID")]
         public int Id { get; set; }
 		[Column("BASLIK")]
-		public string Baslik { get; set; }
+		public string Baslik { get; set; } = string.Empty;
 		[Column("ICERIK")]
-		public string Icerik { get; set; }
+		public string Icerik { get; set; } = string.Empty;
 		[Column("HABER_ID")]
 		public int HaberId { get; set; }
 		[Column("RESIM")]
-		public string Resim { get; set; }
+		public string Resim { get; set; } = string.Empty;
 		[Column("AKTIF_MI")]
 		public bool Aktifmi { get; set; }
 	}

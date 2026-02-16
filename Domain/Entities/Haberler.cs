@@ -14,7 +14,7 @@ namespace Domain.Entities
 		public int Id { get; set; }
 
 		[Column("BASLIK")]
-		public string Baslik { get; set; }
+		public string Baslik { get; set; } = string.Empty;
 
 		[Column("EKLEME_TARIHI", TypeName = "timestamp without time zone")]
 		public DateTime EklenmeTarihi { get; set; }
@@ -26,13 +26,13 @@ namespace Domain.Entities
 		public int KategoriId { get; set; }
 
 		[Column("ICERIK")]
-		public string Icerik { get; set; }
+		public string Icerik { get; set; } = string.Empty;
 
 		[Column("RESIM")]
-		public string Resim { get; set; }
+		public string Resim { get; set; } = string.Empty;
 
 		[Column("VIDEO")]
-		public string Video { get; set; }
+		public string Video { get; set; } = string.Empty;
 
 		[Column("GOSTERIM_SAYISI")]
 		public int GosterimSayisi { get; set; }

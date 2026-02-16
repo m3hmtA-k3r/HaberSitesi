@@ -34,15 +34,21 @@ namespace ApiUI.Controllers
 		[Route("GetBloglarByYazar")]
 		public List<BloglarDto> GetBloglarByYazar(int yazarId) => _blogService.GetBloglarByYazar(yazarId);
 
-		[HttpGet]
-		[Route("DeleteBlog")]
-		public bool DeleteBlog(int blogId) => _blogService.DeleteBlog(blogId);
+		[HttpDelete]
+		[Route("DeleteBlog/{blogId}")]
+		public IActionResult DeleteBlog(int blogId)
+		{
+			var result = _blogService.DeleteBlog(blogId);
+			if (!result)
+				return NotFound(new { message = "Blog bulunamadi" });
+			return Ok(new { message = "Blog silindi" });
+		}
 
 		[HttpPost]
 		[Route("InsertBlog")]
 		public BloglarDto InsertBlog(BloglarDto model) => _blogService.InsertBlog(model);
 
-		[HttpPost]
+		[HttpPut]
 		[Route("UpdateBlog")]
 		public BloglarDto UpdateBlog(BloglarDto model) => _blogService.UpdateBlog(model);
 

@@ -30,15 +30,21 @@ namespace ApiUI.Controllers
 		[Route("GetSlaytById")]
 		public SlaytlarDto GetSlaytById(int slaytId) => _slaytService.GetSlaytById(slaytId);
 
-		[HttpGet]
-		[Route("DeleteSlayt")]
-		public bool DeleteSlayt(int slaytId) => _slaytService.DeleteSlayt(slaytId);
+		[HttpDelete]
+		[Route("DeleteSlayt/{slaytId}")]
+		public IActionResult DeleteSlayt(int slaytId)
+		{
+			var result = _slaytService.DeleteSlayt(slaytId);
+			if (!result)
+				return NotFound(new { message = "Slayt bulunamadi" });
+			return Ok(new { message = "Slayt silindi" });
+		}
 
 		[HttpPost]
 		[Route("InsertSlayt")]
 		public SlaytlarDto InsertSlayt(SlaytlarDto model) => _slaytService.InsertSlayt(model);
 
-		[HttpPost]
+		[HttpPut]
 		[Route("UpdateSlayt")]
 		public SlaytlarDto UpdateSlayt(SlaytlarDto model) => _slaytService.UpdateSlayt(model);
 	}

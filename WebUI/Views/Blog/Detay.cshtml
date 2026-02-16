@@ -1,4 +1,5 @@
 @model WebUI.Models.BlogDetayViewModel
+@inject Ganss.Xss.HtmlSanitizer HtmlSanitizer
 
 @{
     ViewData["Title"] = Model.Blog.Baslik + " - MASKER Blog";
@@ -367,6 +368,24 @@
 <!-- Blog Content Section -->
 <div class="blog-content-section">
     <div class="container blog-content-wrapper">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+            <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList" style="background: #fff; border-radius: 10px; padding: 0.75rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 0; font-size: 0.9rem;">
+                <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/" itemprop="item" style="color: #667eea; text-decoration: none;"><i class="fas fa-home mr-1"></i><span itemprop="name">Anasayfa</span></a>
+                    <meta itemprop="position" content="1" />
+                </li>
+                <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="/Blog" itemprop="item" style="color: #667eea; text-decoration: none;"><span itemprop="name">Blog</span></a>
+                    <meta itemprop="position" content="2" />
+                </li>
+                <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
+                    <span itemprop="name" style="color: #764ba2; font-weight: 600;">@(Model.Blog.Baslik.Length > 50 ? Model.Blog.Baslik.Substring(0, 50) + "..." : Model.Blog.Baslik)</span>
+                    <meta itemprop="position" content="3" />
+                </li>
+            </ol>
+        </nav>
+
         <a href="/Blog" class="back-btn">
             <i class="fas fa-arrow-left"></i> Tum Bloglar
         </a>
@@ -379,7 +398,7 @@
         <!-- Blog Content -->
         <div class="blog-content-card">
             <div class="blog-content">
-                @Html.Raw(Model.Blog.Icerik)
+                @Html.Raw(HtmlSanitizer.Sanitize(Model.Blog.Icerik ?? ""))
             </div>
 
             @if (!string.IsNullOrEmpty(Model.Blog.Etiketler))
@@ -395,19 +414,22 @@
         </div>
 
         <!-- Share Section -->
+        @{
+            var shareUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+        }
         <div class="share-section">
             <span class="share-title"><i class="fas fa-share-alt mr-2"></i>Bu yaziyi paylas</span>
             <div class="share-buttons">
-                <a href="https://twitter.com/intent/tweet?url=@Context.Request.Path&text=@Model.Blog.Baslik" target="_blank" class="share-btn twitter" title="Twitter'da Paylas">
+                <a href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(shareUrl)&text=@Uri.EscapeDataString(Model.Blog.Baslik)" target="_blank" class="share-btn twitter" title="Twitter'da Paylas">
                     <i class="fab fa-twitter"></i>
                 </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=@Context.Request.Path" target="_blank" class="share-btn facebook" title="Facebook'ta Paylas">
+                <a href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(shareUrl)" target="_blank" class="share-btn facebook" title="Facebook'ta Paylas">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="https://www.linkedin.com/shareArticle?mini=true&url=@Context.Request.Path&title=@Model.Blog.Baslik" target="_blank" class="share-btn linkedin" title="LinkedIn'de Paylas">
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url=@Uri.EscapeDataString(shareUrl)&title=@Uri.EscapeDataString(Model.Blog.Baslik)" target="_blank" class="share-btn linkedin" title="LinkedIn'de Paylas">
                     <i class="fab fa-linkedin-in"></i>
                 </a>
-                <a href="https://wa.me/?text=@Model.Blog.Baslik%20@Context.Request.Path" target="_blank" class="share-btn whatsapp" title="WhatsApp'ta Paylas">
+                <a href="https://wa.me/?text=@Uri.EscapeDataString(Model.Blog.Baslik + " " + shareUrl)" target="_blank" class="share-btn whatsapp" title="WhatsApp'ta Paylas">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>

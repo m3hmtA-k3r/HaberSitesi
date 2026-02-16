@@ -26,15 +26,21 @@ namespace ApiUI.Controllers
 		[Route("GetYazarByEmailPassword")]
 		public YazarlarDto GetYazarByEmailPassword(string email, string password) => _yazarService.GetYazarByEmailPassword(email,password);
 
-		[HttpGet]
-		[Route("DeleteYazar")]
-		public bool DeleteYazar(int yazarId) => _yazarService.DeleteYazar(yazarId);
+		[HttpDelete]
+		[Route("DeleteYazar/{yazarId}")]
+		public IActionResult DeleteYazar(int yazarId)
+		{
+			var result = _yazarService.DeleteYazar(yazarId);
+			if (!result)
+				return NotFound(new { message = "Yazar bulunamadi" });
+			return Ok(new { message = "Yazar silindi" });
+		}
 
 		[HttpPost]
 		[Route("InsertYazar")]
 		public YazarlarDto InsertYazar(YazarlarDto model) => _yazarService.InsertYazar(model);
 
-		[HttpPost]
+		[HttpPut]
 		[Route("UpdateYazar")]
 		public YazarlarDto UpdateYazar(YazarlarDto model) => _yazarService.UpdateYazar(model);
 	}

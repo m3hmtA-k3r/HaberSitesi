@@ -29,12 +29,12 @@ namespace ApiAccess.Base
 
 		public BloglarDto UpdateBlog(BloglarDto model)
 		{
-			return _requestService.Post<BloglarDto>("/Blog/UpdateBlog", model);
+			return _requestService.Put<BloglarDto>("/Blog/UpdateBlog", model);
 		}
 
 		public bool DeleteBlog(int blogId)
 		{
-			return _requestService.Get<bool>("/Blog/DeleteBlog?blogId=" + blogId);
+			return _requestService.Delete<bool>("/Blog/DeleteBlog/" + blogId);
 		}
 	}
 }

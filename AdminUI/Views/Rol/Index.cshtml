@@ -1,0 +1,118 @@
+@using Shared.Dtos
+@model List<RolDto>
+
+@{
+    var aktifSayisi = Model.Count(x => x.AktifMi);
+    var pasifSayisi = Model.Count(x => !x.AktifMi);
+    var toplamSayisi = Model.Count;
+}
+
+<style>
+    .stats-card { border-radius: 12px; padding: 1.5rem; color: #fff; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .stats-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .stats-card .stats-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(255,255,255,0.2); }
+    .stats-card .stats-number { font-size: 2rem; font-weight: 700; }
+    .stats-card .stats-label { font-size: 0.85rem; opacity: 0.9; }
+    .stats-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stats-active { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .stats-passive { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+    .data-table th { background: #f8f9fa; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #495057; border-bottom: 2px solid #dee2e6; }
+    .data-table td { vertical-align: middle; font-size: 0.9rem; }
+    .badge-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 500; font-size: 0.75rem; }
+    .badge-active { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #fff; }
+    .badge-passive { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: #fff; }
+    .role-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #fff; }
+    .role-admin { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .role-editor { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .role-yazar { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .role-moderator { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .role-default { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+    .card-header-custom { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; }
+    .card-header-custom h5 { margin: 0; font-weight: 600; color: #2d3748; }
+    .role-name { font-weight: 600; color: #2d3748; }
+    .role-desc { color: #718096; font-size: 0.85rem; }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1"><i class="fas fa-user-shield me-2 text-primary"></i>Rol Yonetimi</h3>
+            <p class="text-muted mb-0">Sistem rollerini goruntuleyin</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6 col-lg-4 mb-3 mb-lg-0">
+            <div class="stats-card stats-total">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@toplamSayisi</div><div class="stats-label">Toplam Rol</div></div>
+                    <div class="stats-icon"><i class="fas fa-user-shield"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-4 mb-3 mb-lg-0">
+            <div class="stats-card stats-active">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@aktifSayisi</div><div class="stats-label">Aktif Rol</div></div>
+                    <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="stats-card stats-passive">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><div class="stats-number">@pasifSayisi</div><div class="stats-label">Pasif Rol</div></div>
+                    <div class="stats-icon"><i class="fas fa-pause-circle"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header-custom">
+            <h5><i class="fas fa-list me-2 text-primary"></i>Rol Listesi</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover data-table" id="dataTables-example" width="100%">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Ikon</th>
+                        <th>Rol Adi</th>
+                        <th>Aciklama</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var iconClass = item.RolAdi.ToLower() switch
+                        {
+                            "admin" => "role-admin",
+                            "editor" => "role-editor",
+                            "yazar" => "role-yazar",
+                            "moderator" => "role-moderator",
+                            _ => "role-default"
+                        };
+                        var iconName = item.RolAdi.ToLower() switch
+                        {
+                            "admin" => "fas fa-crown",
+                            "editor" => "fas fa-pen-fancy",
+                            "yazar" => "fas fa-feather-alt",
+                            "moderator" => "fas fa-gavel",
+                            _ => "fas fa-user-tag"
+                        };
+                        <tr>
+                            <td><div class="role-icon @iconClass"><i class="@iconName"></i></div></td>
+                            <td><div class="role-name">@item.RolAdi</div></td>
+                            <td><div class="role-desc">@(item.Aciklama ?? "-")</div></td>
+                            <td>
+                                @if (item.AktifMi) {<span class="badge-status badge-active">Aktif</span>}
+                                else {<span class="badge-status badge-passive">Pasif</span>}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
