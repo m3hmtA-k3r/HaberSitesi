@@ -34,5 +34,11 @@ namespace ApiAccess.Base
             var result = _requestService.Post<dynamic>("Auth/sifre-degistir", model);
             return result?.success ?? false;
         }
+
+        public LoginResponse Register(string ad, string soyad, string eposta, string sifre)
+        {
+            var request = new { Ad = ad, Soyad = soyad, Eposta = eposta, Sifre = sifre };
+            return _requestService.Post<LoginResponse>("Auth/register", request);
+        }
     }
 }

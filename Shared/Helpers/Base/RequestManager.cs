@@ -39,16 +39,36 @@ namespace Shared.Helpers.Base
             return JsonConvert.DeserializeObject<T>(response.Content) ?? default!;
         }
 
-        public T Post<T>(string url, object model)
+        public T Post<T>(string url, object? model)
         {
             var client = new RestClient(_baseApiAddress);
             var request = new RestRequest(url);
             AddAuthorizationHeader(request);
-            request.AddJsonBody(model);
+
+            // Only add body if model is not null
+            if (model != null)
+            {
+                request.AddJsonBody(model);
+            }
+
             var response = client.ExecutePost(request);
 
-            if (!response.IsSuccessful || string.IsNullOrEmpty(response.Content))
+            if (string.IsNullOrEmpty(response.Content))
                 return default!;
+
+            // Parse response content even on error status codes
+            // to capture error messages (e.g. LoginResponse with Success=false)
+            if (!response.IsSuccessful)
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<T>(response.Content) ?? default!;
+                }
+                catch
+                {
+                    return default!;
+                }
+            }
 
             return JsonConvert.DeserializeObject<T>(response.Content) ?? default!;
         }

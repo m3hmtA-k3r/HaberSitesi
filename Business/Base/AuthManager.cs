@@ -117,6 +117,57 @@ namespace Business.Base
             return true;
         }
 
+        public (KullaniciDto? Kullanici, string? Token, string? Hata) Register(string ad, string soyad, string eposta, string sifre)
+        {
+            // Check if email already exists
+            var mevcutKullanici = _unitOfWork.KullanicilarRepository.GetAll()
+                .FirstOrDefault(k => k.Eposta.ToLower() == eposta.ToLower());
+
+            if (mevcutKullanici != null)
+            {
+                return (null, null, "Bu e-posta adresi zaten kayitli");
+            }
+
+            // Create new user
+            var yeniKullanici = new Kullanicilar
+            {
+                Ad = ad,
+                Soyad = soyad,
+                Eposta = eposta,
+                SifreHash = _passwordHasher.HashPassword(sifre),
+                AktifMi = true,
+                OlusturmaTarihi = DateTime.UtcNow,
+                SonGirisTarihi = DateTime.UtcNow
+            };
+
+            _unitOfWork.KullanicilarRepository.Insert(yeniKullanici);
+            _unitOfWork.SaveChanges();
+
+            // Assign "Uye" role
+            var uyeRol = _unitOfWork.RollerRepository.GetAll()
+                .FirstOrDefault(r => r.RolAdi == "Uye");
+
+            if (uyeRol != null)
+            {
+                var kullaniciRol = new KullaniciRol
+                {
+                    KullaniciId = yeniKullanici.Id,
+                    RolId = uyeRol.Id,
+                    AtanmaTarihi = DateTime.UtcNow
+                };
+                _unitOfWork.KullaniciRollerRepository.Insert(kullaniciRol);
+                _unitOfWork.SaveChanges();
+            }
+
+            // Get roles and generate token
+            var roller = GetKullaniciRolleri(yeniKullanici.Id);
+            var fullName = $"{yeniKullanici.Ad} {yeniKullanici.Soyad}";
+            var token = _jwtTokenService.GenerateToken(yeniKullanici.Id, yeniKullanici.Eposta, fullName, roller);
+            var kullaniciDto = MapToDto(yeniKullanici, roller);
+
+            return (kullaniciDto, token, null);
+        }
+
         private List<string> GetKullaniciRolleri(int kullaniciId)
         {
             var kullaniciRoller = _unitOfWork.KullaniciRollerRepository.GetAll()

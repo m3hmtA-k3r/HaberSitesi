@@ -1,0 +1,56 @@
+@model WebUI.Models.KayitViewModel
+@{
+    ViewData["Title"] = "Kayit Ol";
+}
+
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7 col-sm-10">
+            <div class="bg-white p-5 shadow-sm" style="border-radius: 8px;">
+                <h3 class="text-center mb-4 text-uppercase font-weight-bold">Kayit Ol</h3>
+
+                <div asp-validation-summary="All" class="alert alert-danger" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+
+                <form asp-action="Kayit" method="post">
+                    <div class="form-group mb-3">
+                        <label asp-for="Ad" class="font-weight-bold small">Ad</label>
+                        <input asp-for="Ad" class="form-control" placeholder="Adiniz" />
+                        <span asp-validation-for="Ad" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Soyad" class="font-weight-bold small">Soyad</label>
+                        <input asp-for="Soyad" class="form-control" placeholder="Soyadiniz" />
+                        <span asp-validation-for="Soyad" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Eposta" class="font-weight-bold small">E-posta</label>
+                        <input asp-for="Eposta" class="form-control" placeholder="ornek@email.com" />
+                        <span asp-validation-for="Eposta" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Sifre" class="font-weight-bold small">Sifre</label>
+                        <input asp-for="Sifre" class="form-control" placeholder="En az 6 karakter" />
+                        <span asp-validation-for="Sifre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="SifreTekrar" class="font-weight-bold small">Sifre Tekrar</label>
+                        <input asp-for="SifreTekrar" class="form-control" placeholder="Sifrenizi tekrar giriniz" />
+                        <span asp-validation-for="SifreTekrar" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block font-weight-bold py-2">Kayit Ol</button>
+                </form>
+
+                <hr class="my-4" />
+                <p class="text-center mb-0">
+                    Zaten hesabiniz var mi?
+                    <a href="/Hesap/Giris" class="font-weight-bold text-primary">Giris Yap</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

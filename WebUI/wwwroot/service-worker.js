@@ -3,14 +3,11 @@
  * Offline support and caching for WebUI News Site
  */
 
-const CACHE_NAME = 'masker-news-v1';
+const CACHE_NAME = 'masker-news-v2';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache immediately
 const PRECACHE_URLS = [
-    '/',
-    '/Home',
-    '/Haberler',
     '/css/style.css',
     '/css/mobile.css',
     '/js/main.js',
@@ -66,38 +63,40 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // HTML pages (navigate requests): network-first to always show fresh auth state
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).then((response) => {
+                return response;
+            }).catch(() => {
+                return caches.match(OFFLINE_URL);
+            })
+        );
+        return;
+    }
+
+    // Static assets: cache-first
     event.respondWith(
         caches.match(event.request).then((response) => {
             if (response) {
-                console.log('[ServiceWorker] Serving from cache:', event.request.url);
                 return response;
             }
 
             return fetch(event.request).then((response) => {
-                // Don't cache invalid responses
                 if (!response || response.status !== 200 || response.type !== 'basic') {
                     return response;
                 }
 
-                // Clone the response
                 const responseToCache = response.clone();
 
                 caches.open(CACHE_NAME).then((cache) => {
-                    // Cache API responses and images
-                    if (event.request.url.includes('/api/') ||
-                        event.request.url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) {
+                    if (event.request.url.match(/\.(css|js|jpg|jpeg|png|gif|webp|svg|woff2?)$/)) {
                         cache.put(event.request, responseToCache);
                     }
                 });
 
                 return response;
             }).catch(() => {
-                // Offline fallback
-                if (event.request.mode === 'navigate') {
-                    return caches.match(OFFLINE_URL);
-                }
-
-                // Fallback for images
                 if (event.request.destination === 'image') {
                     return new Response(
                         '<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#ddd"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#999">Offline</text></svg>',

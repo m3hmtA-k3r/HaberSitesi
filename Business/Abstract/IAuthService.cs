@@ -8,5 +8,6 @@ namespace Business.Abstract
         ProfilDto? GetProfil(int kullaniciId);
         ProfilDto? UpdateProfil(int kullaniciId, ProfilGuncelleDto model);
         bool SifreDegistir(int kullaniciId, SifreDegistirDto model);
+        (KullaniciDto? Kullanici, string? Token, string? Hata) Register(string ad, string soyad, string eposta, string sifre);
     }
 }

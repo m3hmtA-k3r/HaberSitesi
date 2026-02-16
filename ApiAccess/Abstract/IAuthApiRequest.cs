@@ -8,5 +8,6 @@ namespace ApiAccess.Abstract
         ProfilDto? GetProfil();
         ProfilDto? UpdateProfil(ProfilGuncelleDto model);
         bool SifreDegistir(SifreDegistirDto model);
+        LoginResponse Register(string ad, string soyad, string eposta, string sifre);
     }
 }

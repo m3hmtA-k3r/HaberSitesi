@@ -37,6 +37,26 @@ namespace ApiUI.Controllers
             });
         }
 
+        [HttpPost]
+        [Route("register")]
+        public IActionResult Register([FromBody] RegisterRequest request)
+        {
+            var (kullanici, token, hata) = _authService.Register(request.Ad, request.Soyad, request.Eposta, request.Sifre);
+
+            if (kullanici == null)
+            {
+                return BadRequest(new { success = false, message = hata });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                token = token,
+                kullanici = kullanici,
+                roller = kullanici.Roller
+            });
+        }
+
         [HttpGet]
         [Route("profil")]
         [Authorize]
@@ -105,6 +125,14 @@ namespace ApiUI.Controllers
 
     public class LoginRequest
     {
+        public string Eposta { get; set; } = string.Empty;
+        public string Sifre { get; set; } = string.Empty;
+    }
+
+    public class RegisterRequest
+    {
+        public string Ad { get; set; } = string.Empty;
+        public string Soyad { get; set; } = string.Empty;
         public string Eposta { get; set; } = string.Empty;
         public string Sifre { get; set; } = string.Empty;
     }
